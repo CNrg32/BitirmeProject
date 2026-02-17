@@ -1,0 +1,714 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:record/record.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../models/chat_message.dart';
+import '../services/api_service.dart';
+import '../widgets/chat_bubble.dart';
+import '../widgets/triage_card.dart';
+import '../widgets/image_analysis_card.dart';
+import '../widgets/report_sheet.dart';
+
+class ChatScreen extends StatefulWidget {
+  final String sessionId;
+  final String greeting;
+  final String? greetingAudioB64;
+  final String language;
+  final bool testMode;
+
+  const ChatScreen({
+    super.key,
+    required this.sessionId,
+    required this.greeting,
+    this.greetingAudioB64,
+    required this.language,
+    this.testMode = false,
+  });
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final _textController = TextEditingController();
+  final _scrollController = ScrollController();
+  final _audioPlayer = AudioPlayer();
+  final _recorder = AudioRecorder();
+  final _imagePicker = ImagePicker();
+
+  final List<ChatMessage> _messages = [];
+  bool _isRecording = false;
+  bool _isSending = false;
+  Map<String, dynamic>? _triageResult;
+  Map<String, dynamic>? _imageAnalysis;
+  String? _report;
+  bool _isComplete = false;
+  int _recordingSeconds = 0;
+  Timer? _recordingTimer;
+  String? _lastRecordingPath;
+  final AudioPlayer _replayPlayer = AudioPlayer();
+
+  File? _pendingImage;
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _messages.add(ChatMessage(text: widget.greeting, isUser: false));
+    if (widget.greetingAudioB64 != null &&
+        widget.greetingAudioB64!.isNotEmpty) {
+      _playAudioBase64(widget.greetingAudioB64!);
+    }
+    _captureLocation();
+  }
+
+  @override
+  void dispose() {
+    _recordingTimer?.cancel();
+    _textController.dispose();
+    _scrollController.dispose();
+    _audioPlayer.dispose();
+    _replayPlayer.dispose();
+    _recorder.dispose();
+    super.dispose();
+  }
+
+  Future<void> _captureLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.deniedForever ||
+          permission == LocationPermission.denied) {
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      if (mounted) {
+        setState(() => _currentPosition = position);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _sendText() async {
+    final text = _textController.text.trim();
+    if (text.isEmpty || _isSending) return;
+
+    _textController.clear();
+
+    String? imageB64;
+    final imgBytes = await _readAndClearPendingImage();
+    if (imgBytes != null) {
+      imageB64 = base64Encode(imgBytes);
+    }
+
+    setState(() {
+      _messages.add(
+        ChatMessage(text: text, isUser: true, imageBytes: imgBytes),
+      );
+      _isSending = true;
+    });
+    _scrollToBottom();
+
+    try {
+      final api = context.read<ApiService>();
+      final resp = await api.sendMessage(
+        sessionId: widget.sessionId,
+        text: text,
+        imageBase64: imageB64,
+      );
+      _handleResponse(resp);
+    } catch (e) {
+      _addAssistant('Error: $e');
+    } finally {
+      setState(() => _isSending = false);
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picked = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      setState(() => _pendingImage = File(picked.path));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: $e')),
+        );
+      }
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sendImageOnly() async {
+    if (_pendingImage == null || _isSending) return;
+
+    final imgBytes = await _pendingImage!.readAsBytes();
+    final imageB64 = base64Encode(imgBytes);
+
+    setState(() {
+      _messages.add(
+        ChatMessage(
+            text: '[Photo sent]', isUser: true, imageBytes: imgBytes),
+      );
+      _pendingImage = null;
+      _isSending = true;
+    });
+    _scrollToBottom();
+
+    try {
+      final api = context.read<ApiService>();
+      final resp = await api.sendMessage(
+        sessionId: widget.sessionId,
+        imageBase64: imageB64,
+      );
+      _handleResponse(resp);
+    } catch (e) {
+      _addAssistant('Error processing image: $e');
+    } finally {
+      setState(() => _isSending = false);
+    }
+  }
+
+  Future<List<int>?> _readAndClearPendingImage() async {
+    if (_pendingImage == null) return null;
+    final bytes = await _pendingImage!.readAsBytes();
+    setState(() => _pendingImage = null);
+    return bytes;
+  }
+
+  Future<void> _toggleRecording() async {
+    if (_isRecording) {
+      await _stopAndSend();
+    } else {
+      await _startRecording();
+    }
+  }
+
+  Future<void> _startRecording() async {
+    if (!await _recorder.hasPermission()) return;
+
+    final dir = await getTemporaryDirectory();
+    final path =
+        '${dir.path}/emergency_recording_${DateTime.now().millisecondsSinceEpoch}.wav';
+
+    await _recorder.start(
+      const RecordConfig(encoder: AudioEncoder.wav),
+      path: path,
+    );
+    setState(() {
+      _isRecording = true;
+      _recordingSeconds = 0;
+    });
+    _recordingTimer?.cancel();
+    _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _recordingSeconds++);
+    });
+  }
+
+  Future<void> _stopAndSend() async {
+    _recordingTimer?.cancel();
+    final path = await _recorder.stop();
+    setState(() {
+      _isRecording = false;
+      _isSending = true;
+      _messages.add(ChatMessage(text: '[Voice message]', isUser: true));
+      if (widget.testMode && path != null) _lastRecordingPath = path;
+    });
+    _scrollToBottom();
+
+    if (path == null) {
+      setState(() => _isSending = false);
+      return;
+    }
+
+    try {
+      final bytes = await File(path).readAsBytes();
+      final b64 = base64Encode(bytes);
+
+      String? imageB64;
+      if (_pendingImage != null) {
+        final imgBytes = await _pendingImage!.readAsBytes();
+        imageB64 = base64Encode(imgBytes);
+        setState(() => _pendingImage = null);
+      }
+
+      final api = context.read<ApiService>();
+      final resp = await api.sendMessage(
+        sessionId: widget.sessionId,
+        audioBase64: b64,
+        imageBase64: imageB64,
+      );
+      _handleResponse(resp);
+    } catch (e) {
+      _addAssistant('Error processing audio: $e');
+    } finally {
+      setState(() => _isSending = false);
+    }
+  }
+
+  void _handleResponse(Map<String, dynamic> resp) {
+    final text = resp['assistant_text'] as String? ?? '';
+    _addAssistant(text);
+
+    if (resp['triage_result'] != null) {
+      setState(() {
+        _triageResult = resp['triage_result'] as Map<String, dynamic>;
+      });
+    }
+    if (resp['image_analysis'] != null) {
+      setState(() {
+        _imageAnalysis = resp['image_analysis'] as Map<String, dynamic>;
+      });
+    }
+    if (resp['report'] != null) {
+      setState(() => _report = resp['report'] as String);
+    }
+    if (resp['is_complete'] == true) {
+      setState(() => _isComplete = true);
+    }
+
+    final audioB64 = resp['assistant_audio_b64'] as String?;
+    if (audioB64 != null && audioB64.isNotEmpty) {
+      _playAudioBase64(audioB64);
+    }
+  }
+
+  void _addAssistant(String text) {
+    setState(() {
+      _messages.add(ChatMessage(text: text, isUser: false));
+    });
+    _scrollToBottom();
+  }
+
+  Future<void> _playAudioBase64(String b64) async {
+    try {
+      final bytes = base64Decode(b64);
+      final dir = await getTemporaryDirectory();
+      final file = File(
+          '${dir.path}/tts_response_${DateTime.now().millisecondsSinceEpoch}.mp3');
+      await file.writeAsBytes(bytes);
+      await _audioPlayer.play(DeviceFileSource(file.path));
+    } catch (_) {}
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  Future<void> _callEmergency() async {
+    final uri = Uri(scheme: 'tel', path: '112');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  void _showReport() {
+    if (_report == null) return;
+    String? locText;
+    if (_currentPosition != null) {
+      locText =
+          '${_currentPosition!.latitude.toStringAsFixed(5)}, ${_currentPosition!.longitude.toStringAsFixed(5)}';
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ReportSheet(
+        report: _report!,
+        triageResult: _triageResult,
+        imageAnalysis: _imageAnalysis,
+        locationText: locText,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isCritical = _triageResult?['triage_level'] == 'CRITICAL';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Emergency Session'),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
+        actions: [
+          if (_currentPosition != null)
+            Tooltip(
+              message:
+                  'GPS: ${_currentPosition!.latitude.toStringAsFixed(4)}, '
+                  '${_currentPosition!.longitude.toStringAsFixed(4)}',
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(Icons.location_on, size: 20),
+              ),
+            ),
+          if (widget.testMode)
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(right: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child:
+                    const Text('Test', style: TextStyle(fontSize: 12)),
+              ),
+            ),
+          if (_report != null)
+            IconButton(
+              icon: const Icon(Icons.assignment),
+              tooltip: 'View Report',
+              onPressed: _showReport,
+            ),
+          if (_isComplete)
+            IconButton(
+              icon: const Icon(Icons.check_circle),
+              tooltip: 'Session complete',
+              onPressed: () {},
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          if (_triageResult != null)
+            TriageCard(
+              result: _triageResult!,
+              onCallEmergency: isCritical ? _callEmergency : null,
+            ),
+          if (_imageAnalysis != null)
+            ImageAnalysisCard(analysis: _imageAnalysis!),
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (_, i) =>
+                  ChatBubble(message: _messages[i]),
+            ),
+            ),
+          if (widget.testMode && _isRecording)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              color: Colors.red.withOpacity(0.15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.mic, color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Recording: $_recordingSeconds s',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (_pendingImage != null) _buildImagePreview(theme),
+          if (_isComplete) _buildCompletedBar(theme),
+          if (!_isComplete) _buildInputBar(theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagePreview(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(
+              _pendingImage!,
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text('Image attached',
+                style: theme.textTheme.bodyMedium),
+          ),
+          IconButton(
+            icon: const Icon(Icons.send),
+            tooltip: 'Send image only',
+            onPressed: _isSending ? null : _sendImageOnly,
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Remove image',
+            onPressed: () => setState(() => _pendingImage = null),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompletedBar(ThemeData theme) {
+    final isCritical = _triageResult?['triage_level'] == 'CRITICAL';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Session completed',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (_report != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _showReport,
+                      icon: const Icon(Icons.assignment),
+                      label: const Text('View Report'),
+                    ),
+                  ),
+                if (_report != null && isCritical)
+                  const SizedBox(width: 12),
+                if (isCritical)
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _callEmergency,
+                      icon: const Icon(Icons.phone),
+                      label: const Text('Call 112'),
+                      style: FilledButton.styleFrom(
+                          backgroundColor: Colors.red),
+                    ),
+                  ),
+              ],
+            ),
+            if (_currentPosition != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on,
+                        size: 16, color: theme.colorScheme.outline),
+                    const SizedBox(width: 4),
+                    Text(
+                      'GPS: ${_currentPosition!.latitude.toStringAsFixed(4)}, '
+                      '${_currentPosition!.longitude.toStringAsFixed(4)}',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: theme.colorScheme.outline),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _replayLastRecording() async {
+    if (_lastRecordingPath == null) return;
+    final file = File(_lastRecordingPath!);
+    if (!await file.exists()) return;
+    try {
+      await _replayPlayer.play(DeviceFileSource(_lastRecordingPath!));
+    } catch (_) {}
+  }
+
+  Widget _buildInputBar(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.testMode && _lastRecordingPath != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Text('Last recording: ',
+                        style: theme.textTheme.bodySmall),
+                    TextButton.icon(
+                      onPressed: _replayLastRecording,
+                      icon: const Icon(Icons.play_circle_outline,
+                          size: 20),
+                      label: const Text('Play'),
+                    ),
+                  ],
+                ),
+              ),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: _isSending ? null : _toggleRecording,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: _isRecording
+                          ? Colors.red
+                          : theme.colorScheme.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (_isRecording
+                                  ? Colors.red
+                                  : theme.colorScheme.primary)
+                              .withOpacity(0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      _isRecording ? Icons.stop : Icons.mic,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _isSending || _isRecording
+                      ? null
+                      : _showImageSourceDialog,
+                  icon: Icon(
+                    Icons.camera_alt,
+                    color: _pendingImage != null
+                        ? theme.colorScheme.primary
+                        : null,
+                  ),
+                  tooltip: 'Attach photo',
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    enabled: !_isSending && !_isRecording,
+                    decoration: InputDecoration(
+                      hintText: 'Or type here…',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor:
+                          theme.colorScheme.surfaceContainerHighest,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _sendText(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filled(
+                  onPressed: _isSending ? null : _sendText,
+                  icon: _isSending
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

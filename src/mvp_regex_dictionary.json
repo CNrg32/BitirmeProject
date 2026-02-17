@@ -1,0 +1,186 @@
+{
+  "version": "mvp_rules_v1",
+  "categories": {
+    "fire": {
+      "keywords": [
+        "fire",
+        "smoke",
+        "burning",
+        "explosion",
+        "bomb",
+        "gas leak",
+        "house fire",
+        "building fire",
+        "wildfire",
+        "flames"
+      ],
+      "priority": 1
+    },
+    "crime": {
+      "keywords": [
+        "robbery",
+        "burglary",
+        "theft",
+        "gun",
+        "gunshot",
+        "shooting",
+        "shot",
+        "stab",
+        "stabbing",
+        "knife",
+        "hostage",
+        "assault",
+        "fight",
+        "domestic",
+        "rape",
+        "murder",
+        "homicide",
+        "suspect",
+        "kidnap",
+        "carjacking"
+      ],
+      "priority": 2
+    },
+    "medical": {
+      "keywords": [
+        "unconscious",
+        "not breathing",
+        "can't breathe",
+        "cant breathe",
+        "difficulty breathing",
+        "shortness of breath",
+        "chest pain",
+        "heart attack",
+        "cardiac",
+        "stroke",
+        "seizure",
+        "overdose",
+        "poison",
+        "allergic",
+        "anaphylaxis",
+        "bleeding",
+        "hemorrhage",
+        "pregnant",
+        "labor",
+        "choking",
+        "fainted",
+        "collapse",
+        "fever",
+        "diabetic",
+        "asthma"
+      ],
+      "priority": 3
+    }
+  },
+  "triage": {
+    "critical": {
+      "meta_triggers": {
+        "deaths_gt": 0,
+        "potential_death_eq": 1
+      },
+      "keywords": [
+        "not breathing",
+        "unconscious",
+        "cardiac arrest",
+        "heart attack",
+        "stroke",
+        "severe bleeding",
+        "anaphylaxis",
+        "choking",
+        "gunshot",
+        "shooting",
+        "stabbing",
+        "house fire",
+        "explosion",
+        "passed out",
+        "stopped breathing",
+        "not responsive",
+        "blue lips",
+        "chest tightness",
+        "severe pain",
+        "couldn't wake",
+        "won't wake",
+        "not waking",
+        "unresponsive",
+        "not moving",
+        "no pulse",
+        "bleeding out",
+        "major bleeding",
+        "critical condition",
+        "life threatening"
+      ]
+    },
+    "urgent": {
+      "keywords": [
+        "chest pain",
+        "difficulty breathing",
+        "shortness of breath",
+        "seizure",
+        "overdose",
+        "car accident",
+        "crash",
+        "broken",
+        "fracture",
+        "bleeding",
+        "pregnant",
+        "labor",
+        "asthma"
+      ]
+    },
+    "non_urgent": {
+      "meta_triggers": {
+        "false_alarm_eq": 1
+      },
+      "keywords": [
+        "minor",
+        "small cut",
+        "non emergency",
+        "noise complaint",
+        "false alarm"
+      ]
+    },
+    "default": "URGENT"
+  },
+  "slot_extraction_regex": {
+    "age": [
+      "\\b(\\d{1,3})\\s*(?:yo|y/o|years?\\s*old)\\b",
+      "\\baged?\\s*(\\d{1,3})\\b"
+    ],
+    "sex": [
+      "\\b(male|female|man|woman|boy|girl)\\b"
+    ],
+    "duration_minutes": [
+      "\\bfor\\s*(\\d{1,3})\\s*(minutes?|mins?)\\b",
+      "\\b(\\d{1,3})\\s*(minutes?|mins?)\\s*ago\\b",
+      "\\bfor\\s*(\\d{1,2})\\s*(hours?|hrs?)\\b"
+    ],
+    "severity_1_10": [
+      "\\b(\\d{1,2})\\s*/\\s*10\\b",
+      "\\bpain\\s*(?:is|at)\\s*(\\d{1,2})\\b"
+    ],
+    "location_hint": [
+      "\\b(at|in)\\s+(home|an apartment|a store|the street|a parking lot|a restaurant)\\b"
+    ],
+    "red_flags": [
+      "\\bnot breathing\\b",
+      "\\bunconscious\\b",
+      "\\bcardiac arrest\\b",
+      "\\bstroke\\b",
+      "\\banaphylaxis\\b",
+      "\\bsevere bleeding\\b",
+      "\\bpassed out\\b",
+      "\\bstopped breathing\\b",
+      "\\bnot responsive\\b",
+      "\\bblue lips?\\b",
+      "\\bchest tightness\\b",
+      "\\bsevere pain\\b",
+      "\\bcouldn't wake\\b",
+      "\\bwon't wake\\b",
+      "\\bunresponsive\\b",
+      "\\bno pulse\\b",
+      "\\bbleeding out\\b",
+      "\\bmajor bleeding\\b",
+      "\\blife threatening\\b"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual Environment ──────────────────────────────
+.venv/
+venv/
+env/
+
+# ── IDE / Editor ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── ML Models (large binary files) ──────────────────
+out_models/
+*.safetensors
+*.joblib
+*.pth
+*.bin
+*.pkl
+*.pt
+*.onnx
+
+# ── Output datasets (generated, reproducible) ───────
+output/out_dataset/*.parquet
+
+# ── Logs ─────────────────────────────────────────────
+*.log
+
+# ── Jupyter Notebook checkpoints ─────────────────────
+.ipynb_checkpoints/
