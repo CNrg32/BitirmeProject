@@ -94,6 +94,17 @@ class SessionStartResponse(BaseModel):
     greeting_audio_b64: Optional[str] = Field(None, description="Greeting TTS audio as base64 for inline playback")
 
 
+class SessionTranscribeRequest(BaseModel):
+    session_id: str
+    audio_base64: str = Field(..., description="Base64-encoded audio to transcribe")
+
+
+class SessionTranscribeResponse(BaseModel):
+    session_id: str
+    transcript: str = Field("", description="Transcribed text from audio")
+    detected_language: Optional[str] = Field(None, description="Auto-detected language code")
+
+
 class SessionMessageRequest(BaseModel):
     session_id: str
     text: Optional[str] = None
@@ -106,6 +117,7 @@ class SessionMessageResponse(BaseModel):
     assistant_text: str
     assistant_audio_url: Optional[str] = None
     assistant_audio_b64: Optional[str] = Field(None, description="TTS audio as base64 for playback")
+    user_transcript: Optional[str] = Field(None, description="ASR transcript of user voice input")
     triage_result: Optional[PredictResponse] = None
     image_analysis: Optional[ImageAnalysisResult] = None
     report: Optional[str] = None

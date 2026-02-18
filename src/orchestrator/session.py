@@ -22,6 +22,7 @@ class Session:
         "deaths": 0, "potential_death": 0, "false_alarm": 0
     })
     image_analysis: Optional[Dict[str, Any]] = None
+    language_locked: bool = False
     image_bytes: Optional[bytes] = field(default=None, repr=False)
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)

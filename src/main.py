@@ -23,6 +23,8 @@ from api.schemas import (
     SessionMessageResponse,
     SessionStartRequest,
     SessionStartResponse,
+    SessionTranscribeRequest,
+    SessionTranscribeResponse,
 )
 from api.model_loader import apply_redflag_override, get_model_service
 
@@ -65,6 +67,16 @@ async def lifespan(app: FastAPI):
             logger.warning("Sentiment model NOT loaded – voice sentiment analysis disabled.")
     except Exception as exc:
         logger.warning("Sentiment model setup skipped: %s", exc)
+
+    try:
+        from services.asr_service import preload_model as preload_asr
+
+        if preload_asr():
+            logger.info("ASR (Whisper) model pre-loaded successfully.")
+        else:
+            logger.warning("ASR model NOT pre-loaded – will load on first request.")
+    except Exception as exc:
+        logger.warning("ASR model preload skipped: %s", exc)
 
     yield
     logger.info("Shutting down.")
@@ -179,6 +191,42 @@ def session_start(req: SessionStartRequest):
     )
 
 
+@app.post("/session/transcribe", response_model=SessionTranscribeResponse)
+def session_transcribe(req: SessionTranscribeRequest):
+    from orchestrator.session import get_session_store
+
+    store = get_session_store()
+    session = store.get(req.session_id)
+    if session is None:
+        raise HTTPException(404, "Session not found or expired.")
+
+    try:
+        audio_bytes = base64.b64decode(req.audio_base64)
+    except Exception:
+        raise HTTPException(400, "Invalid base64 audio data.")
+
+    try:
+        from services.asr_service import transcribe_audio
+
+        lang_hint = session.language if session.language_locked else None
+        transcript, detected_lang, _conf = transcribe_audio(
+            audio_bytes=audio_bytes, language=lang_hint,
+        )
+
+        if detected_lang and not session.language_locked:
+            session.language = detected_lang
+            session.language_locked = True
+
+        return SessionTranscribeResponse(
+            session_id=req.session_id,
+            transcript=transcript,
+            detected_language=detected_lang,
+        )
+    except Exception as exc:
+        logger.error("Transcribe failed: %s", exc)
+        raise HTTPException(500, f"Transcription failed: {exc}")
+
+
 @app.post("/session/message", response_model=SessionMessageResponse)
 def session_message(req: SessionMessageRequest):
     from orchestrator.orchestrator import handle_message
@@ -220,6 +268,7 @@ def session_message(req: SessionMessageRequest):
         assistant_text=out["assistant_text"],
         assistant_audio_url=None,
         assistant_audio_b64=out.get("assistant_audio_b64"),
+        user_transcript=out.get("user_transcript"),
         triage_result=triage,
         image_analysis=image_analysis,
         report=out.get("report"),

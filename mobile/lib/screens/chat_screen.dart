@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' if (dart.library.html) 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http_client;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -60,15 +64,27 @@ class _ChatScreenState extends State<ChatScreen> {
   File? _pendingImage;
   Position? _currentPosition;
 
+  int? _playingMessageIndex;
+
   @override
   void initState() {
     super.initState();
-    _messages.add(ChatMessage(text: widget.greeting, isUser: false));
+    _messages.add(ChatMessage(
+      text: widget.greeting,
+      isUser: false,
+    ));
     if (widget.greetingAudioB64 != null &&
         widget.greetingAudioB64!.isNotEmpty) {
+      _playingMessageIndex = 0;
       _playAudioBase64(widget.greetingAudioB64!);
     }
     _captureLocation();
+
+    _audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() => _playingMessageIndex = null);
+      }
+    });
   }
 
   @override
@@ -214,11 +230,11 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<List<int>?> _readAndClearPendingImage() async {
+  Future<Uint8List?> _readAndClearPendingImage() async {
     if (_pendingImage == null) return null;
     final bytes = await _pendingImage!.readAsBytes();
     setState(() => _pendingImage = null);
-    return bytes;
+    return Uint8List.fromList(bytes);
   }
 
   Future<void> _toggleRecording() async {
@@ -230,24 +246,104 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _startRecording() async {
-    if (!await _recorder.hasPermission()) return;
+    if (!mounted) return;
 
-    final dir = await getTemporaryDirectory();
-    final path =
-        '${dir.path}/emergency_recording_${DateTime.now().millisecondsSinceEpoch}.wav';
+    if (kIsWeb) {
+      if (!await _recorder.hasPermission()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Microphone permission is required. '
+                'Please allow it in the browser popup.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+    } else {
+      PermissionStatus status = await Permission.microphone.status;
+      if (!status.isGranted) {
+        status = await Permission.microphone.request();
+      }
+      if (!status.isGranted) {
+        if (mounted) {
+          final openSettings = status.isPermanentlyDenied;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                openSettings
+                    ? 'Microphone access was denied. Please enable it in Settings.'
+                    : 'Microphone access is required to record voice.',
+              ),
+              action: openSettings
+                  ? SnackBarAction(
+                      label: 'Settings',
+                      onPressed: () => openAppSettings(),
+                    )
+                  : null,
+            ),
+          );
+        }
+        return;
+      }
+      if (!await _recorder.hasPermission()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Microphone permission was not granted.')),
+          );
+        }
+        return;
+      }
+    }
 
-    await _recorder.start(
-      const RecordConfig(encoder: AudioEncoder.wav),
-      path: path,
-    );
-    setState(() {
-      _isRecording = true;
-      _recordingSeconds = 0;
-    });
-    _recordingTimer?.cancel();
-    _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _recordingSeconds++);
-    });
+    late final RecordConfig config;
+    late final String recordPath;
+
+    if (kIsWeb) {
+      config = const RecordConfig(encoder: AudioEncoder.opus);
+      recordPath = '';
+    } else {
+      config = const RecordConfig(encoder: AudioEncoder.wav);
+      final dir = await getTemporaryDirectory();
+      recordPath =
+          '${dir.path}/emergency_recording_${DateTime.now().millisecondsSinceEpoch}.wav';
+    }
+
+    try {
+      await _recorder.start(config, path: recordPath);
+      if (mounted) {
+        setState(() {
+          _isRecording = true;
+          _recordingSeconds = 0;
+        });
+        _recordingTimer?.cancel();
+        _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+          if (mounted) setState(() => _recordingSeconds++);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.mic, color: Colors.white, size: 20),
+                SizedBox(width: 8),
+                Text('Recording… Tap the red button to stop and send.'),
+              ],
+            ),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not start recording: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _stopAndSend() async {
@@ -256,7 +352,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _isRecording = false;
       _isSending = true;
-      _messages.add(ChatMessage(text: '[Voice message]', isUser: true));
+      _messages.add(ChatMessage(text: '...', isUser: true));
       if (widget.testMode && path != null) _lastRecordingPath = path;
     });
     _scrollToBottom();
@@ -267,22 +363,65 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      final bytes = await File(path).readAsBytes();
+      Uint8List bytes;
+      if (kIsWeb) {
+        final response = await http_client.get(Uri.parse(path));
+        bytes = response.bodyBytes;
+      } else {
+        bytes = await File(path).readAsBytes();
+      }
       final b64 = base64Encode(bytes);
+      final api = context.read<ApiService>();
+
+      String transcriptText = '';
+      try {
+        final transcribeResp = await api.transcribeAudio(
+          sessionId: widget.sessionId,
+          audioBase64: b64,
+        );
+        transcriptText =
+            (transcribeResp['transcript'] as String?)?.trim() ?? '';
+      } catch (_) {}
+
+      if (mounted) {
+        final idx = _messages.lastIndexWhere(
+          (m) => m.isUser && m.text == '...',
+        );
+        if (idx != -1) {
+          setState(() {
+            _messages[idx] = ChatMessage(
+              text: transcriptText.isNotEmpty
+                  ? transcriptText
+                  : '[Voice message]',
+              isUser: true,
+              imageBytes: _messages[idx].imageBytes,
+            );
+          });
+          _scrollToBottom();
+        }
+      }
 
       String? imageB64;
-      if (_pendingImage != null) {
+      if (!kIsWeb && _pendingImage != null) {
         final imgBytes = await _pendingImage!.readAsBytes();
         imageB64 = base64Encode(imgBytes);
         setState(() => _pendingImage = null);
       }
 
-      final api = context.read<ApiService>();
-      final resp = await api.sendMessage(
-        sessionId: widget.sessionId,
-        audioBase64: b64,
-        imageBase64: imageB64,
-      );
+      final Map<String, dynamic> resp;
+      if (transcriptText.isNotEmpty) {
+        resp = await api.sendMessage(
+          sessionId: widget.sessionId,
+          text: transcriptText,
+          imageBase64: imageB64,
+        );
+      } else {
+        resp = await api.sendMessage(
+          sessionId: widget.sessionId,
+          audioBase64: b64,
+          imageBase64: imageB64,
+        );
+      }
       _handleResponse(resp);
     } catch (e) {
       _addAssistant('Error processing audio: $e');
@@ -293,7 +432,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleResponse(Map<String, dynamic> resp) {
     final text = resp['assistant_text'] as String? ?? '';
-    _addAssistant(text);
+    final audioB64 = resp['assistant_audio_b64'] as String?;
+
+    _addAssistant(text, audioBase64: audioB64);
 
     if (resp['triage_result'] != null) {
       setState(() {
@@ -312,15 +453,19 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() => _isComplete = true);
     }
 
-    final audioB64 = resp['assistant_audio_b64'] as String?;
     if (audioB64 != null && audioB64.isNotEmpty) {
+      setState(() => _playingMessageIndex = _messages.length - 1);
       _playAudioBase64(audioB64);
     }
   }
 
-  void _addAssistant(String text) {
+  void _addAssistant(String text, {String? audioBase64}) {
     setState(() {
-      _messages.add(ChatMessage(text: text, isUser: false));
+      _messages.add(ChatMessage(
+        text: text,
+        isUser: false,
+        audioBase64: audioBase64,
+      ));
     });
     _scrollToBottom();
   }
@@ -328,12 +473,21 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _playAudioBase64(String b64) async {
     try {
       final bytes = base64Decode(b64);
-      final dir = await getTemporaryDirectory();
-      final file = File(
-          '${dir.path}/tts_response_${DateTime.now().millisecondsSinceEpoch}.mp3');
-      await file.writeAsBytes(bytes);
-      await _audioPlayer.play(DeviceFileSource(file.path));
-    } catch (_) {}
+      if (kIsWeb) {
+        await _audioPlayer
+            .play(BytesSource(Uint8List.fromList(bytes)));
+      } else {
+        final dir = await getTemporaryDirectory();
+        final file = File(
+            '${dir.path}/tts_response_${DateTime.now().millisecondsSinceEpoch}.mp3');
+        await file.writeAsBytes(bytes);
+        await _audioPlayer.play(DeviceFileSource(file.path));
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _playingMessageIndex = null);
+      }
+    }
   }
 
   void _scrollToBottom() {
@@ -439,23 +593,30 @@ class _ChatScreenState extends State<ChatScreen> {
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
-              itemBuilder: (_, i) =>
-                  ChatBubble(message: _messages[i]),
+              itemBuilder: (_, i) => ChatBubble(
+                message: _messages[i],
+                isPlaying: _playingMessageIndex == i,
+              ),
             ),
-            ),
-          if (widget.testMode && _isRecording)
+          ),
+          if (_isRecording)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              color: Colors.red.withOpacity(0.15),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red.withOpacity(0.5), width: 1),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.mic, color: Colors.red, size: 20),
-                  const SizedBox(width: 8),
+                  Icon(Icons.mic, color: Colors.red.shade700, size: 24),
+                  const SizedBox(width: 10),
                   Text(
-                    'Recording: $_recordingSeconds s',
+                    'Recording: $_recordingSeconds s — tap stop to send',
                     style: theme.textTheme.titleSmall?.copyWith(
-                      color: Colors.red,
+                      color: Colors.red.shade800,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -586,10 +747,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _replayLastRecording() async {
     if (_lastRecordingPath == null) return;
-    final file = File(_lastRecordingPath!);
-    if (!await file.exists()) return;
     try {
-      await _replayPlayer.play(DeviceFileSource(_lastRecordingPath!));
+      if (kIsWeb) {
+        await _replayPlayer.play(UrlSource(_lastRecordingPath!));
+      } else {
+        final file = File(_lastRecordingPath!);
+        if (!await file.exists()) return;
+        await _replayPlayer.play(DeviceFileSource(_lastRecordingPath!));
+      }
     } catch (_) {}
   }
 

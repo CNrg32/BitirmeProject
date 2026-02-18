@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
@@ -11,7 +12,7 @@ _SRC = Path(__file__).resolve().parent.parent
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from services.translation_service import translate_to_english, translate_from_english
+from services.translation_service import translate_to_english, translate_from_english, detect_language
 from services.tts_service import synthesize
 from orchestrator.session import Session, get_session_store
 from orchestrator.dialog_manager import decide_next_action, merge_slots
@@ -34,6 +35,8 @@ _GREETINGS = {
 def start_session(language: Optional[str] = None) -> Dict[str, Any]:
     store = get_session_store()
     session = store.create(language=language)
+    if language:
+        session.language_locked = True
     lang = session.language or "en"
 
     greeting = _GREETINGS.get(lang, _GREETINGS["en"])
@@ -61,6 +64,8 @@ def handle_message(
         return {"error": "Session not found or expired."}
 
     lang = session.language or "en"
+    asr_transcript: Optional[str] = None
+    t_msg_start = time.monotonic()
 
     if image_bytes:
         session.image_bytes = image_bytes
@@ -70,32 +75,45 @@ def handle_message(
         try:
             from services.asr_service import transcribe_audio
 
+            t0 = time.monotonic()
+            asr_lang_hint = lang if session.language_locked else None
             transcript, detected_lang, _conf = transcribe_audio(
-                audio_bytes=audio_bytes, language=lang if lang != "en" else None
+                audio_bytes=audio_bytes, language=asr_lang_hint,
             )
+            logger.info("  [TIMING] ASR: %.2fs", time.monotonic() - t0)
             user_text = transcript
-            if detected_lang:
-                if session.language is None:
-                    session.language = detected_lang
-                    lang = detected_lang
-                    logger.info("Auto-detected language from first audio: %s", detected_lang)
-                elif detected_lang != lang:
-                    logger.info("ASR detected language %s (session lang=%s)", detected_lang, lang)
+            asr_transcript = transcript
+            if detected_lang and not session.language_locked:
+                session.language = detected_lang
+                session.language_locked = True
+                lang = detected_lang
+                logger.info("Language locked from first audio: %s", detected_lang)
         except Exception as exc:
             logger.error("ASR failed: %s", exc)
-            return _reply(session, "Sorry, I could not understand the audio. Please try again or type your message.")
+            return _reply(session, "Sorry, I could not understand the audio. Please try again or type your message.", user_transcript=asr_transcript)
 
     if not user_text or not user_text.strip():
         if image_bytes and session.image_analysis:
             img_summary = session.image_analysis.get("summary", "Image received.")
             ack_en = f"Image received and analyzed. {img_summary} Please also describe the emergency verbally."
             ack_local = translate_from_english(ack_en, target_lang=lang) if lang != "en" else ack_en
-            return _reply(session, ack_local, image_analysis=session.image_analysis)
-        return _reply(session, "I didn't receive any input. Could you please describe your emergency?")
+            return _reply(session, ack_local, image_analysis=session.image_analysis, user_transcript=asr_transcript)
+        return _reply(session, "I didn't receive any input. Could you please describe your emergency?", user_transcript=asr_transcript)
+
+    if not audio_bytes and not session.language_locked:
+        detected_text_lang = detect_language(user_text)
+        if detected_text_lang:
+            session.language = detected_text_lang
+            session.language_locked = True
+            lang = detected_text_lang
+            logger.info("Language locked from first text input: %s", detected_text_lang)
 
     session.messages.append({"role": "user", "text": user_text})
 
+    t0 = time.monotonic()
     text_en = translate_to_english(user_text, source_lang=lang) if lang != "en" else user_text
+    if lang != "en":
+        logger.info("  [TIMING] Translate→EN: %.2fs", time.monotonic() - t0)
     session.text_en_accumulated += " " + text_en
     session.text_en_accumulated = session.text_en_accumulated.strip()
 
@@ -111,7 +129,7 @@ def handle_message(
         question_en = action["question_en"]
         session.asked_questions.add(action["question_key"])
         question_local = translate_from_english(question_en, target_lang=lang) if lang != "en" else question_en
-        return _reply(session, question_local, image_analysis=session.image_analysis)
+        return _reply(session, question_local, image_analysis=session.image_analysis, user_transcript=asr_transcript)
 
     if action["action"] in ("run_triage", "complete"):
         triage = _run_triage(session)
@@ -137,7 +155,7 @@ def handle_message(
                     else question_en
                 )
                 return _reply(session, question_local, triage_result=triage,
-                              image_analysis=session.image_analysis)
+                              image_analysis=session.image_analysis, user_transcript=asr_transcript)
 
     report_en = compose_report(
         triage_result=session.triage_result,
@@ -155,6 +173,7 @@ def handle_message(
         image_analysis=session.image_analysis,
         report=report_local,
         is_complete=True,
+        user_transcript=asr_transcript,
     )
 
 
@@ -165,16 +184,20 @@ def _reply(
     image_analysis: Optional[Dict[str, Any]] = None,
     report: Optional[str] = None,
     is_complete: bool = False,
+    user_transcript: Optional[str] = None,
 ) -> Dict[str, Any]:
     session.messages.append({"role": "assistant", "text": text})
 
+    t0 = time.monotonic()
     audio_bytes = synthesize(text, lang=session.language or "en")
     audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
+    logger.info("  [TIMING] TTS: %.2fs", time.monotonic() - t0)
 
     return {
         "session_id": session.session_id,
         "assistant_text": text,
         "assistant_audio_b64": audio_b64,
+        "user_transcript": user_transcript,
         "triage_result": triage_result,
         "image_analysis": image_analysis,
         "report": report,

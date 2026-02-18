@@ -51,6 +51,40 @@ def translate(text: str, source: str, target: str) -> str:
         return text
 
 
+def detect_language(text: str) -> Optional[str]:
+    """Detect the language of *text* and return its ISO-639-1 code.
+
+    Returns ``None`` when detection fails or the detected language is not
+    in ``SUPPORTED_LANGS``.  Uses langdetect (offline, fast) as the primary
+    detector and falls back to deep-translator only when needed.
+    """
+    if not text or len(text.strip()) < 3:
+        return None
+
+    try:
+        from langdetect import detect as _ld_detect, DetectorFactory
+        DetectorFactory.seed = 0  # deterministic results
+        detected = _ld_detect(text)
+        detected = (detected or "").lower().strip()
+        if detected in SUPPORTED_LANGS:
+            logger.debug("langdetect → %s", detected)
+            return detected
+    except Exception as exc:
+        logger.debug("langdetect failed: %s", exc)
+
+    try:
+        from deep_translator import single_detection
+        detected = single_detection(text, api_key="", detector="google")
+        detected = (detected or "").lower().strip()
+        if detected in SUPPORTED_LANGS:
+            logger.debug("deep-translator → %s", detected)
+            return detected
+    except Exception:
+        pass
+
+    return None
+
+
 def translate_to_english(text: str, source_lang: str) -> str:
     return translate(text, source=source_lang, target="en")
 

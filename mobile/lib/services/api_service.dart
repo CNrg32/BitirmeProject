@@ -1,9 +1,18 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb, TargetPlatform, defaultTargetPlatform;
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String _baseUrl = 'http://10.0.2.2:8000';
+  static String get _baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:8000';
+    }
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:8000';
+    }
+    return 'http://localhost:8000';
+  }
 
   Future<bool> healthCheck() async {
     try {
@@ -48,6 +57,24 @@ class ApiService {
     );
     if (resp.statusCode != 200) {
       throw Exception('Message failed: ${resp.body}');
+    }
+    return jsonDecode(resp.body);
+  }
+
+  Future<Map<String, dynamic>> transcribeAudio({
+    required String sessionId,
+    required String audioBase64,
+  }) async {
+    final resp = await http.post(
+      Uri.parse('$_baseUrl/session/transcribe'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'session_id': sessionId,
+        'audio_base64': audioBase64,
+      }),
+    );
+    if (resp.statusCode != 200) {
+      throw Exception('Transcribe failed: ${resp.body}');
     }
     return jsonDecode(resp.body);
   }

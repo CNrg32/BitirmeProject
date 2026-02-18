@@ -3,8 +3,13 @@ import '../models/chat_message.dart';
 
 class ChatBubble extends StatelessWidget {
   final ChatMessage message;
+  final bool isPlaying;
 
-  const ChatBubble({super.key, required this.message});
+  const ChatBubble({
+    super.key,
+    required this.message,
+    this.isPlaying = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +27,9 @@ class ChatBubble extends StatelessWidget {
             CircleAvatar(
               radius: 16,
               backgroundColor: theme.colorScheme.primary,
-              child: const Icon(Icons.emergency,
-                  size: 16, color: Colors.white),
+              child: isPlaying
+                  ? const _SpeakingIndicator()
+                  : const Icon(Icons.emergency, size: 16, color: Colors.white),
             ),
             const SizedBox(width: 8),
           ],
@@ -74,6 +80,60 @@ class ChatBubble extends StatelessWidget {
           if (isUser) const SizedBox(width: 8),
         ],
       ),
+    );
+  }
+}
+
+class _SpeakingIndicator extends StatefulWidget {
+  const _SpeakingIndicator();
+
+  @override
+  State<_SpeakingIndicator> createState() => _SpeakingIndicatorState();
+}
+
+class _SpeakingIndicatorState extends State<_SpeakingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (index) {
+            final delay = index * 0.2;
+            final value = (_controller.value + delay) % 1.0;
+            final height = 4.0 + (value * 8.0);
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1),
+              width: 3,
+              height: height,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }

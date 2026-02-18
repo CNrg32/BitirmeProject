@@ -13,8 +13,9 @@ pydantic>=2.5
 # ── ASR (Speech-to-Text) ─────────────────────────
 faster-whisper>=1.0.0
 
-# ── Translation ───────────────────────────────────
+# ── Translation & Language Detection ──────────────
 deep-translator>=1.11
+langdetect>=1.0.9
 
 # ── TTS (Text-to-Speech) ─────────────────────────
 gTTS>=2.5
