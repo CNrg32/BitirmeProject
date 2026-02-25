@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import io
 import json
 import logging
 from pathlib import Path
@@ -26,13 +25,26 @@ TEXT_FEATURES = [
     "repetition_ratio", "emergency_phrase_count", "sentiment_score",
     "estimated_wpm", "wpm",
 ]
-AUDIO_FEATURES = [
-    "caller_pitch_mean", "spectral_flux", "silence_ratio", "audio_duration",
-]
-META_FEATURES = [
-    "deaths", "potential_death", "false_alarm", "civilian_initiated",
-]
 TRIAGE_LABELS = ["CRITICAL", "URGENT", "NON_URGENT"]
+TEXT_ONLY_FEATURES = list(TEXT_FEATURES)
+EXPECTED_FEATURE_PIPELINE_VERSION = "feature-pipeline-v2.0"
+MIN_META_SCHEMA_VERSION = 2
+RISK_WEIGHTS = {
+    "CRITICAL": 1.0,
+    "URGENT": 0.6,
+    "NON_URGENT": 0.2,
+}
+
+FEATURE_RISK_DIRECTIONS = {
+    "panic_word_ratio": 1.0,
+    "panic_word_count": 1.0,
+    "emergency_phrase_count": 1.0,
+    "exclamation_ratio": 0.6,
+    "uppercase_ratio": 0.4,
+    "repetition_ratio": 0.5,
+    "wpm": 0.4,
+    "sentiment_score": -1.0,
+}
 
 
 def extract_text_features(text: str) -> Dict[str, float]:
@@ -114,63 +126,15 @@ def get_sentiment_score(text: str) -> float:
     return (pos_count - neg_count) / total
 
 
-def extract_audio_features_from_bytes(audio_bytes: bytes) -> Dict[str, float]:
-    """Extract audio features from raw bytes (WAV/MP3/FLAC etc.)."""
-    feats = {
-        "caller_pitch_mean": 0.0,
-        "spectral_flux": 0.0,
-        "silence_ratio": 0.0,
-        "audio_duration": 0.0,
-        "audio_found": False,
-    }
-    try:
-        import librosa
-    except ImportError:
-        logger.debug("librosa not available, skipping audio features")
-        return feats
-
-    if not audio_bytes or len(audio_bytes) < 1000:
-        return feats
-
-    try:
-        buf = io.BytesIO(audio_bytes)
-        y, sr = librosa.load(buf, duration=60, sr=None)
-        feats["audio_found"] = True
-        feats["audio_duration"] = float(librosa.get_duration(y=y, sr=sr))
-
-        S = np.abs(librosa.stft(y))
-        pitches, magnitudes = librosa.piptrack(S=S, sr=sr)
-        threshold = np.mean(magnitudes) * 1.5
-        caller_pitches = pitches[magnitudes > threshold]
-        caller_pitches = caller_pitches[caller_pitches > 60]
-        if len(caller_pitches) > 0:
-            feats["caller_pitch_mean"] = float(np.mean(caller_pitches))
-
-        onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-        feats["spectral_flux"] = float(np.mean(onset_env))
-
-        intervals = librosa.effects.split(y, top_db=25)
-        non_silent_dur = sum(x[1] - x[0] for x in intervals) / sr
-        total_dur = feats["audio_duration"]
-        feats["silence_ratio"] = (
-            1.0 - (non_silent_dur / total_dur) if total_dur > 0 else 0.0
-        )
-    except Exception as e:
-        logger.debug("Audio feature extraction failed: %s", e)
-
-    return feats
-
-
 def build_feature_vector(
     text_en: str,
     audio_bytes: Optional[bytes] = None,
     meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, float]:
     """
-    Build full feature dict for sentiment model (text + audio + meta).
+    Build feature dict for text-only sentiment model.
     Caller uses feature_order from model meta to build the final vector.
     """
-    meta = meta or {}
     feats: Dict[str, float] = {}
 
     # Text features
@@ -180,47 +144,115 @@ def build_feature_vector(
     feats["estimated_wpm"] = (
         feats["word_count"] / max(feats["sentence_count"], 1) * 10
     )
-
-    # Audio features
-    if audio_bytes:
-        audio_f = extract_audio_features_from_bytes(audio_bytes)
-        feats.update({k: audio_f[k] for k in AUDIO_FEATURES})
-        if audio_f["audio_found"] and audio_f["audio_duration"] > 0:
-            feats["wpm"] = (feats["word_count"] / audio_f["audio_duration"]) * 60
-        else:
-            feats["wpm"] = feats["estimated_wpm"]
-    else:
-        feats["caller_pitch_mean"] = 0.0
-        feats["spectral_flux"] = 0.0
-        feats["silence_ratio"] = 0.0
-        feats["audio_duration"] = 0.0
-        feats["wpm"] = feats["estimated_wpm"]
-
-    # Meta
-    for col in META_FEATURES:
-        val = meta.get(col, 0)
-        try:
-            feats[col] = float(val) if val is not None else 0.0
-        except (ValueError, TypeError):
-            feats[col] = 0.0
+    feats["wpm"] = feats["estimated_wpm"]
 
     return feats
 
 
 class SentimentService:
-    """Load sentiment model + scaler and run inference from text + optional audio."""
+    """Load sentiment model + scaler and run text-only inference."""
 
     def __init__(self) -> None:
         self.model = None
         self.scaler = None
         self.feature_order: List[str] = []
+        self.model_version: str = "unknown"
+        self.feature_pipeline_version: str = "unknown"
+        self.meta_schema_version: int = 0
         self._loaded = False
+
+    def _validate_meta(self, meta: Dict[str, Any]) -> bool:
+        known_features = set(TEXT_ONLY_FEATURES)
+        meta_features = meta.get("features") or []
+
+        if meta_features:
+            unknown_features = sorted(set(meta_features) - known_features)
+            if unknown_features:
+                logger.warning(
+                    "Sentiment model meta has unknown features: %s",
+                    unknown_features,
+                )
+                return False
+
+        schema_version = int(meta.get("meta_schema_version", 0) or 0)
+        if schema_version and schema_version < MIN_META_SCHEMA_VERSION:
+            logger.warning(
+                "Sentiment model meta schema too old (%s < %s)",
+                schema_version,
+                MIN_META_SCHEMA_VERSION,
+            )
+            return False
+
+        pipeline_version = str(meta.get("feature_pipeline_version", "") or "")
+        if pipeline_version and pipeline_version != EXPECTED_FEATURE_PIPELINE_VERSION:
+            logger.warning(
+                "Sentiment feature pipeline mismatch (model=%s, runtime=%s)",
+                pipeline_version,
+                EXPECTED_FEATURE_PIPELINE_VERSION,
+            )
+            return False
+
+        return True
+
+    def _compute_risk_score(self, classes: List[str], proba: np.ndarray) -> float:
+        weighted = 0.0
+        for class_name, class_proba in zip(classes, proba):
+            weighted += float(class_proba) * RISK_WEIGHTS.get(class_name, 0.5)
+        return max(0.0, min(100.0, weighted * 100.0))
+
+    def _panic_level_from_risk(self, risk_score: float) -> str:
+        if risk_score >= 70.0:
+            return "high"
+        if risk_score >= 40.0:
+            return "medium"
+        return "low"
+
+    def _build_feature_contributions(
+        self,
+        feats: Dict[str, float],
+        x_scaled: np.ndarray,
+    ) -> List[Dict[str, Any]]:
+        indexed_scaled = {
+            name: float(x_scaled[0][idx])
+            for idx, name in enumerate(self.feature_order)
+        }
+
+        contributions: List[Dict[str, Any]] = []
+        for feature_name, direction in FEATURE_RISK_DIRECTIONS.items():
+            if feature_name not in indexed_scaled:
+                continue
+
+            scaled_val = indexed_scaled[feature_name]
+            raw_val = float(feats.get(feature_name, 0.0))
+            impact = scaled_val * float(direction)
+
+            contributions.append(
+                {
+                    "feature": feature_name,
+                    "value": raw_val,
+                    "scaled_value": scaled_val,
+                    "direction": "risk_up" if direction > 0 else "risk_down",
+                    "impact": float(impact),
+                }
+            )
+
+        contributions.sort(key=lambda item: abs(item["impact"]), reverse=True)
+        return contributions[:6]
 
     def load(self, model_dir: Path | str | None = None) -> bool:
         model_dir = Path(model_dir) if model_dir else _MODEL_DIR
-        model_path = model_dir / "sentiment_voting_model.joblib"
-        scaler_path = model_dir / "sentiment_scaler.joblib"
-        meta_path = model_dir / "sentiment_model_meta.json"
+        text_only_model_path = model_dir / "sentiment_voting_model_text_only.joblib"
+        text_only_scaler_path = model_dir / "sentiment_scaler_text_only.joblib"
+        text_only_meta_path = model_dir / "sentiment_model_meta_text_only.json"
+
+        if text_only_model_path.exists() and text_only_scaler_path.exists():
+            model_path = text_only_model_path
+            scaler_path = text_only_scaler_path
+            meta_path = text_only_meta_path
+        else:
+            model_path = model_dir / "sentiment_voting_model.joblib"
+            scaler_path = model_dir / "sentiment_scaler.joblib"
+            meta_path = model_dir / "sentiment_model_meta.json"
 
         if not model_path.exists() or not scaler_path.exists():
             logger.warning(
@@ -236,9 +268,19 @@ class SentimentService:
             if meta_path.exists():
                 with open(meta_path, encoding="utf-8") as f:
                     meta = json.load(f)
-                self.feature_order = meta.get("features", TEXT_FEATURES + AUDIO_FEATURES + META_FEATURES)
+
+                if not self._validate_meta(meta):
+                    return False
+
+                self.feature_order = meta.get("features", TEXT_ONLY_FEATURES)
+                self.model_version = str(meta.get("model_version", "unknown"))
+                self.feature_pipeline_version = str(meta.get("feature_pipeline_version", "unknown"))
+                self.meta_schema_version = int(meta.get("meta_schema_version", 0) or 0)
             else:
-                self.feature_order = TEXT_FEATURES + AUDIO_FEATURES + META_FEATURES
+                self.feature_order = TEXT_ONLY_FEATURES
+                self.model_version = "legacy"
+                self.feature_pipeline_version = "legacy"
+                self.meta_schema_version = 0
             self._loaded = True
             logger.info("Sentiment model loaded from %s", model_dir)
             return True
@@ -264,7 +306,7 @@ class SentimentService:
             return None
 
         try:
-            feats = build_feature_vector(text_en, audio_bytes, meta)
+            feats = build_feature_vector(text_en, None, None)
             X = np.array(
                 [[feats.get(f, 0.0) for f in self.feature_order]],
                 dtype=np.float64,
@@ -278,12 +320,26 @@ class SentimentService:
             confidence = float(proba[idx])
 
             sentiment_score = feats.get("sentiment_score", 0.0)
-            panic_level = "high" if sentiment_score < -0.3 else ("medium" if sentiment_score < 0.2 else "low")
+            risk_score = self._compute_risk_score(classes, proba)
+            panic_level = self._panic_level_from_risk(risk_score)
+
+            triage_boost_reason = None
+            if pred_label == "CRITICAL" and confidence >= 0.5:
+                triage_boost_reason = "text_sentiment_high_risk"
+            elif panic_level == "high":
+                triage_boost_reason = "panic_indicators_high"
+
+            feature_contributions = self._build_feature_contributions(feats, X_scaled)
 
             return {
                 "triage_level": pred_label,
                 "confidence": confidence,
+                "risk_score": risk_score,
                 "panic_level": panic_level,
+                "triage_boost_reason": triage_boost_reason,
+                "feature_contributions": feature_contributions,
+                "model_version": self.model_version,
+                "feature_pipeline_version": self.feature_pipeline_version,
                 "sentiment_score": sentiment_score,
                 "proba": {c: float(p) for c, p in zip(classes, proba)},
             }
