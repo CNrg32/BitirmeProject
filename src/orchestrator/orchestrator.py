@@ -32,6 +32,12 @@ _GREETINGS = {
 }
 
 
+def _audio_to_data_url(audio_bytes: Optional[bytes]) -> Optional[str]:
+    if not audio_bytes:
+        return None
+    return f"data:audio/mpeg;base64,{base64.b64encode(audio_bytes).decode()}"
+
+
 def start_session(language: Optional[str] = None) -> Dict[str, Any]:
     store = get_session_store()
     session = store.create(language=language)
@@ -44,10 +50,12 @@ def start_session(language: Optional[str] = None) -> Dict[str, Any]:
 
     audio_bytes = synthesize(greeting, lang=lang)
     audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
+    audio_url = _audio_to_data_url(audio_bytes)
 
     return {
         "session_id": session.session_id,
         "greeting": greeting,
+        "greeting_audio_url": audio_url,
         "greeting_audio_b64": audio_b64,
     }
 
@@ -191,11 +199,13 @@ def _reply(
     t0 = time.monotonic()
     audio_bytes = synthesize(text, lang=session.language or "en")
     audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
+    audio_url = _audio_to_data_url(audio_bytes)
     logger.info("  [TIMING] TTS: %.2fs", time.monotonic() - t0)
 
     return {
         "session_id": session.session_id,
         "assistant_text": text,
+        "assistant_audio_url": audio_url,
         "assistant_audio_b64": audio_b64,
         "user_transcript": user_transcript,
         "triage_result": triage_result,

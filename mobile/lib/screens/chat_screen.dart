@@ -25,6 +25,7 @@ import '../widgets/report_sheet.dart';
 class ChatScreen extends StatefulWidget {
   final String sessionId;
   final String greeting;
+  final String? greetingAudioUrl;
   final String? greetingAudioB64;
   final String language;
   final bool testMode;
@@ -33,6 +34,7 @@ class ChatScreen extends StatefulWidget {
     super.key,
     required this.sessionId,
     required this.greeting,
+    this.greetingAudioUrl,
     this.greetingAudioB64,
     required this.language,
     this.testMode = false,
@@ -77,6 +79,10 @@ class _ChatScreenState extends State<ChatScreen> {
         widget.greetingAudioB64!.isNotEmpty) {
       _playingMessageIndex = 0;
       _playAudioBase64(widget.greetingAudioB64!);
+    } else if (widget.greetingAudioUrl != null &&
+        widget.greetingAudioUrl!.isNotEmpty) {
+      _playingMessageIndex = 0;
+      _playAudioUrl(widget.greetingAudioUrl!);
     }
     _captureLocation();
 
@@ -433,6 +439,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _handleResponse(Map<String, dynamic> resp) {
     final text = resp['assistant_text'] as String? ?? '';
     final audioB64 = resp['assistant_audio_b64'] as String?;
+    final audioUrl = resp['assistant_audio_url'] as String?;
 
     _addAssistant(text, audioBase64: audioB64);
 
@@ -456,6 +463,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (audioB64 != null && audioB64.isNotEmpty) {
       setState(() => _playingMessageIndex = _messages.length - 1);
       _playAudioBase64(audioB64);
+    } else if (audioUrl != null && audioUrl.isNotEmpty) {
+      setState(() => _playingMessageIndex = _messages.length - 1);
+      _playAudioUrl(audioUrl);
     }
   }
 
@@ -483,6 +493,16 @@ class _ChatScreenState extends State<ChatScreen> {
         await file.writeAsBytes(bytes);
         await _audioPlayer.play(DeviceFileSource(file.path));
       }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _playingMessageIndex = null);
+      }
+    }
+  }
+
+  Future<void> _playAudioUrl(String url) async {
+    try {
+      await _audioPlayer.play(UrlSource(url));
     } catch (_) {
       if (mounted) {
         setState(() => _playingMessageIndex = null);

@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (_) => ChatScreen(
             sessionId: result['session_id'] as String,
             greeting: result['greeting'] as String,
+            greetingAudioUrl: result['greeting_audio_url'] as String?,
             greetingAudioB64: result['greeting_audio_b64'] as String?,
             language: _selectedLanguage == 'auto' ? 'en' : _selectedLanguage,
             testMode: _testMode,

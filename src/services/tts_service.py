@@ -29,7 +29,7 @@ _LANG_MAP = {
 
 def _resolve_lang(code: str) -> str:
     code = (code or "en").lower().strip()
-    return _LANG_MAP.get(code, code)
+    return _LANG_MAP.get(code, "en")
 
 
 def synthesize(text: str, lang: str = "en") -> bytes:
@@ -39,7 +39,8 @@ def synthesize(text: str, lang: str = "en") -> bytes:
     try:
         from gtts import gTTS
 
-        tts = gTTS(text=text, lang=_resolve_lang(lang))
+        resolved_lang = _resolve_lang(lang)
+        tts = gTTS(text=text, lang=resolved_lang)
         buf = io.BytesIO()
         tts.write_to_fp(buf)
         buf.seek(0)

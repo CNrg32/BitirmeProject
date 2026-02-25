@@ -186,7 +186,7 @@ def session_start(req: SessionStartRequest):
     return SessionStartResponse(
         session_id=out["session_id"],
         greeting=out["greeting"],
-        greeting_audio_url=None,
+        greeting_audio_url=out.get("greeting_audio_url"),
         greeting_audio_b64=out.get("greeting_audio_b64"),
     )
 
@@ -266,7 +266,7 @@ def session_message(req: SessionMessageRequest):
     return SessionMessageResponse(
         session_id=out["session_id"],
         assistant_text=out["assistant_text"],
-        assistant_audio_url=None,
+        assistant_audio_url=out.get("assistant_audio_url"),
         assistant_audio_b64=out.get("assistant_audio_b64"),
         user_transcript=out.get("user_transcript"),
         triage_result=triage,
