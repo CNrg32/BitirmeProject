@@ -204,6 +204,7 @@ def compose_report(
 
 def _format_slots(slots: Dict[str, Any]) -> List[str]:
     mapping = {
+        "caller_name":      "Caller Name",
         "chief_complaint":  "Complaint",
         "age":              "Age",
         "sex":              "Sex",
@@ -216,4 +217,12 @@ def _format_slots(slots: Dict[str, Any]) -> List[str]:
         val = slots.get(key)
         if val is not None and val != "" and val != []:
             lines.append(f"  {label}: {val}")
+
+    # GPS koordinatları (4. konum entegrasyonu)
+    lat = slots.get("latitude")
+    lon = slots.get("longitude")
+    if lat is not None and lon is not None:
+        lines.append(f"  GPS       : {lat:.6f}, {lon:.6f}")
+        lines.append(f"  Maps      : https://maps.google.com/?q={lat:.6f},{lon:.6f}")
+
     return lines

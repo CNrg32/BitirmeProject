@@ -8,6 +8,10 @@ dist/
 build/
 *.egg
 
+# ── Environment / Secrets ────────────────────────────
+.env
+*.env
+
 # ── Virtual Environment ──────────────────────────────
 .venv/
 venv/

@@ -26,6 +26,7 @@ class MetaInput(BaseModel):
 
 
 class SlotsInput(BaseModel):
+    caller_name: Optional[str] = None
     age: Optional[int] = None
     sex: Optional[str] = None
     severity_1_10: Optional[int] = None
@@ -110,6 +111,8 @@ class SessionMessageRequest(BaseModel):
     text: Optional[str] = None
     audio_base64: Optional[str] = None
     image_base64: Optional[str] = Field(None, description="Optional base64-encoded image for scene analysis")
+    latitude: Optional[float] = Field(None, description="GPS latitude from mobile device")
+    longitude: Optional[float] = Field(None, description="GPS longitude from mobile device")
 
 
 class SessionMessageResponse(BaseModel):

@@ -7,6 +7,15 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
+# Load .env file (GEMINI_API_KEY etc.) before any other imports
+_ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
+if _ENV_FILE.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(dotenv_path=_ENV_FILE, override=False)
+    except ImportError:
+        pass  # python-dotenv not installed; use system env vars
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -250,6 +259,8 @@ def session_message(req: SessionMessageRequest):
         user_text=req.text,
         audio_bytes=audio_bytes,
         image_bytes=image_bytes,
+        latitude=req.latitude,
+        longitude=req.longitude,
     )
 
     if "error" in out:
@@ -349,4 +360,4 @@ def tts_endpoint(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, app_dir=str(_SRC))

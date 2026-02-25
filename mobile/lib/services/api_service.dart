@@ -42,6 +42,8 @@ class ApiService {
     String? text,
     String? audioBase64,
     String? imageBase64,
+    double? latitude,
+    double? longitude,
   }) async {
     final body = <String, dynamic>{
       'session_id': sessionId,
@@ -49,6 +51,8 @@ class ApiService {
     if (text != null) body['text'] = text;
     if (audioBase64 != null) body['audio_base64'] = audioBase64;
     if (imageBase64 != null) body['image_base64'] = imageBase64;
+    if (latitude != null) body['latitude'] = latitude;
+    if (longitude != null) body['longitude'] = longitude;
 
     final resp = await http.post(
       Uri.parse('$_baseUrl/session/message'),

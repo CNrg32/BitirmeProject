@@ -149,6 +149,8 @@ class _ChatScreenState extends State<ChatScreen> {
         sessionId: widget.sessionId,
         text: text,
         imageBase64: imageB64,
+        latitude: _currentPosition?.latitude,
+        longitude: _currentPosition?.longitude,
       );
       _handleResponse(resp);
     } catch (e) {
@@ -227,6 +229,8 @@ class _ChatScreenState extends State<ChatScreen> {
       final resp = await api.sendMessage(
         sessionId: widget.sessionId,
         imageBase64: imageB64,
+        latitude: _currentPosition?.latitude,
+        longitude: _currentPosition?.longitude,
       );
       _handleResponse(resp);
     } catch (e) {
@@ -420,12 +424,16 @@ class _ChatScreenState extends State<ChatScreen> {
           sessionId: widget.sessionId,
           text: transcriptText,
           imageBase64: imageB64,
+          latitude: _currentPosition?.latitude,
+          longitude: _currentPosition?.longitude,
         );
       } else {
         resp = await api.sendMessage(
           sessionId: widget.sessionId,
           audioBase64: b64,
           imageBase64: imageB64,
+          latitude: _currentPosition?.latitude,
+          longitude: _currentPosition?.longitude,
         );
       }
       _handleResponse(resp);
