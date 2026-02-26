@@ -1,0 +1,19 @@
+// This is a generated file; do not edit or check into version control.
+<<<<<<< HEAD
+FLUTTER_ROOT=/Users/gultekinqwe/development/flutter
+FLUTTER_APPLICATION_PATH=/Users/gultekinqwe/Documents/GitHub/BitirmeProject/mobile
+=======
+FLUTTER_ROOT=/opt/homebrew/share/flutter
+FLUTTER_APPLICATION_PATH=/Users/ahmetkucukdag/Desktop/Scripts Only/Bitirme/BitirmeProject/mobile
+>>>>>>> 8d6fa8ea779400daf6cbeb7b994690312699257d
+COCOAPODS_PARALLEL_CODE_SIGN=true
+FLUTTER_TARGET=lib/main.dart
+FLUTTER_BUILD_DIR=build
+FLUTTER_BUILD_NAME=1.0.0
+FLUTTER_BUILD_NUMBER=1
+EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386
+EXCLUDED_ARCHS[sdk=iphoneos*]=armv7
+DART_OBFUSCATION=false
+TRACK_WIDGET_CREATION=true
+TREE_SHAKE_ICONS=false
+PACKAGE_CONFIG=.dart_tool/package_config.json

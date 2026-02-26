@@ -1,0 +1,39 @@
+# ── Core ──────────────────────────────────────────
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3
+joblib>=1.3
+pyarrow>=14.0
+
+# ── API ───────────────────────────────────────────
+fastapi>=0.104
+uvicorn[standard]>=0.24
+pydantic>=2.5
+
+# ── ASR (Speech-to-Text) ─────────────────────────
+faster-whisper>=1.0.0
+
+# ── Translation & Language Detection ──────────────
+deep-translator>=1.11
+langdetect>=1.0.9
+
+# ── TTS (Text-to-Speech) ─────────────────────────
+gTTS>=2.5
+
+# ── Image Analysis (Emergency Scene Classification)
+torch>=2.1
+torchvision>=0.16
+Pillow>=10.0
+
+# ── NLP / Transformers (DistilBERT training) ──────
+transformers>=4.36
+accelerate>=0.25
+datasets>=2.16
+# ── LLM ───────────────────────────────────────
+groq>=0.11          # Groq (ücretsiz, Türkiye)
+google-genai>=1.0   # Gemini (alternatif)
+python-dotenv>=1.0
+# ── Utilities ─────────────────────────────────────
+python-multipart>=0.0.6
+aiofiles>=23.2
+httpx>=0.25
