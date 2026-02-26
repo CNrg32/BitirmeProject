@@ -109,4 +109,32 @@ class ApiService {
     }
     return resp.bodyBytes;
   }
+
+  /// Eğitilmiş görüntü modeli ile sahne analizi (multipart image).
+  /// Dönen map: classification, consistency, summary, available.
+  Future<Map<String, dynamic>> analyzeImage(
+    Uint8List imageBytes, {
+    String? textCategory,
+    String? textTriageLevel,
+  }) async {
+    final uri = Uri.parse('$_baseUrl/analyze-image');
+    final request = http.MultipartRequest('POST', uri);
+    request.files.add(http.MultipartFile.fromBytes(
+      'image',
+      imageBytes,
+      filename: 'image.jpg',
+    ));
+    if (textCategory != null) {
+      request.fields['text_category'] = textCategory;
+    }
+    if (textTriageLevel != null) {
+      request.fields['text_triage_level'] = textTriageLevel;
+    }
+    final streamed = await request.send();
+    final resp = await http.Response.fromStream(streamed);
+    if (resp.statusCode != 200) {
+      throw Exception('Image analysis failed: ${resp.body}');
+    }
+    return jsonDecode(resp.body) as Map<String, dynamic>;
+  }
 }

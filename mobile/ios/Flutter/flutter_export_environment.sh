@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
 export "FLUTTER_ROOT=/opt/homebrew/share/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/ahmetkucukdag/Desktop/Scripts Only/Bitirme/BitirmeProject/mobile"
+export "FLUTTER_APPLICATION_PATH=/Users/gultekinqwe/Documents/GitHub/BitirmeProject/mobile"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"

@@ -16,11 +16,16 @@ class ImageAnalysisCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final topClass = classification?['top_class'] as String? ?? 'Unknown';
+    // API: detected_class, confidence, dispatch_units (backend image_service / analyze-image)
+    final topClass = classification?['detected_class'] as String? ??
+        classification?['top_class'] as String? ??
+        'Unknown';
     final confidence = classification?['confidence'] as num?;
     final dispatchUnits =
         (classification?['dispatch_units'] as List?)?.cast<String>() ?? [];
     final isConsistent = consistency?['is_consistent'] as bool? ?? true;
+    final consistencyDetail = consistency?['consistency_detail'] as String?;
+    final riskNotes = (consistency?['risk_notes'] as List?)?.cast<String>() ?? [];
 
     return Container(
       width: double.infinity,
@@ -73,14 +78,17 @@ class ImageAnalysisCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.warning_amber,
                       size: 14, color: Colors.orange),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      consistency?['recommendation'] as String? ??
-                          'Image may not match the reported incident',
+                      consistencyDetail ??
+                          (riskNotes.isNotEmpty
+                              ? riskNotes.first
+                              : 'Image may not match the reported incident'),
                       style: theme.textTheme.bodySmall
                           ?.copyWith(color: Colors.orange[800]),
                     ),
