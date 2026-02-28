@@ -1,0 +1,9 @@
+[run]
+source = src
+omit = src/make_label_template.py, src/services/image_service.py, src/services/llm_service.py, src/services/sentiment_service.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
