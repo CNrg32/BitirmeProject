@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
+import '../core/app_theme.dart';
 
 class TriageCard extends StatelessWidget {
   final Map<String, dynamic> result;
@@ -10,6 +12,17 @@ class TriageCard extends StatelessWidget {
     this.onCallEmergency,
   });
 
+  static String _levelLabel(String level) {
+    switch (level) {
+      case 'CRITICAL':
+        return AppStrings.triageCritical;
+      case 'URGENT':
+        return AppStrings.triageUrgent;
+      default:
+        return AppStrings.triageNonUrgent;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final level = result['triage_level'] as String? ?? 'URGENT';
@@ -18,6 +31,7 @@ class TriageCard extends StatelessWidget {
     final redFlags = (result['red_flags'] as List?)?.cast<String>() ?? [];
 
     final (bgColor, fgColor, icon) = _triageStyle(level);
+    final levelLabel = _levelLabel(level);
 
     return Container(
       width: double.infinity,
@@ -37,53 +51,55 @@ class TriageCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: fgColor, size: 24),
-              const SizedBox(width: 8),
-              Text(
-                level,
-                style: TextStyle(
-                  color: fgColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Icon(icon, color: fgColor, size: 28),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  levelLabel,
+                  style: TextStyle(
+                    color: fgColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const Spacer(),
               if (confidence != null)
                 Text(
                   '${(confidence * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(color: fgColor.withOpacity(0.8)),
+                  style: TextStyle(color: fgColor.withOpacity(0.9)),
                 ),
               if (onCallEmergency != null) ...[
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 SizedBox(
-                  height: 32,
+                  height: 36,
                   child: FilledButton.icon(
                     onPressed: onCallEmergency,
-                    icon: const Icon(Icons.phone, size: 16),
-                    label: const Text('Call 112',
-                        style: TextStyle(fontSize: 12)),
+                    icon: const Icon(Icons.phone, size: 18),
+                    label: const Text(AppStrings.call112,
+                        style: TextStyle(fontSize: 13)),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: bgColor,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12),
+                      foregroundColor: AppTheme.criticalRed,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
                     ),
                   ),
                 ),
               ],
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
-            'Category: ${category.toUpperCase()}',
-            style:
-                TextStyle(color: fgColor.withOpacity(0.9), fontSize: 13),
+            '${AppStrings.category}: ${category.toUpperCase()}',
+            style: TextStyle(
+              color: fgColor.withOpacity(0.95),
+              fontSize: 14,
+            ),
           ),
           if (redFlags.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
-              'Red flags: ${redFlags.join(", ")}',
-              style: TextStyle(color: fgColor, fontSize: 12),
+              '${AppStrings.redFlags}: ${redFlags.join(", ")}',
+              style: TextStyle(color: fgColor, fontSize: 13),
             ),
           ],
         ],

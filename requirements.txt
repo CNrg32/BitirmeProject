@@ -18,6 +18,8 @@ deep-translator>=1.11
 langdetect>=1.0.9
 
 # ── TTS (Text-to-Speech) ─────────────────────────
+# edge-tts: insanı, doğal ses (Microsoft Neural); gTTS yedek için
+edge-tts>=6.1
 gTTS>=2.5
 
 # ── Image Analysis (Emergency Scene Classification)

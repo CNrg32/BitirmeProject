@@ -100,21 +100,36 @@ def extract_text_features(text: str) -> Dict[str, float]:
     return feats
 
 
+# Cached HuggingFace sentiment pipeline (single load for performance)
+_hf_sentiment_pipeline = None
+
+
+def _get_hf_sentiment_pipeline():
+    global _hf_sentiment_pipeline
+    if _hf_sentiment_pipeline is None:
+        try:
+            from transformers import pipeline as hf_pipeline
+            _hf_sentiment_pipeline = hf_pipeline(
+                "sentiment-analysis",
+                model="distilbert-base-uncased-finetuned-sst-2-english",
+                truncation=True,
+                max_length=512,
+            )
+        except Exception:
+            pass
+    return _hf_sentiment_pipeline
+
+
 def get_sentiment_score(text: str) -> float:
     """Sentiment score: -1 (panic) to +1 (calm). Fallback to keyword-based if no HF."""
-    try:
-        from transformers import pipeline as hf_pipeline
-        _pipe = hf_pipeline(
-            "sentiment-analysis",
-            model="distilbert-base-uncased-finetuned-sst-2-english",
-            truncation=True,
-            max_length=512,
-        )
-        result = _pipe(text[:512])[0]
-        score = result["score"]
-        return -score if result["label"] == "NEGATIVE" else score
-    except Exception:
-        pass
+    pipe = _get_hf_sentiment_pipeline()
+    if pipe is not None:
+        try:
+            result = pipe(text[:512])[0]
+            score = result["score"]
+            return -score if result["label"] == "NEGATIVE" else score
+        except Exception:
+            pass
 
     text_lower = text.lower()
     neg_count = sum(1 for k in PANIC_KEYWORDS if k in text_lower)

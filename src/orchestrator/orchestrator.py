@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 _GREETINGS = {
     "en": "Emergency assistant here. What is your emergency?",
-    "tr": "Acil durum asistanı burada. Ne oldu, acil durumunuz nedir?",
+    "tr": "Acil servis, acil durumunuz nedir?",
     "de": "Notfall-Assistent hier. Was ist Ihr Notfall?",
     "fr": "Assistant d'urgence ici. Quelle est votre urgence ?",
     "es": "Asistente de emergencia aquí. ¿Cuál es su emergencia?",

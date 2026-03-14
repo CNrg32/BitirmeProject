@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../core/app_strings.dart';
 
 class ReportSheet extends StatelessWidget {
   final String report;
@@ -56,7 +57,7 @@ class ReportSheet extends StatelessWidget {
                   Icon(Icons.assignment, color: bgColor),
                   const SizedBox(width: 8),
                   Text(
-                    'Emergency Report',
+                    AppStrings.emergencyReport,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: bgColor,
@@ -65,12 +66,12 @@ class ReportSheet extends StatelessWidget {
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.copy),
-                    tooltip: 'Copy report',
+                    tooltip: AppStrings.copyReport,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: report));
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Report copied to clipboard'),
+                          content: Text(AppStrings.reportCopied),
                         ),
                       );
                     },
@@ -110,14 +111,14 @@ class ReportSheet extends StatelessWidget {
                           ),
                           IconButton(
                             icon: const Icon(Icons.copy, size: 16),
-                            tooltip: 'Copy coordinates',
+                            tooltip: AppStrings.copyCoordinates,
                             onPressed: () {
                               Clipboard.setData(
                                 ClipboardData(text: locationText!),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Coordinates copied'),
+                                  content: Text(AppStrings.coordinatesCopied),
                                 ),
                               );
                             },

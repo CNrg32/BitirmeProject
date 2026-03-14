@@ -17,6 +17,8 @@ import logging
 import os
 from typing import Any, Dict, List, Optional
 
+from services.llm_prompt_config import build_system_prompt_with_few_shot
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -179,7 +181,7 @@ class _GroqProvider:
             return dict(_EMPTY_LLM_RESPONSE)
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
-        system = SYSTEM_PROMPT + f"\n\nCurrent language: {lang_name}. MUST respond in {lang_name}."
+        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name)
 
         messages = [{"role": "system", "content": system}]
         for msg in history:
@@ -230,7 +232,7 @@ class _GeminiProvider:
             return dict(_EMPTY_LLM_RESPONSE)
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
-        system = SYSTEM_PROMPT + f"\n\nCurrent language: {lang_name}. MUST respond in {lang_name}."
+        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name)
 
         contents = []
         for msg in history:

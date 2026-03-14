@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_strings.dart';
 
 class ImageAnalysisCard extends StatelessWidget {
   final Map<String, dynamic> analysis;
@@ -16,10 +17,9 @@ class ImageAnalysisCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // API: detected_class, confidence, dispatch_units (backend image_service / analyze-image)
     final topClass = classification?['detected_class'] as String? ??
         classification?['top_class'] as String? ??
-        'Unknown';
+        'Bilinmiyor';
     final confidence = classification?['confidence'] as num?;
     final dispatchUnits =
         (classification?['dispatch_units'] as List?)?.cast<String>() ?? [];
@@ -48,7 +48,7 @@ class ImageAnalysisCard extends StatelessWidget {
                   color: theme.colorScheme.onSecondaryContainer),
               const SizedBox(width: 6),
               Text(
-                'Image Analysis',
+                AppStrings.imageAnalysis,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.onSecondaryContainer,
                   fontWeight: FontWeight.bold,
@@ -58,7 +58,7 @@ class ImageAnalysisCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Scene: $topClass'
+            '${AppStrings.scene}: $topClass'
             '${confidence != null ? ' (${(confidence * 100).toStringAsFixed(0)}%)' : ''}',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSecondaryContainer,
@@ -68,7 +68,7 @@ class ImageAnalysisCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                'Dispatch: ${dispatchUnits.join(", ")}',
+                '${AppStrings.dispatch}: ${dispatchUnits.join(", ")}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSecondaryContainer,
                 ),

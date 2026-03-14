@@ -21,18 +21,22 @@ class TestSynthesize:
         assert _real_synthesize("   ") == b""
 
     def test_synthesize_success_with_mock(self):
-        with patch("gtts.gTTS") as mock_gtts:
-            mock_inst = MagicMock()
-            def write_to_fp(buf):
-                buf.write(b"\xff\xfb")
-            mock_inst.write_to_fp.side_effect = write_to_fp
-            mock_gtts.return_value = mock_inst
-            result = _real_synthesize("Hi", "en")
-            assert len(result) >= 1
+        # Edge TTS öncelikli; mock'layınca gTTS yedek yolunu test ederiz
+        with patch("services.tts_service._synthesize_edge_async", side_effect=Exception("skip edge")):
+            with patch("gtts.gTTS") as mock_gtts:
+                mock_inst = MagicMock()
+                def write_to_fp(buf):
+                    buf.write(b"\xff\xfb")
+                mock_inst.write_to_fp.side_effect = write_to_fp
+                mock_gtts.return_value = mock_inst
+                result = _real_synthesize("Hi", "en")
+                assert len(result) >= 1
 
     def test_synthesize_exception_returns_empty(self):
-        with patch("gtts.gTTS", side_effect=Exception("network error")):
-            result = _real_synthesize("Hello", "en")
+        # Edge TTS ve gTTS ikisi de hata verirse boş bytes döner
+        with patch("services.tts_service._synthesize_edge_async", side_effect=Exception("edge fail")):
+            with patch("gtts.gTTS", side_effect=Exception("network error")):
+                result = _real_synthesize("Hello", "en")
         assert result == b""
 
 

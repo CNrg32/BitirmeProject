@@ -3,10 +3,13 @@ from __future__ import annotations
 import io
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+_USE_HALF = os.environ.get("IMAGE_USE_HALF", "").strip().lower() in ("1", "true", "yes")
 
 _BASE = Path(__file__).resolve().parent.parent.parent
 _MODEL_PATH = _BASE / "out_models" / "best_emergency_model.pth"
@@ -125,7 +128,9 @@ class ImageModelService:
             model.load_state_dict(state_dict)
             model.to(self._device)
             model.eval()
-
+            if _USE_HALF and self._device.type in ("cuda", "mps"):
+                model = model.half()
+                logger.info("Image model using FP16 (half precision) on %s", self._device)
             self._model = model
             self._loaded = True
             logger.info("Image model loaded from %s on %s", model_path, self._device)
@@ -145,9 +150,11 @@ class ImageModelService:
         img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         transform = _get_transforms()
         tensor = transform(img).unsqueeze(0).to(self._device)
+        if _USE_HALF and self._device.type in ("cuda", "mps"):
+            tensor = tensor.half()
 
         class_names = self._class_names
-        with torch.no_grad():
+        with torch.inference_mode():
             outputs = self._model(tensor)
             probs = torch.nn.functional.softmax(outputs, dim=1)[0]
             top3_probs, top3_indices = torch.topk(probs, k=min(3, len(class_names)))

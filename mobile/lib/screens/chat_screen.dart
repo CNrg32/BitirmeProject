@@ -15,6 +15,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../core/app_strings.dart';
+import '../core/app_theme.dart';
 import '../models/chat_message.dart';
 import '../services/api_service.dart';
 import '../widgets/chat_bubble.dart';
@@ -29,6 +31,7 @@ class ChatScreen extends StatefulWidget {
   final String? greetingAudioB64;
   final String language;
   final bool testMode;
+  final String? initialMessage;
 
   const ChatScreen({
     super.key,
@@ -38,6 +41,7 @@ class ChatScreen extends StatefulWidget {
     this.greetingAudioB64,
     required this.language,
     this.testMode = false,
+    this.initialMessage,
   });
 
   @override
@@ -67,6 +71,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Position? _currentPosition;
 
   int? _playingMessageIndex;
+  bool _initialMessageSent = false;
+  bool _connectionError = false;
 
   @override
   void initState() {
@@ -83,14 +89,65 @@ class _ChatScreenState extends State<ChatScreen> {
         widget.greetingAudioUrl!.isNotEmpty) {
       _playingMessageIndex = 0;
       _playAudioUrl(widget.greetingAudioUrl!);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
+          _sendInitialMessage();
+        } else {
+          _startRecording();
+        }
+      });
     }
     _captureLocation();
 
     _audioPlayer.onPlayerComplete.listen((_) {
-      if (mounted) {
-        setState(() => _playingMessageIndex = null);
+      if (!mounted) return;
+      final wasGreeting = _playingMessageIndex == 0;
+      setState(() => _playingMessageIndex = null);
+      if (wasGreeting) {
+        if (widget.initialMessage != null &&
+            widget.initialMessage!.trim().isNotEmpty &&
+            !_initialMessageSent) {
+          _sendInitialMessage();
+        } else {
+          _startRecording();
+        }
       }
     });
+  }
+
+  Future<void> _sendInitialMessage() async {
+    if (_initialMessageSent) return;
+    final text = widget.initialMessage!.trim();
+    if (text.isEmpty) {
+      _startRecording();
+      return;
+    }
+    setState(() => _initialMessageSent = true);
+    setState(() {
+      _messages.add(ChatMessage(text: text, isUser: true));
+      _isSending = true;
+      _connectionError = false;
+    });
+    _scrollToBottom();
+    try {
+      final api = context.read<ApiService>();
+      final resp = await api.sendMessage(
+        sessionId: widget.sessionId,
+        text: text,
+        latitude: _currentPosition?.latitude,
+        longitude: _currentPosition?.longitude,
+      );
+      _handleResponse(resp);
+    } catch (e) {
+      setState(() {
+        _connectionError = true;
+        _isSending = false;
+      });
+      _addAssistant('${AppStrings.errorOccurred}: $e');
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
   }
 
   @override
@@ -154,7 +211,8 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       _handleResponse(resp);
     } catch (e) {
-      _addAssistant('Error: $e');
+      if (mounted) setState(() => _connectionError = true);
+      _addAssistant('${AppStrings.errorOccurred}: $e');
     } finally {
       setState(() => _isSending = false);
     }
@@ -173,7 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: $e')),
+          SnackBar(content: Text('${AppStrings.failedToPickImage}: $e')),
         );
       }
     }
@@ -188,7 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
+              title: const Text('Fotoğraf çek'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.camera);
@@ -196,7 +254,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
+              title: const Text('Galeriden seç'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.gallery);
@@ -234,7 +292,8 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       _handleResponse(resp);
     } catch (e) {
-      _addAssistant('Error processing image: $e');
+      setState(() => _connectionError = true);
+      _addAssistant('${AppStrings.errorOccurred}: $e');
     } finally {
       setState(() => _isSending = false);
     }
@@ -262,12 +321,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!await _recorder.hasPermission()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Microphone permission is required. '
-                'Please allow it in the browser popup.',
-              ),
-            ),
+            const SnackBar(content: Text(AppStrings.micPermissionRequired)),
           );
         }
         return;
@@ -284,12 +338,12 @@ class _ChatScreenState extends State<ChatScreen> {
             SnackBar(
               content: Text(
                 openSettings
-                    ? 'Microphone access was denied. Please enable it in Settings.'
-                    : 'Microphone access is required to record voice.',
+                    ? AppStrings.micDeniedOpenSettings
+                    : AppStrings.micRequired,
               ),
               action: openSettings
                   ? SnackBarAction(
-                      label: 'Settings',
+                      label: AppStrings.openSettings,
                       onPressed: () => openAppSettings(),
                     )
                   : null,
@@ -301,8 +355,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!await _recorder.hasPermission()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Microphone permission was not granted.')),
+            const SnackBar(content: Text(AppStrings.micNotGranted)),
           );
         }
         return;
@@ -334,15 +387,15 @@ class _ChatScreenState extends State<ChatScreen> {
           if (mounted) setState(() => _recordingSeconds++);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
-                Icon(Icons.mic, color: Colors.white, size: 20),
-                SizedBox(width: 8),
-                Text('Recording… Tap the red button to stop and send.'),
+                const Icon(Icons.mic, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(child: Text(AppStrings.recordingTapToStop)),
               ],
             ),
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
             backgroundColor: Colors.red,
           ),
         );
@@ -350,7 +403,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not start recording: $e')),
+          SnackBar(content: Text('${AppStrings.couldNotStartRecording}: $e')),
         );
       }
     }
@@ -438,13 +491,15 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       _handleResponse(resp);
     } catch (e) {
-      _addAssistant('Error processing audio: $e');
+      setState(() => _connectionError = true);
+      _addAssistant('${AppStrings.errorOccurred}: $e');
     } finally {
       setState(() => _isSending = false);
     }
   }
 
   void _handleResponse(Map<String, dynamic> resp) {
+    setState(() => _connectionError = false);
     final text = resp['assistant_text'] as String? ?? '';
     final audioB64 = resp['assistant_audio_b64'] as String?;
     final audioUrl = resp['assistant_audio_url'] as String?;
@@ -531,6 +586,26 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _callEmergency() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text(AppStrings.emergencyCall),
+        content: const Text(AppStrings.confirmCall112),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(AppStrings.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.criticalRed),
+            child: const Text(AppStrings.yesCall),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     final uri = Uri(scheme: 'tel', path: '112');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
@@ -563,9 +638,27 @@ class _ChatScreenState extends State<ChatScreen> {
     final theme = Theme.of(context);
     final isCritical = _triageResult?['triage_level'] == 'CRITICAL';
 
+    final stepLabel = _isComplete
+        ? AppStrings.stepResult
+        : _triageResult != null
+            ? AppStrings.stepAssessing
+            : AppStrings.stepDescribe;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Emergency Session'),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(AppStrings.sessionTitle),
+            Text(
+              stepLabel,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -589,26 +682,26 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: Colors.white24,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child:
-                    const Text('Test', style: TextStyle(fontSize: 12)),
+                child: const Text('Test', style: TextStyle(fontSize: 12)),
               ),
             ),
           if (_report != null)
             IconButton(
               icon: const Icon(Icons.assignment),
-              tooltip: 'View Report',
+              tooltip: AppStrings.viewReport,
               onPressed: _showReport,
             ),
           if (_isComplete)
             IconButton(
               icon: const Icon(Icons.check_circle),
-              tooltip: 'Session complete',
+              tooltip: AppStrings.sessionComplete,
               onPressed: () {},
             ),
         ],
       ),
       body: Column(
         children: [
+          if (_connectionError) _buildErrorBanner(theme),
           if (_triageResult != null)
             TriageCard(
               result: _triageResult!,
@@ -642,7 +735,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Icon(Icons.mic, color: Colors.red.shade700, size: 24),
                   const SizedBox(width: 10),
                   Text(
-                    'Recording: $_recordingSeconds s — tap stop to send',
+                    '${AppStrings.formatRecordingSeconds(_recordingSeconds)} — ${AppStrings.tapToStopAndSend}',
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: Colors.red.shade800,
                       fontWeight: FontWeight.w600,
@@ -655,6 +748,53 @@ class _ChatScreenState extends State<ChatScreen> {
           if (_isComplete) _buildCompletedBar(theme),
           if (!_isComplete) _buildInputBar(theme),
         ],
+      ),
+    );
+  }
+
+  Widget _buildErrorBanner(ThemeData theme) {
+    return Material(
+      color: AppTheme.urgentAmber.withOpacity(0.15),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded,
+                  color: AppTheme.urgentAmber, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppStrings.noConnection,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      AppStrings.noConnectionHint,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton(
+                onPressed: _callEmergency,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.criticalRed,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: const Text(AppStrings.call112Anyway),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -676,17 +816,17 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text('Image attached',
+            child: Text('Fotoğraf eklendi',
                 style: theme.textTheme.bodyMedium),
           ),
           IconButton(
             icon: const Icon(Icons.send),
-            tooltip: 'Send image only',
+            tooltip: AppStrings.send,
             onPressed: _isSending ? null : _sendImageOnly,
           ),
           IconButton(
             icon: const Icon(Icons.close),
-            tooltip: 'Remove image',
+            tooltip: AppStrings.cancel,
             onPressed: () => setState(() => _pendingImage = null),
           ),
         ],
@@ -718,7 +858,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Session completed',
+                    AppStrings.sessionComplete,
                     style: theme.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
@@ -733,7 +873,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _showReport,
                       icon: const Icon(Icons.assignment),
-                      label: const Text('View Report'),
+                      label: const Text(AppStrings.viewReport),
                     ),
                   ),
                 if (_report != null && isCritical)
@@ -743,9 +883,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: FilledButton.icon(
                       onPressed: _callEmergency,
                       icon: const Icon(Icons.phone),
-                      label: const Text('Call 112'),
+                      label: const Text(AppStrings.call112),
                       style: FilledButton.styleFrom(
-                          backgroundColor: Colors.red),
+                          backgroundColor: AppTheme.criticalRed),
                     ),
                   ),
               ],
@@ -860,7 +1000,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ? theme.colorScheme.primary
                         : null,
                   ),
-                  tooltip: 'Attach photo',
+                  tooltip: AppStrings.attachPhoto,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -868,7 +1008,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _textController,
                     enabled: !_isSending && !_isRecording,
                     decoration: InputDecoration(
-                      hintText: 'Or type here…',
+                      hintText: AppStrings.orTypeHere,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide.none,
