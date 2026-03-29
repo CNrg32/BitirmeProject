@@ -62,3 +62,57 @@ Chatbot cevaplarını kendi istediğiniz forma getirmek için:
    PYTHONPATH=src python scripts/export_llm_finetune_data.py
    ```
    Çıktı: `data/llm_finetune_train.jsonl`. İleride gerçek model fine-tuning (OpenAI API veya LoRA) yapmak için bu dosyayı kullanabilirsiniz.
+
+## Fine-tuning the chatbot JSON responder
+
+The project now includes a supervised fine-tuning script for the chatbot output format used by the triage flow.
+
+Expected JSONL sample format (`data/labels/chatbot_finetune_template.jsonl`):
+
+```json
+{"language":"en","history":[{"role":"user","text":"My father is not breathing."}],"target":{"response_text":"Is he conscious right now?","extracted_slots":{"chief_complaint":"not breathing"},"triage_level":"CRITICAL","category":"medical","is_complete":true,"red_flags":["not breathing"]}}
+```
+
+Run fine-tuning:
+
+```bash
+make finetune-chatbot
+```
+
+Build training data automatically from existing CSV labels:
+
+```bash
+make build-chatbot-data
+```
+
+Then train on generated files:
+
+```bash
+PYTHONPATH=src python scripts/train_chatbot_finetune.py \
+	--train-file data/labels/chatbot_finetune_train.jsonl \
+	--val-file data/labels/chatbot_finetune_val.jsonl \
+	--output-dir out_models/chatbot_finetuned
+```
+
+Custom run (different dataset/model/output):
+
+```bash
+PYTHONPATH=src python scripts/train_chatbot_finetune.py \
+	--train-file data/labels/your_chatbot_train.jsonl \
+	--val-file data/labels/your_chatbot_val.jsonl \
+	--model-name google/flan-t5-small \
+	--output-dir out_models/chatbot_finetuned_v2
+```
+
+Use the fine-tuned model in backend (offline/local provider):
+
+```bash
+# PowerShell
+$env:LOCAL_CHATBOT_MODEL_DIR="out_models/chatbot_finetuned"
+uvicorn src.main:app --host 127.0.0.1 --port 8000
+```
+
+Provider order is now:
+1. `LOCAL_CHATBOT_MODEL_DIR` (local fine-tuned model)
+2. `GROQ_API_KEY`
+3. `GEMINI_API_KEY` / `GOOGLE_API_KEY`
