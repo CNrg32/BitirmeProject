@@ -237,47 +237,26 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _showImageSourceDialog() {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Fotoğraf çek'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Galeriden seç'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _sendImageOnly() async {
     if (_pendingImage == null || _isSending) return;
-
     final imgBytes = await _pendingImage!.readAsBytes();
+    setState(() => _pendingImage = null);
+    await _sendImageBytes(Uint8List.fromList(imgBytes));
+  }
+
+  /// Sunucudaki görüntü modeli ile analiz: oturuma görsel gönderir, triyaj + görsel analiz döner.
+  Future<void> _sendImageBytes(Uint8List imgBytes) async {
+    if (_isSending) return;
     final imageB64 = base64Encode(imgBytes);
 
     setState(() {
       _messages.add(
         ChatMessage(
-            text: '[Photo sent]', isUser: true, imageBytes: imgBytes),
+          text: '[Photo sent]',
+          isUser: true,
+          imageBytes: imgBytes,
+        ),
       );
-      _pendingImage = null;
       _isSending = true;
     });
     _scrollToBottom();
@@ -295,7 +274,57 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() => _connectionError = true);
       _addAssistant('${AppStrings.errorOccurred}: $e');
     } finally {
-      setState(() => _isSending = false);
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
+
+  /// Uygulama içi kamera ile çekim; önizleme olmadan doğrudan modele gönderilir.
+  Future<void> _captureAndAnalyzePhoto() async {
+    if (_isSending || _isRecording) return;
+
+    if (!kIsWeb) {
+      PermissionStatus status = await Permission.camera.status;
+      if (!status.isGranted) {
+        status = await Permission.camera.request();
+      }
+      if (!status.isGranted) {
+        if (!mounted) return;
+        final openSettings = status.isPermanentlyDenied;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              openSettings
+                  ? AppStrings.cameraDeniedOpenSettings
+                  : AppStrings.cameraRequired,
+            ),
+            action: openSettings
+                ? SnackBarAction(
+                    label: AppStrings.openSettings,
+                    onPressed: () => openAppSettings(),
+                  )
+                : null,
+          ),
+        );
+        return;
+      }
+    }
+
+    try {
+      final picked = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked == null || !mounted) return;
+      final bytes = await picked.readAsBytes();
+      await _sendImageBytes(Uint8List.fromList(bytes));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppStrings.failedToPickImage}: $e')),
+        );
+      }
     }
   }
 
@@ -990,12 +1019,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  onPressed: _isSending || _isRecording
+                      ? null
+                      : _captureAndAnalyzePhoto,
+                  icon: const Icon(Icons.photo_camera),
+                  tooltip: AppStrings.takePhotoAnalyze,
+                ),
+                const SizedBox(width: 4),
                 IconButton(
                   onPressed: _isSending || _isRecording
                       ? null
-                      : _showImageSourceDialog,
+                      : () => _pickImage(ImageSource.gallery),
                   icon: Icon(
-                    Icons.camera_alt,
+                    Icons.photo_library_outlined,
                     color: _pendingImage != null
                         ? theme.colorScheme.primary
                         : null,

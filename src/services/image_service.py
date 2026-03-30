@@ -12,8 +12,43 @@ logger = logging.getLogger(__name__)
 _USE_HALF = os.environ.get("IMAGE_USE_HALF", "").strip().lower() in ("1", "true", "yes")
 
 _BASE = Path(__file__).resolve().parent.parent.parent
-_MODEL_PATH = _BASE / "out_models" / "best_emergency_model.pth"
-_CLASS_NAMES_PATH = _BASE / "out_models" / "image_class_names.json"
+
+# Optional overrides (absolute path, or relative to project root):
+#   IMAGE_MODEL_PATH, IMAGE_CLASS_NAMES_PATH
+# Defaults: out_models/best_emergency_model.pth and out_models/image_class_names.json,
+# with fallback to out_models/image_outputs/ when the root files are absent.
+
+
+def _env_path(name: str) -> Optional[Path]:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    if not p.is_absolute():
+        p = _BASE / p
+    return p
+
+
+def _resolve_model_path() -> Path:
+    env = _env_path("IMAGE_MODEL_PATH")
+    if env is not None:
+        return env
+    root = _BASE / "out_models" / "best_emergency_model.pth"
+    nested = _BASE / "out_models" / "image_outputs" / "best_emergency_model.pth"
+    if nested.exists() and not root.exists():
+        return nested
+    return root
+
+
+def _resolve_class_names_path() -> Path:
+    env = _env_path("IMAGE_CLASS_NAMES_PATH")
+    if env is not None:
+        return env
+    root = _BASE / "out_models" / "image_class_names.json"
+    nested = _BASE / "out_models" / "image_outputs" / "image_class_names.json"
+    if nested.exists() and not root.exists():
+        return nested
+    return root
 
 _CLASS_NAMES_FALLBACK: List[str] = [
     "Abuse", "Arrest", "Arson", "Assault", "Burglary", "Explosion", "Fighting",
@@ -86,7 +121,8 @@ class ImageModelService:
         return self._loaded
 
     def load(self, model_path: Optional[str] = None) -> bool:
-        model_path = Path(model_path) if model_path else _MODEL_PATH
+        model_path = Path(model_path) if model_path else _resolve_model_path()
+        class_names_path = _resolve_class_names_path()
         if not model_path.exists():
             logger.warning(
                 "Image model not found at %s – image analysis will be unavailable.",
@@ -99,14 +135,15 @@ class ImageModelService:
             import torch.nn as nn
             from torchvision import models
 
-            if _CLASS_NAMES_PATH.exists():
-                with open(_CLASS_NAMES_PATH, encoding="utf-8") as f:
+            if class_names_path.exists():
+                with open(class_names_path, encoding="utf-8") as f:
                     data = json.load(f)
                 self._class_names = data.get("class_names", _CLASS_NAMES_FALLBACK)
             else:
                 self._class_names = _CLASS_NAMES_FALLBACK.copy()
                 logger.warning(
-                    "image_class_names.json not found, using fallback class list."
+                    "image_class_names.json not found at %s, using fallback class list.",
+                    class_names_path,
                 )
 
             if torch.backends.mps.is_available():

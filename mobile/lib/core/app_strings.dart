@@ -45,7 +45,11 @@ class AppStrings {
   static const String stepAssessing = 'Değerlendiriliyor';
   static const String stepResult = 'Sonuç';
   static const String orTypeHere = 'Veya buraya yaz…';
-  static const String attachPhoto = 'Fotoğraf ekle';
+  static const String attachPhoto = 'Galeriden fotoğraf ekle';
+  static const String takePhotoAnalyze = 'Fotoğraf çek ve analiz et';
+  static const String cameraRequired = 'Fotoğraf çekmek için kamera izni gerekli.';
+  static const String cameraDeniedOpenSettings =
+      'Kamera erişimi reddedildi. Lütfen Ayarlar\'dan etkinleştirin.';
   static const String recording = 'Kayıt';
   static const String tapToStopAndSend = 'Göndermek için dokun';
   static const String recordingSeconds = 'Kayıt: %s sn';
