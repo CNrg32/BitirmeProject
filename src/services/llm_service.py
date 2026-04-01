@@ -198,12 +198,28 @@ class _GroqProvider:
     def is_ready(self) -> bool:
         return self._client is not None
 
-    def chat(self, history: List[Dict[str, str]], language: str) -> Dict[str, Any]:
+    def chat(
+        self,
+        history: List[Dict[str, str]],
+        language: str,
+        task: Optional[str] = None,
+        session_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if not self.is_ready:
             return dict(_EMPTY_LLM_RESPONSE)
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
-        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name)
+        
+        # FAZ 4: Use task-specific prompt (triage vs dialog)
+        prompt_task = task or "dialog"  # Default to dialog if not specified
+        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name, task=prompt_task)
+        
+        # FAZ 3: Inject session context for category locking (future: FAZ 4 will use this actively)
+        if session_context and session_context.get("initial_category"):
+            logger.debug("Session context injected: category=%s, dispatch_status=%s, task=%s",
+                        session_context.get("initial_category"), 
+                        session_context.get("dispatch_status"),
+                        prompt_task)
 
         messages = [{"role": "system", "content": system}]
         for msg in history:
@@ -249,8 +265,49 @@ class _GeminiProvider:
     def is_ready(self) -> bool:
         return self._client is not None
 
-    def chat(self, history: List[Dict[str, str]], language: str) -> Dict[str, Any]:
+    def chat(
+        self,
+        history: List[Dict[str, str]],
+        language: str,
+        task: Optional[str] = None,
+        session_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if not self.is_ready:
+            return dict(_EMPTY_LLM_RESPONSE)
+
+        lang_name = LANGUAGE_NAMES.get(language, "English")
+        
+        # FAZ 4: Use task-specific prompt (triage vs dialog)
+        prompt_task = task or "dialog"  # Default to dialog if not specified
+        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name, task=prompt_task)
+        
+        # FAZ 3: Inject session context for category locking (future: FAZ 4 will use this actively)
+        if session_context and session_context.get("initial_category"):
+            logger.debug("Session context injected (Gemini): category=%s, dispatch_status=%s, task=%s",
+                        session_context.get("initial_category"), 
+                        session_context.get("dispatch_status"),
+                        prompt_task)
+
+        messages = [{"role": "user", "content": system}]
+        for msg in history:
+            role = "model" if msg.get("role") == "assistant" else "user"
+            messages.append({"role": role, "content": msg.get("text", "")})
+
+        try:
+            response = self._client.models.generate_content(
+                model=self.model,
+                contents=messages,
+                generation_config={
+                    "temperature": 0.3,
+                    "top_p": 0.95,
+                    "max_output_tokens": 1024,
+                },
+            )
+            raw = response.text or ""
+            logger.debug("Gemini raw response: %s", raw[:500])
+            return _parse_llm_json(raw)
+        except Exception as exc:
+            logger.error("Gemini chat failed: %s", exc)
             return dict(_EMPTY_LLM_RESPONSE)
 
 
@@ -290,7 +347,13 @@ class _LocalFineTunedProvider:
     def is_ready(self) -> bool:
         return self._model is not None and self._tokenizer is not None
 
-    def chat(self, history: List[Dict[str, str]], language: str) -> Dict[str, Any]:
+    def chat(
+        self,
+        history: List[Dict[str, str]],
+        language: str,
+        task: Optional[str] = None,
+        session_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if not self.is_ready:
             return dict(_EMPTY_LLM_RESPONSE)
 
@@ -316,35 +379,6 @@ class _LocalFineTunedProvider:
             return _parse_llm_json(raw)
         except Exception as exc:
             logger.error("Local model chat failed: %s", exc)
-            return dict(_EMPTY_LLM_RESPONSE)
-
-        lang_name = LANGUAGE_NAMES.get(language, "English")
-        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name)
-
-        contents = []
-        for msg in history:
-            role = "model" if msg.get("role") == "assistant" else "user"
-            contents.append({"role": role, "parts": [{"text": msg.get("text", "")}]})
-
-        try:
-            from google import genai  # type: ignore
-            from google.genai import types  # type: ignore
-
-            response = self._client.models.generate_content(
-                model=self.model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=system,
-                    response_mime_type="application/json",
-                    temperature=0.3,
-                    max_output_tokens=1024,
-                ),
-            )
-            raw = response.text or ""
-            logger.debug("Gemini raw response: %s", raw[:500])
-            return _parse_llm_json(raw)
-        except Exception as exc:
-            logger.error("Gemini chat failed: %s", exc)
             return dict(_EMPTY_LLM_RESPONSE)
 
 
@@ -402,14 +436,25 @@ class LLMService:
     # 5. Token limiti: son 10 mesajı gönder (yaklaşık 3-4k token)
     _MAX_HISTORY_TURNS = 10
 
-    def chat(self, history: List[Dict[str, str]], language: str = "en") -> Dict[str, Any]:
+    def chat(
+        self,
+        history: List[Dict[str, str]],
+        language: str = "en",
+        task: Optional[str] = None,
+        session_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if self._provider is None:
             return dict(_EMPTY_LLM_RESPONSE)
         trimmed = history[-self._MAX_HISTORY_TURNS:] if len(history) > self._MAX_HISTORY_TURNS else history
         if len(history) != len(trimmed):
             logger.debug("History trimmed from %d to %d messages for token efficiency.",
                          len(history), len(trimmed))
-        return self._provider.chat(history=trimmed, language=language)
+        return self._provider.chat(
+            history=trimmed,
+            language=language,
+            task=task,
+            session_context=session_context,
+        )
 
 
 # ---------------------------------------------------------------------------

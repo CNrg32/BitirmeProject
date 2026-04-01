@@ -1,0 +1,347 @@
+CHATBOT UYGULAMA PLANI
+
+Amac (Groq-First, TextAnalyze-Later Approach)
+- ŞU AN (Model Geçişine Kadar): Groq ilk mesajda triage yapar (kategori + seviye).
+- GELECEKTE (TextAnalyze Hazır Olunca): TextAnalyze kategori ve baslangic seviye otoritesi olur.
+- Groq fallback/assistant role'ye geçer.
+- LLM karar merkezi degil; daraltilmis acil ihbar asistani olarak gorev yapar.
+- Kritik operasyonel kurallar backend tarafinda kalir.
+
+TEMEL MIMARI
+
+1. ŞU ANKI MOD: Groq Primary (TextAnalyze Hazır Olana Kadar)
+- Kullanici ilk mesaji gonderir.
+- Groq kategori + seviye uretir.
+- Bu sonuc session icinde authoritative olarak saklanir.
+- Groq bundan sonra su isleri yapar:
+  - tek soru sormak
+  - eksik slot toplamak
+  - celiski netlestirmek
+  - ilk yardim veya guvenlik talimati vermek
+  - non-critical kapanis dili kurmak
+  - dispatch sonrasi ek bilgi almak
+
+2. GELECEKTEKİ MOD: TextAnalyze Primary (Model Hazır Olunca Switch Yapilacak)
+- TextAnalyze kategori + seviye uretir.
+- Bu sonuc session icinde authoritative olarak saklanir.
+- Groq fallback assistant role'ye geçer (TextAnalyze'nin kararını respekt eder).
+- Fallback Groq: TextAnalyze fail olursa devreye girer:
+  - Kullaniciya kategori butonlari gosterilir:
+    - Tibbi
+    - Polis
+    - Itfaiye
+  - Kullanicidan kisa aciklama istenir.
+  - Groq: secilen buton ile aciklamanin uyumlu olup olmadigini kontrol eder
+  - Uyumsuzsa duzeltme ister, uyumluysa kategoriyi kilitler
+  - Metne bakarak Critical / Urgent / Non-Critical belirler
+
+4. Backend Tarafinda Kalacak Kurallar (Değişmez)
+- dispatch lock
+- timeout sayaçlari
+- silent dispatch tetikleme
+- session state guncelleme
+- resume akisi
+- son guvenlik korumalari
+- ayni vaka icin ikinci dispatchi engelleme
+(TextAnalyze future switch'inde de bu kurallar aynı kalır)
+
+5. LLM (Groq) Tarafinda Kalacak Davranislar (ŞU AN)
+- triage (kategori + severity belirleme)
+- intent confirmation (fallback modda)
+- 2 deneme sonrasi nazik gecis dili
+- witness mode soru secimi dili
+- non-critical soft close dili
+(TextAnalyze switch'inde bunlar fallback mode'a indirgenir)
+- contradiction netlestirme dili
+- non-critical yumusak kapanis dili
+- kapsam disi sorularda "Burasi 112 acil hattidir" cevabi
+- dispatch sonrasi kisa rehberlik ve update alma dili
+
+FINE-TUNE KAPSAMI (ŞU AN GROQ BAZLI)
+
+Fine-tune edilmeyecek / şu an yapılmayacak
+- TextAnalyze modeli (ileride hazır olunca entegre edilecek)
+- Groq modelinin baştan eğitilmesi (Groq llama-3.3-70b, kütüphane modeli)
+
+Fine-tune edilecek / şu an Groq'a özel prompt yazılacak
+- Groq triage davranışı
+- Daraltılmış chatbot davranışı (sadece acil ihbar asistanı)
+- Özellikle şu beceriler:
+  - kategori + severity belirleme (triage)
+  - fallback intent confirmation (gelecekte)
+  - tek soru sorma stili
+  - 2 deneme kuralına uygun soru sorma tarzı
+  - tanık modunda doğru soru seçimi
+  - contradiction handler dili
+  - non-critical kapanış dili
+  - genel dünya sorularında sınır koyma dili
+  - dispatch sonrası rehberlik ve ek bilgi update dili
+
+NOT: Bu fine-tune değil, prompt engineering/system prompt daraltmasıdır. Gerçek fine-tune TextAnalyze hazır olup davranış stabilleştikten sonra yapılacaktır.
+
+FAZLAR
+
+Faz 1 - Sorumluluk ayrimi
+- TextAnalyze ve LLM rollerini kesin ayir.
+- Normal mod ve fallback mod akisini sabitle.
+
+Faz 2 - Session state tasarimi
+- Session alanlari:
+  - initial_triage
+  - dispatch_status
+  - troll_count
+  - contradiction_pending
+  - slot_attempt_counts
+  - timeout_deadline
+  - last_user_activity_at
+  - resumed_after_timeout
+  - witness_mode
+  - pending_update_after_dispatch
+
+Faz 2.1 - DİSPATCH LOCK IMPLEMENTASYONU (Safety-Critical)
+- Veri yapısı: vaka_id + dispatch_target (police/medical/fire) + timestamp
+- Storage: SessionStore'a dispatch_history hash table ekle
+- Kural: Aynı vaka_id'ye 2 kez dispatch YALNIZCA 48 saatlik TTL sonrası
+- Kontrol: session.dispatch_status == "DISPATCHED" → "Ekipler zaten gönderildi" cevabı
+- Redis alternatifi: Production'da Redis cache (durable, distributed)
+- Implementation: src/orchestrator/session.py + src/orchestrator/orchestrator.py
+  - dispatch_target field Session'a ekle
+  - dispatch_timestamp field Session'a ekle
+  - can_redispatch(session, 48*3600) helper function ekle
+
+Faz 3 - Katman 1 ve 2 akisi (Groq Triage)
+- Anlamsiz girdi 2 kez gelirse oturum kapat.
+- Ilk anlamli mesajda Groq ile triage yap (kategori + severity).
+- Groq triage basarili ise normale modu baslatma:
+  - kategoriyi session uzerine kitle (global context)
+  - slot toplama ve dialog manager'i calistir
+- Groq triage basarisiz/hata ise fallback moduna gir (gelecekte):
+  - (ileride TextAnalyze entegrasyonu bu asamada will activate)
+  - şu an placeholder (simdiye kadar Groq'a guven)
+
+Faz 3.1 - MESSAGE HISTORY TRUNCATION (Groq Context Limit)
+- Problem: Groq llama-3.3-70b ~8000 token context limit
+- Çözüm: Her Groq çağısında history truncate et
+- Implementation:
+  - Session'da geçmiş tüm mesajları saklama, sadece son 8-10 turn store et
+  - Groq çağırsa öncesi: system_info + triage_result + recent_turns + current_message
+  - Eski turns'ları drop et veya tek satırlı summary yapabilirsin
+  - Graveyard: tüm history JSON dosyasına yazıp session close olunca log olarak kaydet
+- İmplementasyon: src/orchestrator/orchestrator.py handle_message() başında
+  - history = session.message_history[-10:] # Son 10 turn
+  - context_tokens = estimate_tokens(history) # Kontrol et uyuyorsa
+  - Overflow durumunda ilk N turn'ı drop et
+
+Faz 4 - LLM prompt daraltma
+- LLM kategori belirleyen genel bir model gibi davranmayacak.
+- Prompt iki mod bilecek:
+  - authoritative triage context ile calisan normal mod
+  - buton + aciklama ile calisan fallback mod
+- Tek soru, net yanit, konumu tekrar sormama, witness mode ve sinirli alan davranislari zorunlu olacak.
+
+Faz 5 - Slot toplama
+- Her kritik slot icin en fazla 2 deneme.
+- Sonra Unknown atayip siradaki slota gec.
+- Witness mode aktifse bilinmesi beklenmeyen slotlari atla.
+
+Faz 6 - Operasyonel mantik
+- CRITICAL: ilk hayati isarette erken dispatch.
+- URGENT: slot toplarken surekli escalation kontrolu.
+- NON-CRITICAL: 1-2 dogrulamadan sonra resmi ama yumusak kapanis.
+
+Faz 7 - Timeout ve resume
+- 3 dakika sessizlik mantigi last_user_activity_at ile yurutulur.
+- CRITICAL/URGENT sessizlikte silent dispatch.
+- Kullanici geri donerse resume modu acilir.
+
+Faz 8 - Final paket ve dispatch sonrasi update
+- Ozet karti olustur.
+- Ekipler yonlendirildi bilgisini ver.
+- Kullanicidan gelen yeni bilgi yeni vaka gibi degil, mevcut vakaya ek not gibi islenir.
+
+Faz 9 - Mobil ve API sozlesmesi
+- session/message yanitina su alanlar eklenir:
+  - chatbot_mode
+  - dispatch_status
+  - resume_prompt
+  - summary_card
+  - followup_status
+  - nearby_places
+- Mobilde fallback butonlari, resume ekrani ve update alani gosterilir.
+
+Faz 10 - Davranış Stabilizasyonu (Groq)
+- Groq triage, slot filling, dialog davranışını test et.
+- Tüm layer'lar stabil hale gelene kadar iterasyon yap.
+- Backend dispatch lock, timeout, silent dispatch sistemini doğrula.
+- Davranış doğrulandıktan sonra TextAnalyze hazırlığına geçil.
+
+Faz 10.1 - FALLBACK SWITCH TESTING STRATEGY (TextAnalyze Ready'ye Hazırlık)
+- Problem: TextAnalyze entegre olana kadar fallback akışını test edemeyiz
+- Çözüm: 3 katmanlı test stratejisi
+
+Test 1: Mock TextAnalyze (Development)
+- src/services/text_analyze_mock.py oluştur
+- TextAnalyze call'ı dev'de mock endpoint'e yönlendir
+- Mock'tan "fail", "uncertain", "valid" scenarios test et
+- Button UI'sı şu an dummy state'le render et (prod'da real TextAnalyze fail tetikler)
+
+Test 2: System Prompt'ta Fallback Simulation
+- Groq system prompt'a geliştirici kontrolü ekle:
+  "DEBUG_MODE: false # true ise fallback akışını simulate et"
+- qa.env'de DEBUG_MODE=true
+- Groq'u fallback durumunu test için force et
+
+Test 3: Manual Fallback Button Testing (TextAnalyze Integration Öncesi)
+- Mobile'da button UI geliştirme: dummy category state'ler ile design et
+- Resume ekranı + update field'ı şu an TextAnalyze olmadan test et
+- Groq fallback intent confirmation dili stabil olunca prod'a tak
+
+Implementasyon:
+- src/main.py: /test/simulate-fallback endpoint ekle (dev only)
+- src/services/llm_prompt_config.py: DEBUG_FALLBACK_MODE context ekle
+- mobile/: Button UI'sı şu an Placeholder com/demo component olarak yaz
+
+Faz 11 - TextAnalyze Entegrasyonu (Gelecekte, Model Hazır Olunca)
+- TextAnalyze modeli production'a entegre et.
+- Faz 3 (Katman 1 ve 2) logikasını TextAnalyze'nin yanında çalışacak şekilde update:
+  - Groq triage sonucu ile TextAnalyze triage sonucunu compare et
+  - TextAnalyze authority ile başla, Groq fallback ol
+  - Mismatch/failure case için modal logic (button UI + intent confirmation)
+- Yaklaşık 500 satır kod değişikliği (faz 3 orchestrator + modal dialog + fallback UI)
+- TextAnalyze sonrası fine-tune veri toplamaya başla (davranış doğruladıktan sonra)
+- LLM fine-tune (optional): Behavior'u kalıcılaştırmak için
+
+DOSYA SAHIPLIGI
+
+src/orchestrator/orchestrator.py
+- ana akis
+- mod secimi
+- escalation
+- dispatch lock entegrasyonu
+- timeout ve resume kontrolu
+
+src/orchestrator/session.py
+- session state alanlari
+- dispatch_target, dispatch_timestamp fields
+- can_redispatch() helper function
+
+src/orchestrator/dialog_manager.py
+- 2 deneme slot mantigi
+- witness mode soru setleri
+
+src/services/text_analyze_mock.py (Development)
+- Mock TextAnalyze endpoint (fallback testing için)
+- fail/uncertain/valid scenario simulation
+
+src/services/llm_service.py
+- daraltilmis LLM rol tanimi
+- normal mod / fallback mod promptlama
+
+src/services/llm_prompt_config.py
+- few-shot ornekleri
+- fallback intent confirmation ornekleri
+- non-critical kapanis ornekleri
+- dispatch sonrasi update ornekleri
+
+src/orchestrator/report_composer.py
+- final ozet
+- rehberlik metni
+- dispatch sonrasi ek not ozeti
+
+src/api/schemas.py
+- yeni response alanlari
+
+src/main.py
+- endpoint response genisletmesi
+
+mobile/lib/screens/chat_screen.dart
+- fallback butonlari
+- resume ekrani
+- summary card
+- dispatch sonrasi update alani
+
+UYGULAMA SIRASI (Groq-First Approach)
+
+1. Session state alanlarini netlestir.
+   - dispatch_status, timeout_deadline, resumed_after_timeout, witness_mode, vb.
+
+1.5. Dispatch Lock Implementasyonu
+   - src/orchestrator/session.py: dispatch_target, dispatch_timestamp fields ekle
+   - src/orchestrator/orchestrator.py: can_redispatch() helper ekle
+   - dispatch_lock kontrol mantigi: 48-hour TTL, same vaka_id prevention
+
+2. Orchestrator icinde Groq triage akisini kodla.
+   - TextAnalyze YOK - direkt Groq'a category + severity veriyorsun
+   - kategorisi kilit mantigi (session context injection)
+   - dialog manager'a basla
+
+2.5. Message History Truncation Ekle
+   - Groq context limit (8000 token) gozu onune alarak
+   - Last 8-10 turn'u sakla, eski turn'lari drop et
+   - src/orchestrator/orchestrator.py handle_message()'da truncate logic
+
+3. Groq icin triage prompt yaz.
+   - Few-shot ornekleri ile Groq'a "sen triage yapacaksin" talimatı ver
+   - Normal mod context: "Bu mesajdan kategori ve ciddiyeti belirle"
+   - Fallback placeholder: gelecekte button + intent confirmation
+
+4. Dialog manager icinde 2 deneme kuralini uygula.
+   - Her slot max 2 deneme, sonra Unknown
+
+5. Timeout, resume ve dispatch lock akisini oturt.
+   - Backend rules: 3min silence → silent dispatch
+   - Session resume → last state + update field
+
+6. Final paket ve update modunu ekle.
+   - Summary card generation
+   - Post-dispatch update field
+
+7. Mobil fallback ve resume UI'sini ekle.
+   - Resume ekrani
+   - Update field
+   - (Fallback buttons şu an YALNIZCA gelecekte TextAnalyze failure modunda)
+
+8. Testleri yaz.
+
+8.5. Fallback Switch Testing Strategy
+   - src/services/text_analyze_mock.py: Mock TextAnalyze endpoint kur
+   - src/main.py: /test/simulate-fallback endpoint ekle (dev only)
+   - src/services/llm_prompt_config.py: DEBUG_FALLBACK_MODE context ekle
+   - mobile/lib/: Fallback button UI'sı Placeholder com/demo olarak yaz
+   - Groq stabil olduktan sonra: mock'tan real intent confirmation'a switch
+
+9. TextAnalyze hazir oldugunda: Faz 11'e gec (modal logic + entegrasyon)
+   - Groq fallback'e alınır, TextAnalyze primary olur
+   - Fallback button UI aktifleşir
+
+KABUL KRITERLERI (Groq-First Phase)
+
+ŞU ANKI AŞAMA (Groq Primary):
+- Groq ilk mesajda triage yapıyor (kategori + severity).
+- Groq sonucu session'a aktarılıyor ve LLM tarafından override edilmiyor.
+- LLM fallback modunda açılıyor (buton seçimi TBD, henüz TextAnalyze yok).
+- 2 deneme sonrası slotlar kapanıp döngü kırılıyor.
+- CRITICAL vakada tekrar dispatch olmuyor (dispatch lock çalışıyor).
+  * can_redispatch(session, 48h) kontrol geçiyor ve true dönüyor (48h sonra)
+  * same vaka_id ile 2 dispatch arasında error/warn loglama var
+- Groq context window optimize (last 8-10 turn + system context)
+  * Groq'a giden prompt ~7000 token'a kapalı
+  * Eski turn'lar drop ediliyor / truncate ediliyor
+- 3 dakika sessizlikte silent dispatch çalışıyor (backend rule).
+- Resume modunda kullanıcıya son durum ve güncelleme alanı gösteriliyor.
+- Non-critical vakalarda yumuşak kapanış veriliyor.
+- Genel dünya sorularında sistem 112 sınırını koruyor.
+- Fallback mock testing çalışıyor (dev environment'da)
+  * Mock TextAnalyze fail/uncertain scenario'ları simulate edebiliyor
+  * DEBUG_FALLBACK_MODE=true ile intent confirmation flow doğrulanabiliyor
+
+GELECEKTEKİ AŞAMA (TextAnalyze Primary, Faz 11):
+- TextAnalyze varsa kategori ve seviye LLM tarafından değiştirilmiyor.
+- TextAnalyze yoksa fallback buton + açıklama ile kategori doğrulanıyor.
+- LLM fallback modunda açılıyor ve intent confirmation yapıyor.
+- Modal logic (button UI) doğru çalışıyor.
+
+NOT
+- Hızlı deploy için Groq'u ana karar verici yapıyoruz.
+- Davranış stabil hale gelince TextAnalyze seamlessly integrate edilecek.
+- Fine-tune (gerçek ML fine-tune) TextAnalyze entegre edildikten SONRA başlanacak.

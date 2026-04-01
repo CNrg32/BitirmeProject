@@ -97,7 +97,48 @@ def _get_next_category_question(session: Session) -> Optional[Tuple[str, str]]:
     return None
 
 
+def increment_slot_attempt(session: Session, slot_key: str) -> None:
+    """
+    FAZ 5: Increment attempt counter for a slot.
+    Used to track 2-attempt rule: if a slot can't be filled after 2 tries, mark Unknown.
+    """
+    if slot_key not in session.slot_attempt_counts:
+        session.slot_attempt_counts[slot_key] = 0
+    session.slot_attempt_counts[slot_key] += 1
+
+
+def get_slot_attempt_count(session: Session, slot_key: str) -> int:
+    """Get the attempt count for a slot (default 0)."""
+    return session.slot_attempt_counts.get(slot_key, 0)
+
+
+def should_skip_slot_after_max_attempts(session: Session, slot_key: str, max_attempts: int = 2) -> bool:
+    """
+    FAZ 5: Check if a slot should be skipped due to max attempts exceeded.
+    Returns True if attempt count >= max_attempts (default 2).
+    """
+    return get_slot_attempt_count(session, slot_key) >= max_attempts
+
+
+def mark_slot_unknown_and_skip(session: Session, slot_key: str) -> None:
+    """
+    FAZ 5: After 2 failed attempts, mark slot as 'Unknown' and move to next.
+    This prevents infinite loops of asking the same question.
+    """
+    session.collected_slots[slot_key] = "Unknown"
+    # Also add to asked_questions to prevent re-asking
+    session.asked_questions.add(slot_key)
+
+
 def decide_next_action(session: Session) -> Dict[str, Any]:
+    """
+    Decide the next action for the dialog.
+    
+    FAZ 5: Implements 2-attempt rule:
+    - Each slot gets max 2 attempts
+    - After 2 failed attempts, mark as "Unknown" and move to next slot
+    - Witness mode skips unnecessary/non-witness-related slots
+    """
     assistant_turns = len([m for m in session.messages if m.get("role") == "assistant"])
     max_rounds = _get_max_rounds(session)
 
@@ -120,6 +161,14 @@ def decide_next_action(session: Session) -> Dict[str, Any]:
     missing_req = get_missing_required_slots(session)
     if missing_req:
         key, question = missing_req[0]
+        
+        # FAZ 5: 2-Attempt Rule Check
+        # If this slot already has 2+ attempts without being filled, mark Unknown and skip
+        if should_skip_slot_after_max_attempts(session, key, max_attempts=2):
+            mark_slot_unknown_and_skip(session, key)
+            # Continue to next missing slot by recursing (or fallthrough to next check)
+            return decide_next_action(session)
+        
         return {
             "action": "ask_question",
             "question_key": key,
@@ -130,6 +179,12 @@ def decide_next_action(session: Session) -> Dict[str, Any]:
     category_question = _get_next_category_question(session)
     if category_question and assistant_turns < max_rounds - 1:
         key, question = category_question
+        
+        # FAZ 5: 2-Attempt Rule Check (same as required slots)
+        if should_skip_slot_after_max_attempts(session, key, max_attempts=2):
+            mark_slot_unknown_and_skip(session, key)
+            return decide_next_action(session)
+        
         return {
             "action": "ask_question",
             "question_key": key,
@@ -143,6 +198,12 @@ def decide_next_action(session: Session) -> Dict[str, Any]:
             missing_opt = get_missing_optional_slots(session)
             if missing_opt and assistant_turns < max_rounds - 1:
                 key, question = missing_opt[0]
+                
+                # FAZ 5: 2-Attempt Rule Check (optional slots too)
+                if should_skip_slot_after_max_attempts(session, key, max_attempts=2):
+                    mark_slot_unknown_and_skip(session, key)
+                    return decide_next_action(session)
+                
                 return {
                     "action": "ask_question",
                     "question_key": key,

@@ -16,8 +16,4 @@ test-quick:
 report-docx:
 	python scripts/md_to_docx.py
 
-finetune-chatbot: build-chatbot-data
-	PYTHONPATH=src python scripts/train_chatbot_finetune.py --train-file data/labels/chatbot_finetune_train.jsonl --val-file data/labels/chatbot_finetune_val.jsonl --output-dir out_models/chatbot_finetuned
 
-build-chatbot-data:
-	PYTHONPATH=src python scripts/build_chatbot_finetune_jsonl.py --output-train data/labels/chatbot_finetune_train.jsonl --output-val data/labels/chatbot_finetune_val.jsonl

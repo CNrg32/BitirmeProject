@@ -128,6 +128,48 @@ def handle_message(
     session = store.get(session_id)
     if session is None:
         return {"error": "Session not found or expired."}
+    
+    # ------------------------------------------------------------------
+    # FAZ 7: Timeout & Silent Dispatch (3-minute inactivity rule)
+    # If session is waiting for response and 3+ minutes passed with no activity:
+    # CRITICAL/URGENT → auto-dispatch (silent dispatch)
+    # User returning after timeout → resume mode
+    # ------------------------------------------------------------------
+    current_time = time.time()
+    
+    # Set timeout deadline on first message if not set (3 minutes = 180 seconds)
+    if not session.timeout_deadline:
+        session.timeout_deadline = session.last_user_activity_at + (3 * 60)
+        logger.debug("Timeout deadline set: %.0f (current: %.0f)", 
+                     session.timeout_deadline, current_time)
+    
+    # Check if timeout has been triggered
+    if session.dispatch_status in ("PENDING", "FALLBACK_PENDING") and not session.resumed_after_timeout:
+        if current_time > session.timeout_deadline:
+            # Timeout triggered
+            if session.triage_result:
+                triage_level = session.triage_result.get("triage_level", "NON_URGENT")
+                if triage_level in ("CRITICAL", "URGENT"):
+                    # Silent dispatch for critical/urgent cases
+                    session.dispatch_status = "SILENT_DISPATCHED"
+                    session.dispatch_target = session.triage_result.get("category", "other")
+                    session.dispatch_timestamp = current_time
+                    logger.warning("Silent dispatch triggered: timeout after 3 min. vaka_id=%s, category=%s",
+                                   session.session_id, session.dispatch_target)
+                    
+                    # Prepare timeout message
+                    timeout_msg = {
+                        "tr": "Yanıt alamadığım için yardım ekiplerini gönderdim. Lütfen güvende kalın.",
+                        "en": "No response detected. Emergency services have been dispatched. Please stay safe.",
+                    }.get(session.language or "en", "Emergency services dispatched.")
+                    
+                    return _reply(session, timeout_msg, triage_result=session.triage_result, 
+                                is_complete=True, report=None)
+    
+    # User returning after timeout → resume mode
+    if current_time > session.timeout_deadline and not session.resumed_after_timeout:
+        session.resumed_after_timeout = True
+        logger.info("Session resumed after timeout: vaka_id=%s", session.session_id)
 
     # Guard: zaten tamamlanmış session'a yeni mesaj gelirse raporla cevap ver
     if session.is_complete:
@@ -219,6 +261,10 @@ def handle_message(
         session.collected_slots["longitude"] = longitude
         logger.info("GPS location stored: %.6f, %.6f", latitude, longitude)
 
+    # Update last user activity timestamp (for timeout tracking)
+    session.last_user_activity_at = time.time()
+    logger.debug("Last user activity: %.0f", session.last_user_activity_at)
+
     # Add user message to history
     session.messages.append({"role": "user", "text": user_text})
 
@@ -250,12 +296,64 @@ def _handle_with_llm(
     asr_transcript: Optional[str],
 ) -> Dict[str, Any]:
     from services.llm_service import get_llm_service
+    from orchestrator.session import truncate_message_history, can_redispatch
 
     llm = get_llm_service()
 
+    # ------------------------------------------------------------------
+    # FAZ 3.1: Message History Truncation (Groq Context Limit ~8000 tokens)
+    # Keep only last 8-10 turns for Groq context window
+    # ------------------------------------------------------------------
+    truncate_message_history(session, max_turns=8)
+    logger.debug("Message history truncated. Keeping last 8 turns. Total: %d",
+                 len(session.message_history))
+
+    # ------------------------------------------------------------------
+    # FAZ 3: Groq Triage (Turn 1 only)
+    # On first user message: run triage (category + severity)
+    # Lock the category so LLM doesn't change it across turns
+    # ------------------------------------------------------------------
+    user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
+    
+    if user_turn_count == 1 and session.initial_triage is None:
+        # First turn: perform Groq triage
+        logger.info("Turn 1: Running Groq triage...")
+        t0 = time.monotonic()
+        
+        # Call Groq for initial triage
+        triage_result = llm.chat(
+            history=session.messages,
+            language=lang,
+            task="triage"  # Signal to LLM: perform triage, not dialog
+        )
+        logger.info("  [TIMING] LLM Triage: %.2fs", time.monotonic() - t0)
+        
+        # Save initial triage result
+        initial_triage = {
+            "category": triage_result.get("category", "other"),
+            "triage_level": triage_result.get("triage_level", "URGENT"),
+            "confidence": triage_result.get("confidence", 0.85),
+            "red_flags": triage_result.get("red_flags", []),
+        }
+        session.initial_triage = initial_triage
+        logger.info("Initial triage saved: category=%s, level=%s",
+                    initial_triage["category"], initial_triage["triage_level"])
+    
+    # Lock category from initial triage (prevent LLM from changing it)
+    locked_category = (session.initial_triage or {}).get("category", "other")
+
     t0 = time.monotonic()
-    llm_result = llm.chat(history=session.messages, language=lang)
-    logger.info("  [TIMING] LLM: %.2fs", time.monotonic() - t0)
+    llm_result = llm.chat(
+        history=session.messages,
+        language=lang,
+        session_context={  # Pass locked triage to LLM
+            "initial_category": locked_category,
+            "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
+            "dispatch_status": session.dispatch_status,
+            "witness_mode": session.witness_mode,
+        }
+    )
+    logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
 
     response_text: str = llm_result.get("response_text", "")
     extracted_slots: Dict[str, Any] = llm_result.get("extracted_slots", {})
@@ -265,14 +363,26 @@ def _handle_with_llm(
     red_flags: List[str] = llm_result.get("red_flags", [])
 
     # ------------------------------------------------------------------
-    # Guard 1 — Category locking
-    # Once a non-"other" category is established, never let the LLM flip it.
+    # FAZ 5: Slot Attempt Tracking (2-Attempt Rule)
+    # If a slot was asked but not filled, increment its attempt counter
     # ------------------------------------------------------------------
-    locked_category = (session.triage_result or {}).get("category", "other")
+    if session.pending_question_key and session.pending_question_key not in extracted_slots:
+        from orchestrator.dialog_manager import increment_slot_attempt
+        increment_slot_attempt(session, session.pending_question_key)
+        logger.debug("Slot %s not filled by LLM, incrementing attempt counter (current: %d)",
+                     session.pending_question_key, session.slot_attempt_counts.get(session.pending_question_key, 0))
+        session.pending_question_key = None  # Reset for next question
+
+    # ------------------------------------------------------------------
+    # Guard 1 — Category locking (Updated for Groq Primary)
+    # Once Groq's initial triage is set, never let the LLM flip it.
+    # LLM must respect the locked category from Turn 1.
+    # ------------------------------------------------------------------
     if locked_category and locked_category != "other":
         category = locked_category
-        logger.debug("Category locked to '%s' (LLM suggested '%s')",
-                     locked_category, llm_result.get("category"))
+        triage_level = (session.initial_triage or {}).get("triage_level", triage_level)
+        logger.debug("Category & triage locked from initial Groq triage: category=%s, level=%s",
+                     locked_category, triage_level)
 
     # ------------------------------------------------------------------
     # Guard 2 — Red-flag instant completion
@@ -286,16 +396,67 @@ def _handle_with_llm(
             response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
 
     # ------------------------------------------------------------------
-    # Guard 3 — Maximum turn limit
-    # After MAX_TURNS user messages, force completion to prevent infinite loops.
+    # FAZ 1.5: Dispatch Lock (Safety-Critical)
+    # Prevent redispatch of the same case within 48 hours
     # ------------------------------------------------------------------
-    MAX_TURNS = 8
+    if is_complete and triage_level in ("CRITICAL", "URGENT"):
+        if not can_redispatch(session, redispatch_ttl_seconds=48 * 3600):
+            # Already dispatched recently, don't dispatch again
+            logger.warning("Dispatch lock active: same case already dispatched. Preventing redispatch.")
+            is_complete = False  # Keep conversation open, don't force completion
+            response_text = {
+                "tr": "Bu durum zaten kayda alındı. Daha fazla bilgi var mı?",
+                "en": "This case has already been reported. Is there any additional information?",
+            }.get(lang, "This case has already been reported.")
+        else:
+            # Can dispatch: set dispatch status and timestamp
+            session.dispatch_status = "DISPATCHED"
+            session.dispatch_target = category  # store which service to dispatch to
+            session.dispatch_timestamp = time.time()
+            logger.info("Dispatch lock set: vaka_id=%s, target=%s, TTL=48h",
+                        session.session_id, category)
+
+    # ------------------------------------------------------------------
+    # Guard 3 — Maximum turn limit (Dynamic based on triage_level)
+    # FAZ 6: Operasyonel Mantik — Escalation Control
+    # CRITICAL: 1-2 turns max (immediate dispatch)
+    # URGENT: 4-5 turns max (collect essential + quick dispatch)
+    # NON_CRITICAL: 8 turns max (normal slot filling, soft close)
+    # ------------------------------------------------------------------
+    max_turns_map = {
+        "CRITICAL": 2,      # Critical: almost no delay
+        "URGENT": 4,        # Urgent: collect essentials quickly
+        "NON_URGENT": 8,    # Non-urgent: normal dialog flow
+    }
+    max_turns = max_turns_map.get(triage_level, 8)
+    
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
-    if user_turn_count >= MAX_TURNS and not is_complete:
+    
+    # FAZ 6: CRITICAL escalation — force completion after max turns
+    if triage_level == "CRITICAL" and user_turn_count >= max_turns:
         is_complete = True
-        logger.info("Max turns (%d) reached – forcing conversation complete.", MAX_TURNS)
+        logger.info("CRITICAL escalation: max turns (%d) reached – forcing dispatch.", max_turns)
         if not response_text:
-            response_text = _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
+            response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
+    
+    # FAZ 6: URGENT escalation — collect key slots quickly, then dispatch
+    elif triage_level == "URGENT" and user_turn_count >= max_turns:
+        is_complete = True
+        logger.info("URGENT escalation: max turns (%d) reached – dispatching.", max_turns)
+        if not response_text:
+            response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
+    
+    # FAZ 6: NON_CRITICAL soft close — offer graceful exit
+    elif triage_level == "NON_URGENT" and user_turn_count >= max_turns - 1:
+        # At turn 7 (max 8), offer soft close
+        is_complete = True
+        logger.info("NON_CRITICAL: approaching max turns – soft close.")
+        if not response_text:
+            soft_close = {
+                "tr": "Teşekkürler, yeterli bilgiye sahibiz. Durumunuz kaydedildi. Daha fazla yardıma ihtiyacınız varsa 112'yi arayın.",
+                "en": "Thank you. We have sufficient information. Your case recorded. Call 112 if needed.",
+            }.get(lang, "Thank you. Case recorded. Call 112 if needed.")
+            response_text = soft_close
 
     # Merge new slots into session
     if extracted_slots:
@@ -474,6 +635,36 @@ def _reply(
     audio_url = _audio_to_data_url(audio_bytes)
     logger.info("  [TIMING] TTS: %.2fs", time.monotonic() - t0)
 
+    # FAZ 8-9: Build response with dispatch + resume info
+    
+    # Summary card for post-dispatch state
+    summary_card = None
+    if session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
+        summary_card = {
+            "category": session.dispatch_target or "other",
+            "triage_level": (session.triage_result or {}).get("triage_level", "URGENT"),
+            "dispatch_time": (session.dispatch_timestamp and 
+                            time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(session.dispatch_timestamp))),
+            "dispatch_target": session.dispatch_target,
+            "estimated_arrival_min": 5,  # TODO: Actual ETA calculation
+            "collected_slots": session.collected_slots,
+        }
+    
+    # Resume prompt if resuming after timeout
+    resume_prompt = None
+    if session.resumed_after_timeout:
+        resume_prompt = {
+            "tr": "Hoş geldiniz geri! Yardım çalışmaları devam ediyor. Yeni bilgi var mı?",
+            "en": "Welcome back! Emergency response is in progress. Any updates?",
+        }.get(session.language or "en", "Welcome back! Any updates?")
+    
+    # Followup status
+    followup_status = None
+    if session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
+        followup_status = "dispatch_sent" if session.dispatch_timestamp else "dispatch_pending"
+    elif session.dispatch_status == "PENDING":
+        followup_status = "waiting_for_info" if not session.is_complete else "no_dispatch_needed"
+    
     return {
         "session_id": session.session_id,
         "assistant_text": text,
@@ -484,6 +675,13 @@ def _reply(
         "image_analysis": image_analysis,
         "report": report,
         "is_complete": is_complete,
+        # FAZ 8-9 fields
+        "chatbot_mode": "normal",  # TODO: "fallback" when TextAnalyze is ready
+        "dispatch_status": session.dispatch_status,
+        "summary_card": summary_card,
+        "resume_prompt": resume_prompt,
+        "followup_status": followup_status,
+        "nearby_places": None,  # TODO: Faz 9 nearby service
     }
 
 

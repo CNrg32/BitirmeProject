@@ -125,3 +125,35 @@ class SessionMessageResponse(BaseModel):
     image_analysis: Optional[ImageAnalysisResult] = None
     report: Optional[str] = None
     is_complete: bool = False
+    
+    # FAZ 8-9: Dispatch & Resume fields
+    chatbot_mode: str = Field("normal", description="normal | fallback (TextAnalyze fail)")
+    dispatch_status: str = Field("PENDING", description="PENDING | DISPATCHED | SILENT_DISPATCHED | FALLBACK_PENDING")
+    
+    summary_card: Optional[Dict[str, Any]] = Field(None, description="""
+        Optional summary for post-dispatch state:
+        {
+            "category": "medical|fire|crime|other",
+            "triage_level": "CRITICAL|URGENT|NON_URGENT",
+            "dispatch_time": "ISO 8601",
+            "dispatch_target": "police|medical|fire",
+            "estimated_arrival_min": 5,
+            "collected_slots": {...}
+        }
+    """)
+    
+    resume_prompt: Optional[str] = Field(None, description="Tutorial/help text if resuming after timeout")
+    followup_status: Optional[str] = Field(None, description="waiting_for_update | dispatch_sent | no_dispatch_needed")
+    
+    # FAZ 9 Future: Nearby places (hospitals, police)
+    nearby_places: Optional[List[Dict[str, Any]]] = Field(None, description="""
+        Optional list of nearby hospitals/police/fire stations (future):
+        [{
+            "type": "hospital|police|fire",
+            "name": "Hospital Name",
+            "distance_meters": 1500,
+            "latitude": 41.0082,
+            "longitude": 28.9784,
+            "eta_minutes": 5
+        }]
+    """)
