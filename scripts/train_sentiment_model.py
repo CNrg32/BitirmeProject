@@ -36,6 +36,7 @@ ANALYSIS_DIR = _PROJECT_ROOT / "output" / "Sentiment Analysis Outputs"
 
 CASES_CSV = DATA_DIR / "911_cases_v1.csv"
 TRANSCRIPTS_CSV = DATA_DIR / "auto_transcripts.csv"
+MERGED_TRAIN_CSV = OUTPUT_DIR / "triage_dataset_train.csv"  # New: merged train set (911 + v1 + v2 + v3 + final_tr)
 
 TRIAGE_LABELS = ["CRITICAL", "URGENT", "NON_URGENT"]
 RANDOM_SEED = 42
@@ -98,6 +99,63 @@ def extract_text_features(text: str) -> Dict[str, float]:
     feats["emergency_phrase_count"] = sum(
         1 for p in emergency_phrases if p in text_lower
     )
+
+    # === V3.0 NEW FEATURES ===
+
+    # 1. VOWEL_LENGTHENING_RATIO: Detects stretched vowels like "helppppp", "pleaseee"
+    import re
+    vowel_patterns = re.findall(r'([aeiouаеиоує])\1{2,}', text_lower)
+    feats["vowel_lengthening_ratio"] = (
+        len(vowel_patterns) / max(word_count, 1)
+    )
+
+    # 2. NEGATION_ADJUSTED_PANIC_RATIO: Reduce panic score near negation words
+    negation_words = {"not", "no", "don't", "doesn't", "didn't", "haven't", "hasn't", "yok", "değil", "yoktur"}
+    tokens = text_lower.split()
+    adjusted_panic_count = 0
+    for i, token in enumerate(tokens):
+        # Check if token contains a panic keyword
+        is_panic = any(k in token for k in PANIC_KEYWORDS)
+        if is_panic:
+            # Check ±3 tokens for negation
+            has_negation_nearby = False
+            for j in range(max(0, i-3), min(len(tokens), i+4)):
+                if tokens[j] in negation_words or any(neg in tokens[j] for neg in negation_words):
+                    has_negation_nearby = True
+                    break
+            if not has_negation_nearby:
+                adjusted_panic_count += 1
+    feats["negation_adjusted_panic_ratio"] = (
+        adjusted_panic_count / max(word_count, 1)
+    )
+
+    # 3. NER_RISK_DENSITY: Count high-risk entities (baby, knife, gun, blood, etc.)
+    risk_entities = [
+        "baby", "infant", "child", "children", "kid", "mother", "father", "parent",
+        "knife", "gun", "shot", "shooting", "weapon", "stab", "stabbed",
+        "blood", "bleeding", "bleed", "hemorrhage",
+        "fainted", "faint", "unconscious", "coma", "collapsed",
+        "suicide", "overdose", "poison", "drug",
+        "fire", "burn", "burning", "drowning", "drown",
+        "choke", "choking", "asphyxia", "cannot breathe"
+    ]
+    risk_count = sum(1 for e in risk_entities if e in text_lower)
+    feats["ner_risk_density"] = risk_count / max(word_count, 1)
+
+    # 4. SENTENCE_ENTROPY_INVERSE: Low entropy + high panic = higher risk
+    # Calculate lexical diversity (unique / total words per sentence)
+    if len(sentences) > 0:
+        entropies = []
+        for sent in sentences:
+            sent_words = sent.lower().split()
+            if sent_words:
+                unique = len(set(sent_words))
+                diversity = unique / len(sent_words)
+                entropies.append(diversity)
+        avg_entropy = np.mean(entropies) if entropies else 0
+        feats["sentence_entropy_inverse"] = 1 - avg_entropy  # Invert: low diversity = high score
+    else:
+        feats["sentence_entropy_inverse"] = 0
 
     return feats
 
@@ -174,11 +232,38 @@ def get_sentiment_score(text: str) -> float:
 
 
 def load_and_prepare_data() -> pd.DataFrame:
+    """Load merged training dataset (911 + v1 + v2 + v3 + final_tr)."""
+    
+    # Try merged dataset first (new approach)
+    if MERGED_TRAIN_CSV.exists():
+        print(f"Loading merged train dataset from {MERGED_TRAIN_CSV.name}...")
+        df = pd.read_csv(MERGED_TRAIN_CSV)
+        print(f"  Loaded {len(df)} rows")
+        
+        # Normalize column names
+        if "text_en" not in df.columns and "text" in df.columns:
+            df["text_en"] = df["text"]
+        if "label_triage_gold" not in df.columns and "label_triage" in df.columns:
+            df["label_triage_gold"] = df["label_triage"]
+        
+        df["triage_label"] = df["label_triage_gold"].astype(str).str.strip()
+        df["transcript"] = df["text_en"].astype(str).fillna("")
+        
+        df_valid = df[df["triage_label"].isin(TRIAGE_LABELS)].copy()
+        df_valid = df_valid[df_valid["transcript"].str.strip().str.len() > 2].copy()
+        
+        print(f"Valid labeled rows: {len(df_valid)}")
+        print(f"Label distribution:\n{df_valid['triage_label'].value_counts()}")
+        print(f"Source distribution:\n{df['source'].value_counts()}")
+        
+        return df_valid
+    
+    # Fallback to old 911_cases_v1 if merged not available
     if not CASES_CSV.exists():
         raise FileNotFoundError(f"Data file not found: {CASES_CSV}")
 
     df_cases = pd.read_csv(CASES_CSV)
-    print(f"Loaded {len(df_cases)} rows from {CASES_CSV.name}")
+    print(f"[FALLBACK] Loaded {len(df_cases)} rows from {CASES_CSV.name}")
 
     # Triage label kolonu sec (gold > weak)
     if "label_triage_gold" in df_cases.columns:
@@ -304,7 +389,10 @@ TEXT_FEATURES = [
     "panic_word_ratio", "panic_word_count", "word_count", "avg_word_length",
     "sentence_count", "exclamation_ratio", "question_ratio", "uppercase_ratio",
     "repetition_ratio", "emergency_phrase_count", "sentiment_score",
-    "estimated_wpm", "wpm",
+    # V3.0 removed timing-based features
+    # V3.0 New features
+    "vowel_lengthening_ratio", "negation_adjusted_panic_ratio", "ner_risk_density",
+    "sentence_entropy_inverse",
 ]
 AUDIO_FEATURES = [
     "caller_pitch_mean", "spectral_flux", "silence_ratio", "audio_duration",

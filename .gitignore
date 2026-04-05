@@ -46,3 +46,11 @@ output/out_dataset/*.parquet
 
 # ── Jupyter Notebook checkpoints ─────────────────────
 .ipynb_checkpoints/
+# ── Flutter / Dart build & browser cache ─────────────────
+mobile/.dart_tool/chrome-device/
+mobile/.dart_tool/flutter_build/
+mobile/build/
+
+# ── Workspace notes (not project code) ───────────────────
+sentiment.txt
+map_plan.txt

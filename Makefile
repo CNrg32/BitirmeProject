@@ -1,6 +1,4 @@
 # Bitirme Project – build and test
-.PHONY: test test-cov install-test build-chatbot-data finetune-chatbot
-
 install-test:
 	pip install -r requirements-test.txt -q
 

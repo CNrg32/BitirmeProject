@@ -28,6 +28,9 @@ CUSTOM_SYSTEM_ADDITION = os.environ.get(
     ""
 ).strip()
 
+# Faz 10.1 Test 2: Force fallback simulation in QA/dev prompt when enabled.
+DEBUG_FALLBACK_MODE = os.environ.get("DEBUG_FALLBACK_MODE", "false").strip().lower() == "true"
+
 # ---------------------------------------------------------------------------
 # Few-shot örnekleri: [{"user": "...", "assistant_json": {...}}]
 # Model bu örnekleri görerek benzer formatta cevap vermeye yönlendirilir.
@@ -111,8 +114,17 @@ def build_system_prompt_with_few_shot(
         base_system_prompt = _get_triage_system_prompt()
     elif task == "dialog":
         base_system_prompt = _get_dialog_system_prompt()
+    elif task == "gibberish_check":
+        base_system_prompt = _get_gibberish_check_prompt()
     
     parts = [base_system_prompt]
+    if DEBUG_FALLBACK_MODE:
+        parts.append(
+            "\n\nDEBUG MODE ACTIVE:\n"
+            "- Simulate fallback flow behavior for testing.\n"
+            "- Prioritize intent confirmation style language.\n"
+            "- Keep strict emergency scope boundaries."
+        )
     if CUSTOM_SYSTEM_ADDITION:
         parts.append("\n\nADDITIONAL INSTRUCTIONS (follow these strictly):\n" + CUSTOM_SYSTEM_ADDITION)
     examples = get_few_shot_examples(max_examples=max_few_shot)
@@ -222,6 +234,34 @@ You MUST return ONLY a valid JSON object – no markdown, no prose.
 
 Do NOT repeat category or triage_level – these are pre-determined and locked.
 When you have enough info, mark is_complete=true and provide final guidance.
+"""
+
+
+def _get_gibberish_check_prompt() -> str:
+        """
+        Decide whether a user text is meaningful emergency conversation input.
+        """
+        return """\
+You are a strict input quality classifier for an emergency chatbot.
+
+TASK:
+- Classify whether the user's latest text is meaningful or gibberish.
+- Consider short natural replies meaningful if they can logically answer a prior question
+    (examples: evet, hayır, var, yok, yes, no, tamam).
+- Treat random keyboard mashes and nonsense tokens as gibberish.
+
+OUTPUT FORMAT (JSON only):
+{
+    "response_text": "meaningful|gibberish",
+    "extracted_slots": {
+        "meaningfulness": "meaningful|gibberish",
+        "reason": "short explanation"
+    },
+    "triage_level": "NON_URGENT",
+    "category": "other",
+    "is_complete": false,
+    "red_flags": []
+}
 """
 
 

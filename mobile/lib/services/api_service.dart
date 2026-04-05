@@ -65,6 +65,38 @@ class ApiService {
     return jsonDecode(resp.body);
   }
 
+  Future<List<Map<String, dynamic>>> fetchNearbyPlaces({
+    required double latitude,
+    required double longitude,
+    String? preferredType,
+    int limitPerType = 5,
+  }) async {
+    final body = <String, dynamic>{
+      'latitude': latitude,
+      'longitude': longitude,
+      'limit_per_type': limitPerType,
+    };
+    if (preferredType != null) {
+      body['preferred_type'] = preferredType;
+    }
+
+    final resp = await http.post(
+      Uri.parse('$_baseUrl/nearby-places'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+    if (resp.statusCode != 200) {
+      throw Exception('Nearby places failed: ${resp.body}');
+    }
+
+    final decoded = jsonDecode(resp.body) as Map<String, dynamic>;
+    final items = decoded['nearby_places'] as List? ?? const [];
+    return items
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item.cast<Object?, Object?>()))
+        .toList(growable: false);
+  }
+
   Future<Map<String, dynamic>> transcribeAudio({
     required String sessionId,
     required String audioBase64,

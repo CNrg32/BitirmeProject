@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import base64
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 # Load .env file (GEMINI_API_KEY etc.) before any other imports
 _ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
@@ -26,6 +27,8 @@ if str(_SRC) not in sys.path:
 
 from api.schemas import (
     ImageAnalysisResult,
+    NearbyPlacesRequest,
+    NearbyPlacesResponse,
     PredictRequest,
     PredictResponse,
     SessionMessageRequest,
@@ -42,6 +45,39 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def simulate_fallback_for_session(session_id: str, text: str, scenario: str) -> Dict[str, Any]:
+    """Dev helper for Faz 10.1 fallback simulation."""
+    from orchestrator.session import get_session_store
+    from services.text_analyze_mock import analyze_text_mock
+
+    store = get_session_store()
+    session = store.get(session_id)
+    if session is None:
+        return {"error": "Session not found or expired."}
+
+    result = analyze_text_mock(text=text, scenario=scenario)
+    status = result.get("status")
+    if status in ("fail", "uncertain"):
+        session.dispatch_status = "FALLBACK_PENDING"
+        return {
+            "session_id": session_id,
+            "chatbot_mode": "fallback",
+            "dispatch_status": session.dispatch_status,
+            "text_analyze_result": result,
+            "fallback_options": ["medical", "crime", "fire"],
+            "prompt": "Kategori secin ve kisa aciklama yazin.",
+        }
+
+    return {
+        "session_id": session_id,
+        "chatbot_mode": "normal",
+        "dispatch_status": session.dispatch_status,
+        "text_analyze_result": result,
+        "fallback_options": [],
+        "prompt": "Normal akis devam ediyor.",
+    }
 
 
 @asynccontextmanager
@@ -284,7 +320,42 @@ def session_message(req: SessionMessageRequest):
         image_analysis=image_analysis,
         report=out.get("report"),
         is_complete=out.get("is_complete", False),
+        chatbot_mode=out.get("chatbot_mode", "normal"),
+        dispatch_status=out.get("dispatch_status", "PENDING"),
+        summary_card=out.get("summary_card"),
+        resume_prompt=out.get("resume_prompt"),
+        followup_status=out.get("followup_status"),
+        nearby_places=out.get("nearby_places"),
     )
+
+
+@app.post("/nearby-places", response_model=NearbyPlacesResponse)
+def nearby_places(req: NearbyPlacesRequest):
+    from services.nearby_places_service import get_nearby_places
+
+    places = get_nearby_places(
+        latitude=req.latitude,
+        longitude=req.longitude,
+        preferred_type=req.preferred_type,
+        limit_per_type=req.limit_per_type,
+    )
+    return NearbyPlacesResponse(nearby_places=places)
+
+
+@app.post("/test/simulate-fallback")
+def test_simulate_fallback(
+    session_id: str = Form(...),
+    text: str = Form("mock test"),
+    scenario: str = Form("uncertain"),
+):
+    """Faz 10.1 Test 1/3: Dev-only endpoint to simulate TextAnalyze fail/uncertain."""
+    if os.environ.get("ENABLE_TEST_ENDPOINTS", "false").lower() != "true":
+        raise HTTPException(404, "Test endpoints are disabled.")
+
+    out = simulate_fallback_for_session(session_id=session_id, text=text, scenario=scenario)
+    if "error" in out:
+        raise HTTPException(404, out["error"])
+    return out
 
 
 @app.post("/analyze-image", response_model=ImageAnalysisResult)

@@ -115,6 +115,17 @@ class SessionMessageRequest(BaseModel):
     longitude: Optional[float] = Field(None, description="GPS longitude from mobile device")
 
 
+class NearbyPlacesRequest(BaseModel):
+    latitude: float = Field(..., description="GPS latitude")
+    longitude: float = Field(..., description="GPS longitude")
+    preferred_type: Optional[str] = Field(None, description="hospital | police")
+    limit_per_type: int = Field(5, ge=1, le=10, description="Max results per type")
+
+
+class NearbyPlacesResponse(BaseModel):
+    nearby_places: List[Dict[str, Any]] = Field(default_factory=list)
+
+
 class SessionMessageResponse(BaseModel):
     session_id: str
     assistant_text: str
@@ -145,15 +156,20 @@ class SessionMessageResponse(BaseModel):
     resume_prompt: Optional[str] = Field(None, description="Tutorial/help text if resuming after timeout")
     followup_status: Optional[str] = Field(None, description="waiting_for_update | dispatch_sent | no_dispatch_needed")
     
-    # FAZ 9 Future: Nearby places (hospitals, police)
+    # FAZ 9: Nearby places (hospitals, police)
     nearby_places: Optional[List[Dict[str, Any]]] = Field(None, description="""
-        Optional list of nearby hospitals/police/fire stations (future):
+        Optional ordered list of nearby facilities from OpenStreetMap/Overpass.
+        The backend can return both hospitals and police stations in a single list,
+        and the client can filter/group them by `type`.
         [{
-            "type": "hospital|police|fire",
+            "id": "osm:node:12345",
+            "type": "hospital|police",
             "name": "Hospital Name",
+            "address": "Street, District, City",
             "distance_meters": 1500,
             "latitude": 41.0082,
             "longitude": 28.9784,
+            "phone": "+90 212 ...",
             "eta_minutes": 5
         }]
     """)

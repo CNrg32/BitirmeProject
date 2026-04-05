@@ -90,6 +90,18 @@ class AppStrings {
   static const String imageAnalysis = 'Görsel Analiz';
   static const String scene = 'Sahne';
   static const String dispatch = 'Sevk birimleri';
+  static const String nearbyFacilities = 'Yakin Kurumlar';
+  static const String hospitalOption = 'Hastane';
+  static const String policeOption = 'Karakol';
+  static const String noNearbyHospitals = 'Yakinlarda uygun hastane bulunamadi.';
+  static const String noNearbyPolice = 'Yakinlarda uygun karakol bulunamadi.';
+  static const String locationRequiredForNearby = 'Yakin kurumlari gostermek icin konum izni gerekli.';
+  static const String getDirections = 'Yol Tarifi';
+  static const String callFacility = 'Ara';
+  static const String estimatedArrival = 'Tahmini ulasim';
+  static const String nearbyPageTitle = 'Yakindaki Hastane/Karakol';
+  static const String findNearby = 'Yakin Kurum Bul';
+  static const String nearbyIntro = 'Konumunuzu alip seciminize gore yakin kurumlari listeler.';
 
   static String formatRecordingSeconds(int seconds) =>
       recordingSeconds.replaceAll('%s', '$seconds');

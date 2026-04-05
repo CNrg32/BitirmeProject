@@ -11,6 +11,8 @@ GOLD_CSV = _PROJECT_ROOT / "data" / "labels" / "911_cases_v1.csv"
 AUTO_TRANSCRIPTS_CSV = _PROJECT_ROOT / "data" / "labels" / "auto_transcripts.csv"
 SYNTH_V1_CSV = _PROJECT_ROOT / "data" / "labels" / "synthetic_triage_cases_v1.csv"
 SYNTH_V2_CSV = _PROJECT_ROOT / "data" / "labels" / "synthetic_triage_cases_v2.csv"
+SYNTH_V3_CSV = _PROJECT_ROOT / "data" / "labels" / "synthetic_triage_cases_v3.csv"
+SYNTH_FINAL_TR_CSV = _PROJECT_ROOT / "data" / "labels" / "synthetic_triage_cases_final_tr.csv"  # Turkish v3.0
 OUT_DIR = _PROJECT_ROOT / "output" / "out_dataset"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -125,8 +127,19 @@ def load_synth(csv_path: Path, source_name: str) -> pd.DataFrame:
     df = pd.read_csv(csv_path)
     df["source"] = df.get("source", source_name)
 
-    df["label_category_gold"] = df["label_category_gold"].astype(str).str.strip()
-    df.loc[~df["label_category_gold"].isin(VALID_CATEGORIES), "label_category_gold"] = "other"
+    # Normalize column names
+    if "text" in df.columns and "text_en" not in df.columns:
+        df["text_en"] = df["text"]
+    if "label_triage" in df.columns and "label_triage_gold" not in df.columns:
+        df["label_triage_gold"] = df["label_triage"]
+    
+    # Handle label_category_gold (may not exist in v3/final_tr)
+    if "label_category_gold" not in df.columns:
+        df["label_category_gold"] = "other"
+    else:
+        df["label_category_gold"] = df["label_category_gold"].astype(str).str.strip()
+        df.loc[~df["label_category_gold"].isin(VALID_CATEGORIES), "label_category_gold"] = "other"
+    
     df["label_triage_gold"] = df["label_triage_gold"].astype(str).str.strip()
     df = df[df["label_triage_gold"].isin(VALID_TRIAGE)].copy()
     df["red_flags_gold"] = pd.to_numeric(df["red_flags_gold"], errors="coerce").fillna(0).astype(int)
@@ -221,11 +234,25 @@ def main():
     synth_v2["sample_weight"] = SYNTH_V2_WEIGHT
     print(f"  Synth v2 rows: {len(synth_v2)}")
 
+    print("\nLoading synthetic v3...")
+    synth_v3 = load_synth(SYNTH_V3_CSV, "synthetic_v3")
+    synth_v3["sample_weight"] = SYNTH_V2_WEIGHT  # Same weight as v2
+    print(f"  Synth v3 rows: {len(synth_v3)}")
+
+    print("\nLoading synthetic final (Turkish v3.0)...")
+    synth_final_tr = load_synth(SYNTH_FINAL_TR_CSV, "synthetic_final_tr")
+    synth_final_tr["sample_weight"] = SYNTH_V2_WEIGHT  # Same weight as v2/v3
+    print(f"  Synth final TR rows: {len(synth_final_tr)}")
+
     parts = [gold]
     if len(synth_v1) > 0:
         parts.append(synth_v1)
     if len(synth_v2) > 0:
         parts.append(synth_v2)
+    if len(synth_v3) > 0:
+        parts.append(synth_v3)
+    if len(synth_final_tr) > 0:
+        parts.append(synth_final_tr)
     merged = pd.concat(parts, ignore_index=True)
 
     before_dedup = len(merged)
@@ -245,14 +272,14 @@ def main():
     lengths = merged["text_en"].str.len()
     print(f"  Mean: {lengths.mean():.0f}, Median: {lengths.median():.0f}, Min: {lengths.min()}, Max: {lengths.max()}")
 
-    merged_path = OUT_DIR / "triage_dataset_merged.parquet"
-    merged.to_parquet(merged_path, index=False)
+    merged_path = OUT_DIR / "triage_dataset_merged.csv"
+    merged.to_csv(merged_path, index=False)
 
     train, val, test = stratified_split(merged, seed=RANDOM_SEED)
 
-    train.to_parquet(OUT_DIR / "triage_dataset_train.parquet", index=False)
-    val.to_parquet(OUT_DIR / "triage_dataset_val.parquet", index=False)
-    test.to_parquet(OUT_DIR / "triage_dataset_test.parquet", index=False)
+    train.to_csv(OUT_DIR / "triage_dataset_train.csv", index=False)
+    val.to_csv(OUT_DIR / "triage_dataset_val.csv", index=False)
+    test.to_csv(OUT_DIR / "triage_dataset_test.csv", index=False)
 
     print(f"\nSaved:")
     print(f"  {merged_path}")

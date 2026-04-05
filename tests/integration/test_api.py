@@ -144,6 +144,38 @@ class TestSessionMessage:
         assert "triage_result" in data or data.get("is_complete") is not None
         assert data.get("is_complete") in (True, False)
 
+    def test_session_message_returns_nearby_places(self, client: TestClient):
+        start = client.post("/session/start", json={"language": "en"})
+        sid = start.json()["session_id"]
+
+        with patch(
+            "services.nearby_places_service.get_nearby_places",
+            return_value=[
+                {
+                    "id": "p1",
+                    "type": "police",
+                    "name": "Central Police",
+                    "distance_meters": 450,
+                    "latitude": 41.0,
+                    "longitude": 29.0,
+                }
+            ],
+        ):
+            r = client.post(
+                "/session/message",
+                json={
+                    "session_id": sid,
+                    "text": "Someone is attacking me",
+                    "latitude": 41.0,
+                    "longitude": 29.0,
+                },
+            )
+
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data.get("nearby_places"), list)
+        assert data["nearby_places"][0]["type"] == "police"
+
     def test_session_message_invalid_base64_audio_400(self, client: TestClient):
         start = client.post("/session/start", json={})
         sid = start.json()["session_id"]
@@ -152,6 +184,32 @@ class TestSessionMessage:
             json={"session_id": sid, "audio_base64": "not-valid-base64!!"},
         )
         assert r.status_code == 400
+
+
+class TestNearbyPlaces:
+    def test_nearby_places_endpoint_returns_list(self, client: TestClient):
+        with patch(
+            "services.nearby_places_service.get_nearby_places",
+            return_value=[
+                {
+                    "id": "h1",
+                    "type": "hospital",
+                    "name": "State Hospital",
+                    "distance_meters": 320,
+                    "latitude": 41.0,
+                    "longitude": 29.0,
+                }
+            ],
+        ):
+            r = client.post(
+                "/nearby-places",
+                json={"latitude": 41.0, "longitude": 29.0, "preferred_type": "hospital"},
+            )
+
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data.get("nearby_places"), list)
+        assert data["nearby_places"][0]["type"] == "hospital"
 
 
 class TestSessionTranscribe:

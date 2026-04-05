@@ -98,25 +98,7 @@ RULES:
 """
 
 
-def _build_local_prompt(history: List[Dict[str, str]], language: str) -> str:
-    """Build training-compatible prompt for local fine-tuned seq2seq model."""
-    lines: List[str] = []
-    for msg in history:
-        role = "ASSISTANT" if msg.get("role") == "assistant" else "USER"
-        text = str(msg.get("text", "")).strip()
-        if text:
-            lines.append(f"{role}: {text}")
 
-    convo = "\n".join(lines)
-    return (
-        "You are a professional emergency dispatcher assistant. "
-        "Return ONLY a valid JSON object with keys: "
-        "response_text, extracted_slots, triage_level, category, is_complete, red_flags.\n"
-        f"Language: {language or 'en'}\n"
-        "Conversation:\n"
-        f"{convo}\n\n"
-        "Generate the next assistant JSON output:"
-    )
 
 # ---------------------------------------------------------------------------
 # JSON parser (shared)
@@ -311,41 +293,6 @@ class _GeminiProvider:
             return dict(_EMPTY_LLM_RESPONSE)
 
 
-# ---------------------------------------------------------------------------
-# Local fine-tuned provider (offline)
-# ---------------------------------------------------------------------------
-
-class _LocalFineTunedProvider:
-    """Loads a local seq2seq fine-tuned model for JSON-style chatbot outputs."""
-
-    def __init__(self, model_dir: str) -> None:
-        self._model = None
-        self._tokenizer = None
-        self._device = None
-        self.model_dir = model_dir
-        self.model_name = f"local/{Path(model_dir).name}"
-
-        try:
-            from transformers import AutoModelForSeq2SeqLM, AutoTokenizer  # type: ignore
-            import torch  # type: ignore
-
-            self._tokenizer = AutoTokenizer.from_pretrained(model_dir)
-            self._model = AutoModelForSeq2SeqLM.from_pretrained(model_dir)
-
-            if torch.cuda.is_available():
-                self._device = torch.device("cuda")
-            else:
-                self._device = torch.device("cpu")
-
-            self._model.to(self._device)
-            self._model.eval()
-            logger.info("Local chatbot model initialised (dir=%s)", model_dir)
-        except Exception as exc:
-            logger.error("Local model init failed (%s): %s", model_dir, exc)
-
-    @property
-    def is_ready(self) -> bool:
-        return self._model is not None and self._tokenizer is not None
 
     def chat(
         self,
@@ -399,12 +346,7 @@ class LLMService:
         groq_key = os.environ.get("GROQ_API_KEY")
         gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 
-        if local_model_dir:
-            p = _LocalFineTunedProvider(model_dir=local_model_dir)
-            if p.is_ready:
-                self._provider = p
-                self._provider_name = p.model_name
-                return
+       
 
         if groq_key:
             p = _GroqProvider(api_key=groq_key)

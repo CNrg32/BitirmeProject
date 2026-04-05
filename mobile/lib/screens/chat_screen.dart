@@ -20,9 +20,9 @@ import '../core/app_theme.dart';
 import '../models/chat_message.dart';
 import '../services/api_service.dart';
 import '../widgets/chat_bubble.dart';
-import '../widgets/triage_card.dart';
 import '../widgets/image_analysis_card.dart';
 import '../widgets/report_sheet.dart';
+import '../widgets/triage_card.dart';
 
 class ChatScreen extends StatefulWidget {
   final String sessionId;

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import re
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -114,6 +115,61 @@ _COMPLETE_MSG: Dict[str, str] = {
     "ar": "شكراً. لدي معلومات كافية. المساعدة في الطريق.",
     "ru": "Спасибо. У меня достаточно информации. Помощь уже едет.",
 }
+
+
+def _is_gibberish(text: str) -> bool:
+    """Minimal hard-noise filter. Ambiguous cases are delegated to LLM."""
+    t = (text or "").strip().lower()
+    if not t:
+        return True
+
+    # Very short random chunks are typically noise.
+    if len(t) <= 2:
+        return True
+
+    # Mostly non-letter input (symbols/digits) is likely gibberish.
+    letters = sum(ch.isalpha() for ch in t)
+    if letters == 0:
+        return True
+    if letters / max(len(t), 1) < 0.35:
+        return True
+
+    # Repeated single-character spam (aaaa, zzzz, 1111).
+    compact = re.sub(r"\s+", "", t)
+    if len(compact) >= 4 and len(set(compact)) == 1:
+        return True
+
+    # Keyboard mashing patterns.
+    mash_markers = ("asdf", "qwer", "zxcv", "qaz", "wsx")
+    if any(m in compact for m in mash_markers):
+        return True
+
+    return False
+
+
+def _is_gibberish_with_llm(text: str, lang: str) -> Optional[bool]:
+    """Ask LLM whether input is gibberish. Returns None if decision unavailable."""
+    try:
+        from services.llm_service import get_llm_service
+
+        llm = get_llm_service()
+        if not llm.is_available:
+            return None
+
+        result = llm.chat(
+            history=[{"role": "user", "text": text}],
+            language=lang,
+            task="gibberish_check",
+        )
+        marker = str((result.get("extracted_slots") or {}).get("meaningfulness", "")).strip().lower()
+        if marker in ("gibberish", "noise", "nonsense"):
+            return True
+        if marker in ("meaningful", "valid"):
+            return False
+        return None
+    except Exception as exc:
+        logger.debug("LLM gibberish check skipped: %s", exc)
+        return None
 
 
 def handle_message(
@@ -240,6 +296,29 @@ def handle_message(
     # ------------------------------------------------------------------
     # 4. Language detection from text (if not already locked)
     # ------------------------------------------------------------------
+    hard_noise = _is_gibberish(user_text)
+    llm_noise = None if hard_noise else _is_gibberish_with_llm(user_text, lang)
+    is_noise = hard_noise if hard_noise else bool(llm_noise)
+
+    if is_noise:
+        session.troll_count += 1
+        if session.troll_count >= 2:
+            session.is_complete = True
+            close_msg = {
+                "tr": "Anlamlı bir acil durum bilgisi alamadım. Oturumu kapatıyorum. Gerçek acil durumda lütfen yeniden yazın veya 112'yi arayın.",
+                "en": "I could not get meaningful emergency details. I am closing this session. In a real emergency, please start again or call 112.",
+            }.get(lang, "I could not get meaningful emergency details. Session closed.")
+            return _reply(session, close_msg, is_complete=True, user_transcript=asr_transcript)
+
+        clarify_msg = {
+            "tr": "Mesajı anlayamadım. Lütfen acil durumu kısa ve net yazın (örnek: 'Babam nefes almıyor').",
+            "en": "I could not understand. Please describe the emergency clearly (example: 'My father is not breathing').",
+        }.get(lang, "Please describe the emergency clearly.")
+        return _reply(session, clarify_msg, user_transcript=asr_transcript)
+
+    # Reset noise counter once meaningful text is received.
+    session.troll_count = 0
+
     if not session.language_locked:
         detected_text_lang = detect_language(user_text)
         if detected_text_lang:
@@ -664,6 +743,8 @@ def _reply(
         followup_status = "dispatch_sent" if session.dispatch_timestamp else "dispatch_pending"
     elif session.dispatch_status == "PENDING":
         followup_status = "waiting_for_info" if not session.is_complete else "no_dispatch_needed"
+
+    nearby_places = _resolve_nearby_places(session, triage_result or session.triage_result)
     
     return {
         "session_id": session.session_id,
@@ -681,8 +762,40 @@ def _reply(
         "summary_card": summary_card,
         "resume_prompt": resume_prompt,
         "followup_status": followup_status,
-        "nearby_places": None,  # TODO: Faz 9 nearby service
+        "nearby_places": nearby_places,
     }
+
+
+def _resolve_nearby_places(
+    session: Session,
+    triage_result: Optional[Dict[str, Any]],
+) -> Optional[List[Dict[str, Any]]]:
+    latitude = session.collected_slots.get("latitude")
+    longitude = session.collected_slots.get("longitude")
+    if latitude is None or longitude is None:
+        return None
+
+    preferred_type = _preferred_nearby_type((triage_result or {}).get("category"))
+    try:
+        from services.nearby_places_service import get_nearby_places
+
+        return get_nearby_places(
+            float(latitude),
+            float(longitude),
+            preferred_type=preferred_type,
+            limit_per_type=5,
+        )
+    except Exception as exc:
+        logger.warning("Nearby places could not be resolved: %s", exc)
+        return []
+
+
+def _preferred_nearby_type(category: Optional[str]) -> Optional[str]:
+    if category == "crime":
+        return "police"
+    if category == "medical":
+        return "hospital"
+    return None
 
 
 # ---------------------------------------------------------------------------

@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/app_strings.dart';
 import '../core/app_theme.dart';
 import 'home_screen.dart';
+import 'nearby_places_screen.dart';
 
 /// Uygulama açılış ekranı: 112 hızlı erişim, kısa bilgi, "Başla" ile ana ekrana geçiş.
 class WelcomeScreen extends StatelessWidget {
@@ -53,6 +54,19 @@ class WelcomeScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    IconButton(
+                      tooltip: AppStrings.nearbyPageTitle,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NearbyPlacesScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.place, size: 28),
+                    ),
+                    const SizedBox(width: 8),
                     Semantics(
                       button: true,
                       label: AppStrings.emergencyCall,

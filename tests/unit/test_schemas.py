@@ -67,6 +67,26 @@ class TestSessionMessageRequest:
         assert r.longitude is None
 
 
+class TestSessionMessageResponse:
+    def test_nearby_places_optional_payload(self):
+        r = SessionMessageResponse(
+            session_id="sid",
+            assistant_text="ok",
+            nearby_places=[
+                {
+                    "id": "osm:node:1",
+                    "type": "hospital",
+                    "name": "State Hospital",
+                    "distance_meters": 1200,
+                    "latitude": 41.0,
+                    "longitude": 29.0,
+                }
+            ],
+        )
+        assert r.nearby_places is not None
+        assert r.nearby_places[0]["type"] == "hospital"
+
+
 class TestSessionTranscribeRequest:
     def test_requires_audio_base64(self):
         r = SessionTranscribeRequest(session_id="sid", audio_base64="YQ==")
