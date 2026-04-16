@@ -16,6 +16,11 @@ build/
 .venv/
 venv/
 env/
+.vendor/
+.flutter_sdk/
+.pytest_tmp/
+.pytest_cache/
+pytest-cache-files-*/
 
 # ── IDE / Editor ─────────────────────────────────────
 .vscode/

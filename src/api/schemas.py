@@ -126,6 +126,32 @@ class NearbyPlacesResponse(BaseModel):
     nearby_places: List[Dict[str, Any]] = Field(default_factory=list)
 
 
+class TranscriptImportRequest(BaseModel):
+    csv_path: Optional[str] = Field(
+        None,
+        description="Path to CSV file. Defaults to data/labels/auto_transcripts.csv",
+    )
+
+
+class TranscriptImportResponse(BaseModel):
+    imported_count: int
+    table_name: Optional[str] = None
+
+
+class TranscriptRecordResponse(BaseModel):
+    transcript_id: str
+    path: str
+    text: str
+    avg_confidence: Optional[float] = None
+    chunks: Optional[str] = None
+    source: Optional[str] = None
+    imported_at: Optional[str] = None
+
+
+class TranscriptListResponse(BaseModel):
+    transcripts: List[TranscriptRecordResponse] = Field(default_factory=list)
+
+
 class SessionMessageResponse(BaseModel):
     session_id: str
     assistant_text: str

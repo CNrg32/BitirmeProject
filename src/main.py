@@ -37,6 +37,10 @@ from api.schemas import (
     SessionStartResponse,
     SessionTranscribeRequest,
     SessionTranscribeResponse,
+    TranscriptImportRequest,
+    TranscriptImportResponse,
+    TranscriptListResponse,
+    TranscriptRecordResponse,
 )
 from api.model_loader import apply_redflag_override, get_model_service
 
@@ -340,6 +344,57 @@ def nearby_places(req: NearbyPlacesRequest):
         limit_per_type=req.limit_per_type,
     )
     return NearbyPlacesResponse(nearby_places=places)
+
+
+@app.post("/transcripts/import-auto-csv", response_model=TranscriptImportResponse)
+def import_auto_transcripts(req: TranscriptImportRequest):
+    try:
+        from services.transcript_store import (
+            DEFAULT_AUTO_TRANSCRIPTS_CSV,
+            get_transcript_store,
+            load_auto_transcripts_csv,
+        )
+
+        csv_path = req.csv_path or DEFAULT_AUTO_TRANSCRIPTS_CSV
+        records = load_auto_transcripts_csv(csv_path)
+        store = get_transcript_store()
+        imported_count = store.put_many(records)
+        return TranscriptImportResponse(
+            imported_count=imported_count,
+            table_name=getattr(store, "table_name", None),
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+    except FileNotFoundError as exc:
+        raise HTTPException(404, f"CSV file not found: {exc.filename}")
+
+
+@app.get("/transcripts", response_model=TranscriptListResponse)
+def list_transcripts(limit: int = 50):
+    try:
+        from services.transcript_store import get_transcript_store
+
+        safe_limit = min(max(limit, 1), 200)
+        items = get_transcript_store().list(limit=safe_limit)
+        return TranscriptListResponse(
+            transcripts=[TranscriptRecordResponse(**item) for item in items]
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+
+@app.get("/transcripts/{transcript_id}", response_model=TranscriptRecordResponse)
+def get_transcript(transcript_id: str):
+    try:
+        from services.transcript_store import get_transcript_store
+
+        item = get_transcript_store().get(transcript_id)
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+    if item is None:
+        raise HTTPException(404, "Transcript not found.")
+    return TranscriptRecordResponse(**item)
 
 
 @app.post("/test/simulate-fallback")
