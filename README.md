@@ -63,9 +63,44 @@ Chatbot cevaplarını kendi istediğiniz forma getirmek için:
    ```
    Çıktı: `data/llm_finetune_train.jsonl`. İleride gerçek model fine-tuning (OpenAI API veya LoRA) yapmak için bu dosyayı kullanabilirsiniz.
 
-## Fine-tuning the chatbot JSON responder
+4. **Groq LoRA/SFT için veri export (önerilen)**  
+   Groq üzerinde kullanacağınız adapter/fine-tuned model için chat-format JSONL üretmek:
+   ```bash
+   PYTHONPATH=src python scripts/export_groq_lora_data.py
+   ```
+   Çıktı: `data/llm_groq_lora_train.jsonl`
 
-The project now includes a supervised fine-tuning script for the chatbot output format used by the triage flow.
+## Groq ile model özelleştirme akışı
+
+Bu repo Groq'u inference için kullanır. Groq tarafında doğrudan eğitim yerine,
+LoRA/SFT adapter'ı dışarıda eğitip Groq'a model kimliği (model id) olarak tanımlarsınız.
+
+1. Eğitim verisini üret:
+```bash
+python scripts/generate_llm_finetune_examples.py --count 180
+PYTHONPATH=src python scripts/export_groq_lora_data.py
+```
+
+2. Dış pipeline'da (PEFT/Unsloth vb.) adapter eğit ve Groq hesabına yükle.
+
+3. Uygulamayı Groq custom model ile çalıştır:
+```bash
+export GROQ_API_KEY="gsk_..."
+export GROQ_FINE_TUNED_MODEL="ft:your-groq-model-id"
+uvicorn src.main:app --host 127.0.0.1 --port 8000
+```
+
+Not: `GROQ_FINE_TUNED_MODEL` set edilmezse sırasıyla `GROQ_MODEL`, sonra varsayılan model kullanılır.
+
+4. Modeli JSON uyumu açısından hızlı test et:
+```bash
+GROQ_API_KEY="gsk_..." GROQ_FINE_TUNED_MODEL="ft:your-groq-model-id" \
+PYTHONPATH=src python scripts/eval_groq_json_mode.py
+```
+
+## Legacy local fine-tuning notes
+
+The section below is a previous local fine-tuning flow and may not exist in every branch/version of this repository.
 
 Expected JSONL sample format (`data/labels/chatbot_finetune_template.jsonl`):
 
