@@ -67,7 +67,8 @@ class _ChatScreenState extends State<ChatScreen> {
   String? _lastRecordingPath;
   final AudioPlayer _replayPlayer = AudioPlayer();
 
-  File? _pendingImage;
+  /// Galeri önizlemesi — Web'de [Image.file] yok; baytlar [Image.memory] ile gösterilir.
+  Uint8List? _pendingImageBytes;
   Position? _currentPosition;
 
   int? _playingMessageIndex;
@@ -227,7 +228,9 @@ class _ChatScreenState extends State<ChatScreen> {
         imageQuality: 85,
       );
       if (picked == null) return;
-      setState(() => _pendingImage = File(picked.path));
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      setState(() => _pendingImageBytes = Uint8List.fromList(bytes));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -238,10 +241,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendImageOnly() async {
-    if (_pendingImage == null || _isSending) return;
-    final imgBytes = await _pendingImage!.readAsBytes();
-    setState(() => _pendingImage = null);
-    await _sendImageBytes(Uint8List.fromList(imgBytes));
+    if (_pendingImageBytes == null || _isSending) return;
+    final imgBytes = _pendingImageBytes!;
+    setState(() => _pendingImageBytes = null);
+    await _sendImageBytes(imgBytes);
   }
 
   /// Sunucudaki görüntü modeli ile analiz: oturuma görsel gönderir, triyaj + görsel analiz döner.
@@ -329,10 +332,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<Uint8List?> _readAndClearPendingImage() async {
-    if (_pendingImage == null) return null;
-    final bytes = await _pendingImage!.readAsBytes();
-    setState(() => _pendingImage = null);
-    return Uint8List.fromList(bytes);
+    if (_pendingImageBytes == null) return null;
+    final bytes = _pendingImageBytes!;
+    setState(() => _pendingImageBytes = null);
+    return bytes;
   }
 
   Future<void> _toggleRecording() async {
@@ -494,10 +497,9 @@ class _ChatScreenState extends State<ChatScreen> {
       }
 
       String? imageB64;
-      if (!kIsWeb && _pendingImage != null) {
-        final imgBytes = await _pendingImage!.readAsBytes();
-        imageB64 = base64Encode(imgBytes);
-        setState(() => _pendingImage = null);
+      if (_pendingImageBytes != null) {
+        imageB64 = base64Encode(_pendingImageBytes!);
+        setState(() => _pendingImageBytes = null);
       }
 
       final Map<String, dynamic> resp;
@@ -773,7 +775,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
               ),
             ),
-          if (_pendingImage != null) _buildImagePreview(theme),
+          if (_pendingImageBytes != null) _buildImagePreview(theme),
           if (_isComplete) _buildCompletedBar(theme),
           if (!_isComplete) _buildInputBar(theme),
         ],
@@ -836,8 +838,8 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              _pendingImage!,
+            child: Image.memory(
+              _pendingImageBytes!,
               width: 60,
               height: 60,
               fit: BoxFit.cover,
@@ -856,7 +858,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: const Icon(Icons.close),
             tooltip: AppStrings.cancel,
-            onPressed: () => setState(() => _pendingImage = null),
+            onPressed: () => setState(() => _pendingImageBytes = null),
           ),
         ],
       ),
@@ -1033,7 +1035,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       : () => _pickImage(ImageSource.gallery),
                   icon: Icon(
                     Icons.photo_library_outlined,
-                    color: _pendingImage != null
+                    color: _pendingImageBytes != null
                         ? theme.colorScheme.primary
                         : null,
                   ),
