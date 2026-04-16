@@ -166,7 +166,13 @@ class _GroqProvider:
 
     def __init__(self, api_key: str) -> None:
         self._client = None
-        self.model = os.environ.get("GROQ_MODEL", self.DEFAULT_MODEL)
+        # If you have a Groq fine-tuned/LoRA model id, set GROQ_FINE_TUNED_MODEL.
+        # Falls back to GROQ_MODEL and then project default.
+        self.model = (
+            os.environ.get("GROQ_FINE_TUNED_MODEL", "").strip()
+            or os.environ.get("GROQ_MODEL", "").strip()
+            or self.DEFAULT_MODEL
+        )
         try:
             from groq import Groq  # type: ignore
             self._client = Groq(api_key=api_key)

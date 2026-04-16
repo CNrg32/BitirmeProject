@@ -1,37 +1,3082 @@
 {
-  "description": "Few-shot ve fine-tuning için örnek diyaloglar. 'examples' listesine kendi senaryolarınızı ekleyerek chatbot cevaplarını özelleştirin.",
+  "description": "Auto-generated emergency triage few-shot/fine-tune examples.",
   "examples": [
     {
-      "user": "Evet, kalp krizi geçiriyor gibi. Göğsü sıkışıyor.",
+      "user": "Ben Ahmet, 53 yas. Asansorde mahsur kaldik, cocuk panik yapiyor.",
       "assistant_json": {
-        "response_text": "Anladım, kalp krizi şüphesi ciddi bir acil durum. Hemen 112'yi arayın. Kişiyi sakin tutun, oturur veya yarı oturur pozisyonda tutun. Aspirin varsa çiğnetin (alerji yoksa). Şimdi adınızı ve tam adresinizi söyler misiniz?",
-        "extracted_slots": {"chief_complaint": "kalp krizi", "category": "medical"},
-        "triage_level": "CRITICAL",
-        "category": "medical",
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "53",
+          "chief_complaint": "asansorde mahsur kalma",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
         "is_complete": false,
-        "red_flags": ["göğüs sıkışması", "kalp krizi şüphesi"]
+        "red_flags": []
       }
     },
     {
-      "user": "Adım Ahmet, 45 yaşındayım. Evde yangın var, çıkış yolunda değilim.",
+      "user": "Adim Mehmet, 31 yasindayim. Annem bayildi, cevap vermiyor.",
       "assistant_json": {
-        "response_text": "Ahmet Bey, lütfen sakin kalın. Hemen 112'yi aradık, itfaiye yönlendiriliyor. Kapıları kapatın, ıslak bezle ağız burnu kapatın ve pencereden veya en güvenli yerden bekleyin. Yangın küçük mü, büyük mü? İçeride başka yaralı var mı?",
-        "extracted_slots": {"caller_name": "Ahmet", "age": "45", "category": "fire", "chief_complaint": "ev yangını", "trapped": "yes"},
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "31",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Ben Seda, 72 yas. Asansorde mahsur kaldik, cocuk panik yapiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "72",
+          "chief_complaint": "asansorde mahsur kalma",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ayse, 45 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "45",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 21 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "21",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Yusuf, 71 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "71",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 53 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "53",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "My name is John, I am 38. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "John",
+          "age": "38",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Ben Elif, 53 yas. Kedi agaca cikti inemiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "53",
+          "chief_complaint": "hayvan kurtarma talebi",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Elif, 31 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "31",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ayse, 63 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "63",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "klavyeeeyyy mmm",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ahmet, 76 yasindayim. Evime zorla girmeye calisiyorlar.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "76",
+          "chief_complaint": "haneye tesebbus",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 28 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "28",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 64 yasindayim. Evime zorla girmeye calisiyorlar.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "64",
+          "chief_complaint": "haneye tesebbus",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ayse, 23 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "23",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Ben Can, 28 yas. Yolda buyuk bir elektrik diregi devrildi.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "28",
+          "chief_complaint": "altyapi tehlikesi",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": ".... ???",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "asdasd qweqwe",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Kerem. 64 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "64",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Fatma. 52 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "52",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Yusuf, 49 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "49",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Adim Merve, 52 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "52",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Elif, 25 yas. Yolda buyuk bir elektrik diregi devrildi.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "25",
+          "chief_complaint": "altyapi tehlikesi",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Elif, 69 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "69",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Fatma. 58 yasindayim. Evde mutfakta yangin cikti, duman cok yogun.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "58",
+          "chief_complaint": "ev yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
         "triage_level": "CRITICAL",
         "category": "fire",
         "is_complete": false,
-        "red_flags": ["yangın", "çıkış yok"]
+        "red_flags": [
+          "yogun duman"
+        ]
       }
     },
     {
-      "user": "Kaza geçirdim, bacağım kanıyor çok.",
+      "user": "Ben Merve, 76 yas. Kedi agaca cikti inemiyor.",
       "assistant_json": {
-        "response_text": "Kanama ciddi bir durum. Lütfen yara üzerine temiz bir bezle veya elinizle baskı uygulayın, mümkünse bacağı yukarı kaldırın. Adınız ve tam konumunuz nedir? 112 yönlendiriliyor.",
-        "extracted_slots": {"chief_complaint": "trafik kazası", "bleeding": "yes", "category": "medical"},
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "76",
+          "chief_complaint": "hayvan kurtarma talebi",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Mehmet, 49 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "49",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
         "triage_level": "CRITICAL",
         "category": "medical",
         "is_complete": false,
-        "red_flags": ["ciddi kanama"]
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Ben Seda, 72 yas. Yasli komsumdan iki gundur haber alamiyorum.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "72",
+          "chief_complaint": "refah kontrolu",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Elif, 46 yasindayim. Sokakta kavga var, biri yarali.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "46",
+          "chief_complaint": "kavga ve yaralanma",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "yarali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 29 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "29",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "My name is John, I am 32. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "John",
+          "age": "32",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Mehmet, 72 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "72",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 66 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "66",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Adim Yusuf, 50 yasindayim. Sokakta kavga var, biri yarali.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "50",
+          "chief_complaint": "kavga ve yaralanma",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "yarali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ayse, 52 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "52",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "My name is Anna, I am 61. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Anna",
+          "age": "61",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Merve, 38 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "38",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Adim Can, 82 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "82",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "My name is Sarah, I am 82. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Sarah",
+          "age": "82",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Can, 82 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "82",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Mehmet, 65 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "65",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "My name is Sarah, I am 18. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Sarah",
+          "age": "18",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 20 yasindayim. Evime zorla girmeye calisiyorlar.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "20",
+          "chief_complaint": "haneye tesebbus",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Can, 48 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "48",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 28 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "28",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 26 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "26",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "My name is David, I am 34. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "David",
+          "age": "34",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 39 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "39",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Fatma. 43 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "43",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Kerem. 75 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "75",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ayse, 61 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "61",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Yusuf, 47 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "47",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ahmet, 27 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "27",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Ben Fatma, 26 yas. Asansorde mahsur kaldik, cocuk panik yapiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "26",
+          "chief_complaint": "asansorde mahsur kalma",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ayse, 48 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "48",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Ben Fatma. 34 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "34",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 42 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "42",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Merve, 63 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "63",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Kerem. 24 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "24",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Elif, 31 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "31",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Fatma, 75 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "75",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Mehmet, 53 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "53",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ayse, 74 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "74",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "My name is David, I am 30. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "David",
+          "age": "30",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Yusuf, 19 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "19",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Mehmet, 70 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "70",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Fatma, 69 yasindayim. Sokakta kavga var, biri yarali.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "69",
+          "chief_complaint": "kavga ve yaralanma",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "yarali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Merve, 18 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "18",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Ben Kerem. 54 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "54",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Mehmet, 42 yas. Kedi agaca cikti inemiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "42",
+          "chief_complaint": "hayvan kurtarma talebi",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Ahmet. 25 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "25",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 79 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "79",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ahmet, 28 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "28",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": ".... ???",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ayse, 48 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "48",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Seda. 49 yasindayim. Evde mutfakta yangin cikti, duman cok yogun.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "49",
+          "chief_complaint": "ev yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "yogun duman"
+        ]
+      }
+    },
+    {
+      "user": "Adim Merve, 58 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "58",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Ben Elif. 48 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "48",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "Ben Can. 76 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "76",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "My name is John, I am 19. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "John",
+          "age": "19",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ayse, 45 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "45",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Adim Mehmet, 62 yasindayim. Evime zorla girmeye calisiyorlar.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "62",
+          "chief_complaint": "haneye tesebbus",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Elif, 54 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "54",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Yusuf, 56 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "56",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Yusuf, 56 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "56",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Ben Mehmet, 51 yas. Asansorde mahsur kaldik, cocuk panik yapiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "51",
+          "chief_complaint": "asansorde mahsur kalma",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Yusuf, 37 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "37",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Seda. 44 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "44",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Can, 82 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "82",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ahmet, 29 yasindayim. Evime zorla girmeye calisiyorlar.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "29",
+          "chief_complaint": "haneye tesebbus",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Can, 23 yas. Kedi agaca cikti inemiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "23",
+          "chief_complaint": "hayvan kurtarma talebi",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Mehmet, 51 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "51",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 72 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "72",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Ayse, 27 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "27",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Ben Yusuf, 22 yas. Yolda buyuk bir elektrik diregi devrildi.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "22",
+          "chief_complaint": "altyapi tehlikesi",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "klavyeeeyyy mmm",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 34 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "34",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Adim Elif, 23 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "23",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Ben Fatma. 31 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "31",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "My name is David, I am 70. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "David",
+          "age": "70",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Fatma, 38 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "38",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "My name is Sarah, I am 70. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Sarah",
+          "age": "70",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Elif, 70 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "70",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "My name is Anna, I am 49. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Anna",
+          "age": "49",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Ben Ayse. 66 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "66",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "hmm bilmiyom",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Kerem, 62 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "62",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Ben Fatma. 21 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "21",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "Ben Can. 26 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "26",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Yusuf. 60 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "60",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Mehmet, 51 yasindayim. Gogsumde siddetli agri var, terliyorum.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "51",
+          "chief_complaint": "gogus agrisi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "kalp krizi suphe"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 73 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "73",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Merve. 32 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "32",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Can, 23 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "23",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Ben Ahmet, 43 yas. Kedi agaca cikti inemiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "43",
+          "chief_complaint": "hayvan kurtarma talebi",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Ayse. 60 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "60",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Can, 82 yas. Asansorde mahsur kaldik, cocuk panik yapiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "82",
+          "chief_complaint": "asansorde mahsur kalma",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Elif. 69 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "69",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Fatma, 71 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "71",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Ben Mehmet, 56 yas. Kedi agaca cikti inemiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "56",
+          "chief_complaint": "hayvan kurtarma talebi",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Can. 54 yasindayim. Evde mutfakta yangin cikti, duman cok yogun.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "54",
+          "chief_complaint": "ev yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "yogun duman"
+        ]
+      }
+    },
+    {
+      "user": "Ben Kerem. 74 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "74",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Yusuf, 78 yas. Yolda buyuk bir elektrik diregi devrildi.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "78",
+          "chief_complaint": "altyapi tehlikesi",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "My name is Anna, I am 39. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Anna",
+          "age": "39",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Ben Can, 60 yas. Asansorde mahsur kaldik, cocuk panik yapiyor.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "60",
+          "chief_complaint": "asansorde mahsur kalma",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Can, 46 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "46",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "My name is Sarah, I am 36. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Sarah",
+          "age": "36",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Fatma, 78 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "78",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 71 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "71",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Ben Merve, 81 yas. Yolda buyuk bir elektrik diregi devrildi.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "81",
+          "chief_complaint": "altyapi tehlikesi",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Mehmet. 18 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "18",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "My name is Emily, I am 46. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Emily",
+          "age": "46",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Yusuf, 77 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "77",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Fatma, 33 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "33",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Kerem, 58 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "58",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "My name is Emily, I am 82. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Emily",
+          "age": "82",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Ben Mehmet. 78 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "78",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Can. 80 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "80",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "Ben Ayse. 54 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "54",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Elif. 28 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "28",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 37 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "37",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Ben Ayse, 71 yas. Yolda buyuk bir elektrik diregi devrildi.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "71",
+          "chief_complaint": "altyapi tehlikesi",
+          "category": "other"
+        },
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Yusuf. 77 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "77",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 67 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "67",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "My name is David, I am 20. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "David",
+          "age": "20",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "hmm bilmiyom",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Elif, 56 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "56",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "My name is Emily, I am 71. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Emily",
+          "age": "71",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 46 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "46",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "Ben Kerem. 21 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "21",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Mehmet. 77 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "77",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 21 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "21",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Adim Merve, 35 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "35",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "hmm bilmiyom",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Can, 66 yasindayim. Babam nefes alamiyor, morariyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Can",
+          "age": "66",
+          "chief_complaint": "nefes darligi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "nefes alamama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Kerem. 59 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "59",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "My name is Emily, I am 53. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Emily",
+          "age": "53",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "My name is Emily, I am 50. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Emily",
+          "age": "50",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "asdasd qweqwe",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Yusuf, 24 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "24",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Ben Ayse. 23 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "23",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "yes"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ahmet, 37 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "37",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 32 yasindayim. Annem bayildi, cevap vermiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "32",
+          "chief_complaint": "bilinc kaybi",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "bilinc kapali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Kerem, 50 yasindayim. Biri bicakla tehdit ediyor.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "50",
+          "chief_complaint": "bicakli tehdit",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "bicak"
+        ]
+      }
+    },
+    {
+      "user": "My name is Michael, I am 39. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "Michael",
+          "age": "39",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Adim Mehmet, 57 yasindayim. Disarida silah sesi duydum, biri yere dustu.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Mehmet",
+          "age": "57",
+          "chief_complaint": "silahli saldiri",
+          "category": "crime"
+        },
+        "triage_level": "CRITICAL",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "silah"
+        ]
+      }
+    },
+    {
+      "user": "Adim Ahmet, 57 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Ahmet",
+          "age": "57",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Merve, 43 yasindayim. Sokakta kavga var, biri yarali.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Merve",
+          "age": "43",
+          "chief_complaint": "kavga ve yaralanma",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "yarali"
+        ]
+      }
+    },
+    {
+      "user": "Adim Fatma, 31 yasindayim. Dusme sonrasi kolunu oynatamiyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Fatma",
+          "age": "31",
+          "chief_complaint": "kirik suphe",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Seda, 33 yas. Yasli komsumdan iki gundur haber alamiyorum.",
+      "assistant_json": {
+        "response_text": "Durumu anladim, ek bilgi toplayalim. Su anda fiziksel yaralanma veya duman/kanama gibi tehlike var mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "33",
+          "chief_complaint": "refah kontrolu",
+          "category": "other"
+        },
+        "triage_level": "NON_URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "My name is David, I am 23. My father collapsed and is not responding.",
+      "assistant_json": {
+        "response_text": "Understood, this may be critical. Check if he is breathing and keep him on a safe surface. Is he breathing right now?",
+        "extracted_slots": {
+          "caller_name": "David",
+          "age": "23",
+          "chief_complaint": "collapsed and unresponsive",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "unresponsive"
+        ]
+      }
+    },
+    {
+      "user": "Ben Elif. 26 yasindayim. Aracimdan duman cikiyor.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Elif",
+          "age": "26",
+          "chief_complaint": "arac yangin riski",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Kerem, 31 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "31",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
+      }
+    },
+    {
+      "user": "Ben Kerem. 37 yasindayim. Depoda kucuk capli yangin var.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "37",
+          "chief_complaint": "depo yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "URGENT",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Yusuf, 52 yasindayim. Atesi var ve nefesi hizli.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Yusuf",
+          "age": "52",
+          "chief_complaint": "ates ve solunum sikintisi",
+          "category": "medical"
+        },
+        "triage_level": "URGENT",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Adim Kerem, 73 yasindayim. Sokakta kavga var, biri yarali.",
+      "assistant_json": {
+        "response_text": "Guvenliginizi onceleyin, riskli alandan uzaklasin. Emniyet yonlendiriliyor. Saldirgan hala yakinlarda mi?",
+        "extracted_slots": {
+          "caller_name": "Kerem",
+          "age": "73",
+          "chief_complaint": "kavga ve yaralanma",
+          "category": "crime"
+        },
+        "triage_level": "URGENT",
+        "category": "crime",
+        "is_complete": false,
+        "red_flags": [
+          "yarali"
+        ]
+      }
+    },
+    {
+      "user": "klavyeeeyyy mmm",
+      "assistant_json": {
+        "response_text": "Sizi net anlayamadim. Acil durumu kisaca tek cumleyle yazar misiniz?",
+        "extracted_slots": {},
+        "triage_level": "URGENT",
+        "category": "other",
+        "is_complete": false,
+        "red_flags": []
+      }
+    },
+    {
+      "user": "Ben Ayse. 53 yasindayim. Apartmanda yangin alarmi caliyor, merdiven dumanli.",
+      "assistant_json": {
+        "response_text": "Sakin kalin, hemen guvenli cikisi degerlendirin. Dumandan uzak durun ve agiz-burnunuzu ortun. Iceride mahsur kalan var mi?",
+        "extracted_slots": {
+          "caller_name": "Ayse",
+          "age": "53",
+          "chief_complaint": "apartman yangini",
+          "category": "fire",
+          "trapped": "no"
+        },
+        "triage_level": "CRITICAL",
+        "category": "fire",
+        "is_complete": false,
+        "red_flags": [
+          "kacis yolu riskli"
+        ]
+      }
+    },
+    {
+      "user": "Adim Seda, 66 yasindayim. Trafik kazasi oldu, bacagi cok kaniyor.",
+      "assistant_json": {
+        "response_text": "Anladim, tibbi acil durum olabilir. Hastayi guvenli bir pozisyonda tutun. Su an bilinci acik mi?",
+        "extracted_slots": {
+          "caller_name": "Seda",
+          "age": "66",
+          "chief_complaint": "ciddi kanama",
+          "category": "medical"
+        },
+        "triage_level": "CRITICAL",
+        "category": "medical",
+        "is_complete": false,
+        "red_flags": [
+          "asiri kanama"
+        ]
       }
     }
   ]
