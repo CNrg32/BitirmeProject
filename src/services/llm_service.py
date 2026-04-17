@@ -5,7 +5,7 @@ Provider selection:
     1. GROQ_API_KEY   → Groq (llama-3.3-70b)
 
 Set the key in .env file:
-    GROQ_API_KEY=
+    GROQ_API_KEY="<YOUR_GROQ_API_KEY>"
 """
 from __future__ import annotations
 
