@@ -48,6 +48,18 @@ MAX_QUESTION_ROUNDS_NORMAL = 4
 MAX_QUESTION_ROUNDS_MEDIUM_PANIC = 3
 MAX_QUESTION_ROUNDS_HIGH_PANIC = 2
 
+# Slots that a witness/bystander cannot reasonably know about the victim.
+# These are skipped automatically when session.witness_mode is True.
+WITNESS_SKIP_SLOTS: set = {
+    "age",
+    "sex",
+    "medical_history",
+    "chronic_illness",
+    "medications",
+    "severity_1_10",   # subjective — witness can't feel the pain
+    "duration_minutes",  # witness may not know how long it's been going on
+}
+
 
 def _infer_category(session: Session) -> str:
     if session.triage_result and session.triage_result.get("category"):
@@ -76,6 +88,9 @@ def get_missing_required_slots(session: Session) -> List[Tuple[str, str]]:
     missing = []
     for key, question, _priority in REQUIRED_SLOTS:
         if key not in session.collected_slots and key not in session.asked_questions:
+            # Skip slots that a witness cannot reasonably know
+            if session.witness_mode and key in WITNESS_SKIP_SLOTS:
+                continue
             missing.append((key, question))
     return missing
 
@@ -84,6 +99,9 @@ def get_missing_optional_slots(session: Session) -> List[Tuple[str, str]]:
     missing = []
     for key, question, _priority in OPTIONAL_SLOTS:
         if key not in session.collected_slots and key not in session.asked_questions:
+            # Skip slots that a witness cannot reasonably know
+            if session.witness_mode and key in WITNESS_SKIP_SLOTS:
+                continue
             missing.append((key, question))
     return missing
 
@@ -93,6 +111,9 @@ def _get_next_category_question(session: Session) -> Optional[Tuple[str, str]]:
     questions = EMERGENCY_QUESTIONS.get(category, EMERGENCY_QUESTIONS["other"])
     for key, question in questions:
         if key not in session.asked_questions and key not in session.collected_slots:
+            # Skip slots that a witness cannot reasonably know
+            if session.witness_mode and key in WITNESS_SKIP_SLOTS:
+                continue
             return (key, question)
     return None
 

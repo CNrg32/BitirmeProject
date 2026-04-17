@@ -101,6 +101,7 @@ class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
             onTypeChanged: (type) {
               setState(() => _selectedType = type);
             },
+            onRetry: _loading ? null : _fetchNearby,
           ),
         ],
       ),

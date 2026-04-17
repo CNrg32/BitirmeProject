@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Load .env file (GEMINI_API_KEY etc.) before any other imports
+# Load .env file (GROQ_API_KEY etc.) before any other imports
 _ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 if _ENV_FILE.exists():
     try:

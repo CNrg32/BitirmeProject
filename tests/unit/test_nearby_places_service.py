@@ -60,3 +60,57 @@ def test_get_nearby_places_orders_preferred_type_first():
         )
 
     assert [item["type"] for item in results] == ["police", "hospital"]
+
+
+def test_get_nearby_hospitals_filters_campus_and_private_facilities():
+    nearby_places_service._CACHE.clear()
+
+    response = MagicMock()
+    response.json.return_value = {
+        "elements": [
+            {
+                "id": 1,
+                "type": "node",
+                "lat": 41.0,
+                "lon": 29.0,
+                "tags": {"name": "Merkez Devlet Hastanesi", "addr:city": "Istanbul"},
+            },
+            {
+                "id": 2,
+                "type": "node",
+                "lat": 41.001,
+                "lon": 29.001,
+                "tags": {"name": "X Universitesi Tip Fakultesi Kampusu", "addr:city": "Istanbul"},
+            },
+            {
+                "id": 3,
+                "type": "node",
+                "lat": 41.002,
+                "lon": 29.002,
+                "tags": {"name": "Y Ozel Hastanesi", "access": "private", "addr:city": "Istanbul"},
+            },
+        ]
+    }
+    response.raise_for_status.return_value = None
+
+    with patch("services.nearby_places_service.httpx.post", return_value=response):
+        results = nearby_places_service.get_nearby_hospitals(41.0, 29.0, limit=5)
+
+    assert len(results) == 1
+    assert results[0]["name"] == "Merkez Devlet Hastanesi"
+
+
+def test_build_overpass_query_for_police_includes_alternative_selectors():
+    query = nearby_places_service._build_overpass_query("police", 5000, 41.0, 29.0)
+
+    assert '["amenity"="police"]' in query
+    assert '["amenity"="police"]["police"="station"]' in query
+    assert '["office"="government"]["government"="police"]' in query
+    assert '["office"="government"]["name"~"(emniyet|polis|police|karakol)",i]' in query
+    assert '["building"="police"]' in query
+    assert '["police"]' in query
+
+
+def test_police_search_uses_wider_radii_than_default():
+    assert nearby_places_service._search_radii_for_type("police") == (5000, 10000, 20000)
+    assert nearby_places_service._search_radii_for_type("hospital") == (5000, 10000)

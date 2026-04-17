@@ -10,7 +10,7 @@ Turn flow (LLM-powered):
   6.  TTS the assistant reply
   7.  Return structured response
 
-If GEMINI_API_KEY is not set the system falls back to the original rule-based
+If GROQ_API_KEY is not set the system falls back to the original rule-based
 dialog_manager + mvp_rules flow automatically.
 """
 from __future__ import annotations

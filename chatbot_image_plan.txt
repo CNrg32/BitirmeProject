@@ -1,0 +1,364 @@
+Katman 1: Görsel Giriş ve İlk Filtreleme
+* Kullanıcı sohbet sırasında fotoğraf çeker veya galeriden yükler.
+* Bot fotoğraf geldiğinde şunu der:
+“Görsel alındı, olay yerini analiz ediyorum. Mümkünse kısaca ne olduğunu da yazın veya söyleyin.”
+
+* Görsel Kalite Filtresi:
+
+Fotoğraf çok karanlıksa,
+bulanıksa,
+aşırı yakın/kapalıysa,
+görüntüde anlamlı sahne yoksa,
+dosya bozuksa,
+sistem kullanıcıdan 1 kez daha fotoğraf ister:
+
+“Görsel net değil. Mümkünse daha aydınlık ve olay yerini gösterecek şekilde tekrar çekin.”
+
+* 2. denemede de görüntü analiz edilemezse:
+
+Görsel slotu Unknown / Unusable Image olarak işaretlenir.
+Sistem metin/ses akışına döner.
+Kullanıcıdan kısa açıklama istenir.
+* Troll/Gereksiz Görsel Filtresi:
+
+Selfie,
+alakasız nesne,
+ekran görüntüsü,
+boş duvar,
+şaka/troll içerik
+tespit edilirse sistem kullanıcıya 1 kez uyarı verir:
+
+“Bu görsel acil durumla ilişkili görünmüyor. Lütfen olay yerini gösteren bir fotoğraf yükleyin veya durumu yazın.”
+
+* 2. alakasız görselde:
+
+Oturum troll/invalid olarak işaretlenebilir.
+Henüz acil niyet belirlenmediyse çağrı kapatılır.
+Eğer daha önce metinden acil durum belirlenmişse görsel yok sayılır, metin akışı devam eder.
+* 3 Dakika Kuralı:
+
+Kullanıcı sadece fotoğraf yükledi ama sistem görüntüden anlamlı acil durum çıkaramadıysa ve 3 dakika cevap yoksa çağrı sonlandırılır.
+Ancak görüntüden Critical/Urgent sinyal çıktıysa sessiz yönlendirme kuralları devreye girer.
+Katman 2: ImageAnalyze ve Görsel Triage Kararı
+* Görsel anlamlıysa ImageAnalyze modeline gider.
+
+Modelden beklenen çıktılar:
+
+Kategori:
+- Tıbbi
+- Polis
+- İtfaiye
+- Trafik/Kaza
+- Diğer
+
+Seviye:
+- Critical
+- Urgent
+- Non-Critical
+
+Ek Görsel Bulgular:
+- Kan var mı?
+- Yangın/alev/duman var mı?
+- Silah/bıçak/tehdit unsuru var mı?
+- Kaza/araç devrilmesi var mı?
+- Yerde yatan kişi var mı?
+- Mahsur kalma belirtisi var mı?
+- Kalabalık/panik var mı?
+- Görsel güven skoru
+* Çıktı örneği:
+
+{
+  "category": "medical",
+  "triage_level": "CRITICAL",
+  "detected_class": "RoadAccidents",
+  "confidence": 0.91,
+  "visual_flags": ["person_on_ground", "possible_bleeding"],
+  "dispatch_units": ["Ambulance", "Police"]
+}
+* Güven Skoru Mantığı:
+
+confidence >= 0.80: Model kararı güçlü kabul edilir.
+0.50 - 0.79: Orta güven, kullanıcıdan doğrulama istenir.
+< 0.50: Belirsiz, fallback akışına geçilir.
+* CRITICAL Görsel Sinyaller:
+
+açık alev / yoğun duman,
+yerde hareketsiz insan,
+ağır trafik kazası,
+silah/bıçak tehdidi,
+kanama görüntüsü,
+patlama/çökme,
+mahsur kalma belirtisi
+varsa sistem metin beklemeden erken yönlendirme yapabilir:
+
+“Görselde ciddi risk tespit edildi. Ekipler yönlendiriliyor. Lütfen güvenli bir yere geçin.”
+
+* URGENT Görsel Sinyaller:
+
+küçük çaplı kaza,
+görünür yaralanma ama hayati risk net değil,
+duman ama aktif alev belirsiz,
+kavga/kalabalık risk,
+panik ortamı
+varsa sistem kısa doğrulama ister:
+
+“Görselde acil durum belirtisi var. Yaralı var mı veya duman/alev devam ediyor mu?”
+
+* NON-CRITICAL Görsel Sinyaller:
+
+normal ortam,
+olay belirtisi yok,
+selfie,
+spor salonu / günlük aktivite,
+boş alan
+varsa sistem metinle çapraz kontrol yapar:
+
+“Görsel acil durum göstermiyor. Yine de acil bir durum varsa lütfen kısaca açıklayın.”
+
+Katman 3: Görsel-Metin Tutarlılık Kontrolü
+Bu katman fotoğraf sisteminin en kritik güvenlik kısmı.
+
+* Görsel ve metin birlikte değerlendirilir.
+
+Örnekler:
+
+Kullanıcı: “Kalbim ağrıyor.”
+Görsel: Selfie veya spor salonu.
+
+Görsel tıbbi aciliği doğrulamaz.
+Ama metin hayati olabilir.
+Sistem görseli düşük ağırlıkta tutar, metin triage devam eder.
+Kullanıcı: “Yangın var.”
+Görsel: Normal oda.
+
+Çelişki var.
+Sistem “görsel olay yerini göstermiyor olabilir” der.
+Kullanıcıdan konum ve kısa açıklama ister.
+Kullanıcı: “Bir şey yok şaka yaptım.”
+Görsel: Kanama / yangın / kaza.
+
+Görsel daha yüksek güvenlik önceliği alır.
+Sistem potansiyel baskı/troll/iptal riskini kontrol eder.
+* Tutarlılık Skoru:
+
+consistent: Görsel ve metin aynı kategoriye işaret ediyor.
+inconsistent: Görsel ve metin çelişiyor.
+image_unrelated: Görsel olayla ilgisiz.
+text_missing: Sadece görsel var.
+image_missing: Sadece metin var.
+* Çelişki durumunda LLM görevi:
+
+Metni ve görsel model çıktısını birlikte yorumlar.
+“Buton/manuel seçim + görsel + metin” uyumunu kontrol eder.
+Gerekirse kullanıcıyı düzeltir:
+“Görsel trafik kazasına benziyor, ancak açıklamada tıbbi göğüs ağrısı yazıyor. Fotoğraf olay yerine mi ait?”
+
+Katman 4: Görsel Slot Toplama
+Fotoğraftan bazı slotlar otomatik çıkarılabilir.
+
+* Görselden çıkarılabilecek slotlar:
+
+olay türü,
+kişi sayısı tahmini,
+araç var mı,
+alev/duman var mı,
+kan/yaralanma belirtisi,
+silah/tehdit belirtisi,
+kapalı alan/açık alan,
+gece/gündüz,
+kalabalık var mı,
+mahsur kalma belirtisi,
+plaka veya tabela gibi okunabilir metinler varsa OCR ile ek bilgi.
+* Görselden çıkarılamayacak slotlar:
+
+yaş,
+bilinç durumu,
+nefes alıp almadığı,
+hastalık geçmişi,
+olayın nedeni,
+failin kimliği,
+kesin adres
+Bu yüzden sistem gereksiz soru sormamalı.
+
+Örnek:
+Görselde trafik kazası var ama kullanıcı tanıksa:
+
+Bot sormamalı:
+“Yaralının yaşı kaç?”
+
+Bot sormalı:
+“Yaralı hareket ediyor mu veya kanama görüyor musunuz?”
+“Konum tam olarak neresi?”
+
+* 2 Deneme Kuralı Görsel İçin:
+
+Sistem “Daha net fotoğraf yükleyebilir misiniz?” der.
+Kullanıcı ikinci kez de net fotoğraf veremezse image_quality = unknown olur.
+Sistem görüntüye takılmaz, metin/ses akışına geçer.
+Katman 5: Seviyeye Göre Görsel Operasyonel Mantık
+
+CRITICAL Görsel
+* Görselde açık hayati risk varsa:
+
+önce dispatch,
+sonra detay toplama.
+Örnekler:
+
+alev,
+yoğun duman,
+kanama,
+yerde hareketsiz kişi,
+silah,
+ağır kaza,
+patlama/çökme.
+Bot:
+“Görselde ciddi risk tespit edildi. Ekipler yönlendiriliyor. Güvenli alana geçin. Bina/kat veya tam konumu yazabilir misiniz?”
+
+LLM görevi:
+
+mikro-konum,
+gözlem,
+kişi sayısı,
+ek tehlike,
+güvenli kaçış bilgisi toplar.
+URGENT Görsel
+* Görsel riskli ama hayati risk net değilse:
+
+önce kısa doğrulama,
+sonra dispatch.
+Bot:
+“Görselde acil durum olabilecek bir sahne var. Yaralı var mı, duman/alev devam ediyor mu?”
+
+* Kullanıcı cevap vermezse ve görsel güven skoru yüksekse:
+
+minimum veri ile dispatch yapılabilir.
+NON-CRITICAL Görsel
+* Görsel normal görünüyorsa:
+
+sistem metni bekler.
+sadece görsele bakarak vakayı kapatmaz.
+çünkü acil durum fotoğrafta görünmeyebilir.
+Bot:
+“Görselde acil durum belirtisi görünmüyor. Eğer acil bir durum varsa lütfen kısa açıklama yazın.”
+
+Katman 6: Fallback ve Manuel Görsel Doğrulama
+Model çalışmazsa veya confidence düşükse manuel fallback devreye girer.
+
+* Görsel model hatası:
+
+model yüklenmedi,
+model timeout,
+düşük güven,
+bozuk dosya,
+S3/model erişim hatası
+durumlarında sistem manuel kategori seçtirir:
+
+[🚑 Tıbbi] [🚓 Polis] [🚒 İtfaiye] [🚗 Trafik/Kaza] [❓ Diğer]
+* Kullanıcıdan kısa açıklama istenir:
+
+“Fotoğrafı net analiz edemedim. Lütfen olay türünü seçin ve 1 cümleyle açıklayın.”
+
+* Intent Confirmation:
+
+Kullanıcı “Polis” seçip “kalbim ağrıyor” yazarsa LLM düzeltir.
+Kullanıcı “İtfaiye” seçip fotoğrafta trafik kazası varsa sistem uyarır:
+“Görsel trafik kazasına benziyor. İtfaiye mi, ambulans/polis desteği mi gerekiyor?”
+
+* Model yoksa:
+
+fotoğraf kaydedilir,
+olay metin/ses üzerinden devam eder,
+görsel unavailable olarak rapora eklenir.
+Katman 7: Güvenlik, Sahte Görsel ve Zaman Aşımı
+* Sahte/Alakasız Görsel Kontrolü:
+
+Fotoğraf olayla ilgisizse sistem bunu not eder.
+Ama acil metin varsa çağrı iptal edilmez.
+Görsel sadece “destekleyici kanıt” olarak kullanılır.
+* Eski Fotoğraf Riski:
+
+Fotoğraf metadata zamanı varsa kontrol edilebilir.
+Çok eskiyse sistem “fotoğraf güncel mi?” diye sorar.
+Metadata yoksa kesin karar verilmez.
+* Manipülasyon / Baskı Riski:
+
+Kullanıcı önce ciddi görsel atıp sonra “iptal” derse:
+özellikle polis/şiddet vakalarında iptal hemen kabul edilmez.
+sebep sorulur:
+“İptal etmek istediğinizi yazdınız. Güvende misiniz? Kısaca sebep belirtin.”
+
+* Timeout:
+
+Görsel CRITICAL/URGENT ise ve kullanıcı 3 dakika sessiz kalırsa:
+sessiz yönlendirme yapılır.
+Görsel NON-CRITICAL veya belirsizse:
+çağrı güvenlik gerekçesiyle kapatılır veya kullanıcıdan yeniden giriş istenir.
+Katman 8: Görsel Özet Kartı
+Fotoğraf analizi sonrası kullanıcıya görsel özet kartı gösterilir.
+
+Kart içeriği:
+
+Görsel Analiz:
+- Sahne: RoadAccidents
+- Güven: %91
+- Kategori: Trafik / Tıbbi
+- Seviye: Critical
+- Tespitler: Araç kazası, olası yaralı
+- Önerilen ekipler: Ambulans, Polis
+- Tutarlılık: Metinle uyumlu / Metin yok / Çelişkili
+Fallback durumunda:
+
+Görsel analiz edilemedi.
+Sebep: Model yüklü değil / Görsel net değil / Güven düşük.
+Lütfen kategori seçin ve kısa açıklama yazın.
+Katman 9: Final Paket ve Dispatch’e Görsel Bilgi Ekleme
+Final rapora görsel çıktısı eklenir.
+
+Örnek final paket:
+
+{
+  "case_id": "abc123",
+  "category": "medical",
+  "triage_level": "CRITICAL",
+  "source": ["text", "image"],
+  "image_analysis": {
+    "detected_class": "RoadAccidents",
+    "confidence": 0.91,
+    "visual_flags": ["vehicle_crash", "possible_injury"],
+    "consistency": "text_missing"
+  },
+  "dispatch_units": ["Ambulance", "Police"],
+  "location": {
+    "lat": 41.0,
+    "lng": 29.0,
+    "hint": "main road near school"
+  }
+}
+Kullanıcıya verilecek mesaj:
+“Ekipler yönlendirildi. Güvenli bir yerde bekleyin. Eğer durum değişirse fotoğraf veya kısa mesaj göndermeye devam edebilirsiniz.”
+
+Katman 10: Dispatch Sonrası Görsel Güncelleme
+Yönlendirme yapıldıktan sonra sohbet kapanmaz.
+
+Kullanıcı yeni fotoğraf gönderirse:
+
+* Sistem bunu yeni vaka olarak başlatmaz.
+* Mevcut vakaya “ek görsel güncelleme” olarak işler.
+* LLM/ImageAnalyze yeni bilgiyi çıkarır.
+* Ekip raporuna update olarak eklenir.
+
+Örnek:
+Kullanıcı ilk fotoğrafta kaza gönderdi. Dispatch yapıldı. Sonra yeni fotoğraf attı, araçtan duman çıkıyor.
+
+Sistem:
+“Yeni görselde ek risk tespit edildi: duman/yangın ihtimali. Bu bilgi yoldaki ekiplere güncelleme olarak iletildi.”
+
+Update paketi:
+
+{
+  "case_id": "abc123",
+  "update_type": "image_update",
+  "new_visual_flags": ["smoke_detected"],
+  "triage_change": "URGENT -> CRITICAL",
+  "message_to_dispatch": "Smoke visible after vehicle crash. Fire unit may be required."
+}

@@ -76,6 +76,10 @@ class PredictResponse(BaseModel):
     category: str
     triage_level: str
     confidence: Optional[float] = None
+    triage_confirmed: Optional[bool] = Field(
+        None,
+        description="Whether triage is confirmed (not provisional first-turn estimate)",
+    )
     red_flags: List[str] = Field(default_factory=list)
     slots: Dict[str, Any] = Field(default_factory=dict)
     needs_more_info: bool = False

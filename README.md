@@ -150,4 +150,3 @@ uvicorn src.main:app --host 127.0.0.1 --port 8000
 Provider order is now:
 1. `LOCAL_CHATBOT_MODEL_DIR` (local fine-tuned model)
 2. `GROQ_API_KEY`
-3. `GEMINI_API_KEY` / `GOOGLE_API_KEY`

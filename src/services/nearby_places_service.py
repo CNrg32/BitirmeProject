@@ -24,8 +24,23 @@ _OVERPASS_TIMEOUT_SECONDS = float(os.environ.get("OVERPASS_TIMEOUT_SECONDS", "8.
 _OVERPASS_RETRIES = int(os.environ.get("OVERPASS_RETRIES", "2"))
 _CACHE_TTL_SECONDS = int(os.environ.get("NEARBY_CACHE_TTL_SECONDS", "180"))
 _SEARCH_RADII_METERS = (5000, 10000)
+_POLICE_SEARCH_RADII_METERS = (5000, 10000, 20000)
 
 _CACHE: Dict[Tuple[float, float, str, int], Tuple[float, List[Dict[str, Any]]]] = {}
+
+_CAMPUS_KEYWORDS = (
+    "kampus",
+    "kampüs",
+    "campus",
+    "universite",
+    "üniversite",
+    "university",
+    "faculty",
+    "fakulte",
+    "fakülte",
+)
+
+_NON_PUBLIC_ACCESS_VALUES = {"private", "no", "customers"}
 
 
 def get_nearby_places(
@@ -69,7 +84,7 @@ def _get_places_for_type(
         return list(cached[1])
 
     places: List[Dict[str, Any]] = []
-    for radius_meters in _SEARCH_RADII_METERS:
+    for radius_meters in _search_radii_for_type(place_type):
         elements = _fetch_overpass_elements(latitude, longitude, place_type, radius_meters)
         places = _normalize_places(elements, latitude, longitude, place_type, limit)
         if len(places) >= limit:
@@ -85,16 +100,7 @@ def _fetch_overpass_elements(
     place_type: str,
     radius_meters: int,
 ) -> List[Dict[str, Any]]:
-    amenity = _amenity_for_type(place_type)
-    query = f"""
-[out:json][timeout:4];
-(
-  node[\"amenity\"=\"{amenity}\"](around:{radius_meters},{latitude},{longitude});
-  way[\"amenity\"=\"{amenity}\"](around:{radius_meters},{latitude},{longitude});
-  relation[\"amenity\"=\"{amenity}\"](around:{radius_meters},{latitude},{longitude});
-);
-out center tags;
-""".strip()
+    query = _build_overpass_query(place_type, radius_meters, latitude, longitude)
 
     try:
         for endpoint in _OVERPASS_ENDPOINTS:
@@ -130,6 +136,24 @@ out center tags;
     return []
 
 
+def _build_overpass_query(
+    place_type: str,
+    radius_meters: int,
+    latitude: float,
+    longitude: float,
+) -> str:
+    selectors = _selectors_for_type(place_type)
+    lines: List[str] = ["[out:json][timeout:4];", "("]
+
+    for selector in selectors:
+        lines.append(f"  node{selector}(around:{radius_meters},{latitude},{longitude});")
+        lines.append(f"  way{selector}(around:{radius_meters},{latitude},{longitude});")
+        lines.append(f"  relation{selector}(around:{radius_meters},{latitude},{longitude});")
+
+    lines.extend([")", "out center tags;"])
+    return "\n".join(lines)
+
+
 def _normalize_places(
     elements: List[Dict[str, Any]],
     latitude: float,
@@ -155,6 +179,9 @@ def _normalize_places(
             continue
 
         name = str(tags.get("name") or _fallback_name(place_type)).strip()
+        if not _is_accessible_place(tags, name, place_type):
+            continue
+
         dedupe_key = (name.lower(), round(float(place_lat), 5), round(float(place_lon), 5))
         if dedupe_key in seen:
             continue
@@ -192,6 +219,28 @@ def _amenity_for_type(place_type: str) -> str:
     return "hospital"
 
 
+def _selectors_for_type(place_type: str) -> List[str]:
+    if place_type == "police":
+        # OSM karakol verileri farkli semalarda tutulabiliyor.
+        return [
+            '["amenity"="police"]',
+            '["amenity"="police"]["police"="station"]',
+            '["office"="government"]["government"="police"]',
+            '["office"="government"]["name"~"(emniyet|polis|police|karakol)",i]',
+            '["building"="police"]',
+            '["police"]',
+        ]
+
+    amenity = _amenity_for_type(place_type)
+    return [f'["amenity"="{amenity}"]']
+
+
+def _search_radii_for_type(place_type: str) -> Tuple[int, ...]:
+    if place_type == "police":
+        return _POLICE_SEARCH_RADII_METERS
+    return _SEARCH_RADII_METERS
+
+
 def _fallback_name(place_type: str) -> str:
     if place_type == "police":
         return "Police Station"
@@ -210,6 +259,25 @@ def _build_address(tags: Dict[str, Any]) -> str:
     if cleaned:
         return ", ".join(cleaned)
     return str(tags.get("addr:full") or tags.get("addr:place") or "Adres bilgisi yok")
+
+
+def _is_accessible_place(tags: Dict[str, Any], name: str, place_type: str) -> bool:
+    access_value = str(tags.get("access") or "").strip().lower()
+    if access_value in _NON_PUBLIC_ACCESS_VALUES:
+        return False
+
+    if place_type != "hospital":
+        return True
+
+    name_lower = name.lower()
+    if any(keyword in name_lower for keyword in _CAMPUS_KEYWORDS):
+        return False
+
+    operator_type = str(tags.get("operator:type") or "").strip().lower()
+    if operator_type in {"university", "education", "school"}:
+        return False
+
+    return True
 
 
 def _haversine_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

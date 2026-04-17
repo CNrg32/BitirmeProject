@@ -53,8 +53,6 @@ def test_llm_service_uses_local_provider_when_configured(monkeypatch):
 
     monkeypatch.setenv("LOCAL_CHATBOT_MODEL_DIR", "out_models/chatbot_finetuned")
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
     monkeypatch.setattr(llm_service, "_LocalFineTunedProvider", FakeLocalProvider)
 
     svc = llm_service.LLMService()

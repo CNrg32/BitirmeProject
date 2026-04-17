@@ -10,6 +10,7 @@ class NearbyFacilitiesCard extends StatelessWidget {
   final NearbyFacilityType selectedType;
   final ValueChanged<NearbyFacilityType> onTypeChanged;
   final bool hasLocation;
+  final VoidCallback? onRetry;
 
   const NearbyFacilitiesCard({
     super.key,
@@ -17,6 +18,7 @@ class NearbyFacilitiesCard extends StatelessWidget {
     required this.selectedType,
     required this.onTypeChanged,
     required this.hasLocation,
+    this.onRetry,
   });
 
   @override
@@ -88,11 +90,35 @@ class NearbyFacilitiesCard extends StatelessWidget {
               style: theme.textTheme.bodyMedium,
             )
           else if (visibleFacilities.isEmpty)
-            Text(
-              selectedType == NearbyFacilityType.hospital
-                  ? AppStrings.noNearbyHospitals
-                  : AppStrings.noNearbyPolice,
-              style: theme.textTheme.bodyMedium,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: theme.colorScheme.secondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        selectedType == NearbyFacilityType.hospital
+                            ? AppStrings.noNearbyHospitals
+                            : AppStrings.noNearbyPolice,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (onRetry != null)
+                  OutlinedButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text(AppStrings.retrySearch),
+                  ),
+              ],
             )
           else
             ...visibleFacilities.map((facility) => Padding(

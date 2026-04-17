@@ -93,8 +93,9 @@ class AppStrings {
   static const String nearbyFacilities = 'Yakin Kurumlar';
   static const String hospitalOption = 'Hastane';
   static const String policeOption = 'Karakol';
-  static const String noNearbyHospitals = 'Yakinlarda uygun hastane bulunamadi.';
-  static const String noNearbyPolice = 'Yakinlarda uygun karakol bulunamadi.';
+  static const String noNearbyHospitals = 'Yakinlarda uygun hastane bulunamadi. Aramayi tekrar denemek ister misiniz?';
+  static const String noNearbyPolice = 'Yakinlarda kayitli karakol bulunamadi. Daha genis bir alan taranabilir, tekrar denemek ister misiniz?';
+  static const String retrySearch = 'Tekrar Ara';
   static const String locationRequiredForNearby = 'Yakin kurumlari gostermek icin konum izni gerekli.';
   static const String getDirections = 'Yol Tarifi';
   static const String callFacility = 'Ara';
@@ -102,6 +103,20 @@ class AppStrings {
   static const String nearbyPageTitle = 'Yakindaki Hastane/Karakol';
   static const String findNearby = 'Yakin Kurum Bul';
   static const String nearbyIntro = 'Konumunuzu alip seciminize gore yakin kurumlari listeler.';
+
+  // Dispatch iptal
+  static const String cancelDispatch = 'Yönlendirmeyi İptal Et';
+  static const String cancelDispatchTitle = 'Yönlendirmeyi İptal Et';
+  static const String cancelDispatchConfirm =
+      'Acil ekiplerin yönlendirmesi iptal edilsin mi? Bu işlem geri alınamaz.';
+  static const String yesCancelDispatch = 'Evet, İptal Et';
+  static const String dispatchedUnitsLabel = 'Ekipler yönlendirildi';
+  static const String dispatchCancelledMsg = 'Yönlendirme iptal edildi. Oturum kapatıldı.';
+  static const String dispatchCancelledMsgEn = 'Dispatch has been cancelled. Session closed.';
+
+  // NON_URGENT yakın kurumlar önerisi
+  static const String showNearbyFacilitiesSuggestion =
+      'En yakın hastane ve karakolları görüntüle';
 
   static String formatRecordingSeconds(int seconds) =>
       recordingSeconds.replaceAll('%s', '$seconds');

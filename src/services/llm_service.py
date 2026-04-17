@@ -1,21 +1,18 @@
 """
 LLM service for emergency triage conversation.
 
-Provider selection (first match wins):
-  1. GROQ_API_KEY   → Groq (llama-3.3-70b) – free tier, works in Turkey
-  2. GEMINI_API_KEY → Google Gemini         – requires billing in Turkey
+Provider selection:
+    1. GROQ_API_KEY   → Groq (llama-3.3-70b)
 
 Set the key in .env file:
-    GROQ_API_KEY=gsk_...
-    # or
-    GEMINI_API_KEY=AIza...
+    GROQ_API_KEY=
 """
 from __future__ import annotations
 
 import json
 import logging
 import os
-from pathlib import Path
+import time
 from typing import Any, Dict, List, Optional
 
 from services.llm_prompt_config import build_system_prompt_with_few_shot
@@ -93,6 +90,10 @@ RULES:
 - If red_flags is non-empty AND triage_level is CRITICAL, always set is_complete=true.
 - You have a maximum of 8 conversation turns. Aim to complete within 6 turns.
 - red_flags should only contain genuinely life-threatening signs.
+- red_flags entries must be short noun phrases in the SAME language as the user's messages. Use correct grammar for that language.
+- red_flags must never include casual/commercial adjectives or malformed mixed tokens (e.g. "ucuz", "promo", broken words).
+- If the user asks non-emergency questions (hotel prices, travel, weather, finance, entertainment, etc.), do NOT answer that content.
+    Instead, politely state this is an emergency line and ask them to describe an actual emergency.
 - Do NOT change the category once it has been clearly established (e.g. don't switch
   from "fire" to "other" in a later turn).
 """
@@ -210,129 +211,65 @@ class _GroqProvider:
                         prompt_task)
 
         messages = [{"role": "system", "content": system}]
+
+        # Inject session context as a system message so LLM can use it
+        if session_context and prompt_task == "dialog":
+            ctx_parts = []
+            if session_context.get("initial_category"):
+                ctx_parts.append(f"LOCKED CATEGORY: {session_context['initial_category']}")
+            if session_context.get("initial_triage_level"):
+                ctx_parts.append(f"LOCKED TRIAGE LEVEL: {session_context['initial_triage_level']}")
+            if session_context.get("dispatch_status"):
+                ctx_parts.append(f"DISPATCH STATUS: {session_context['dispatch_status']}")
+            if session_context.get("witness_mode"):
+                ctx_parts.append("WITNESS MODE: true — caller is a bystander, NOT the victim. Apply witness question rules.")
+            exhausted = session_context.get("exhausted_slots") or []
+            if exhausted:
+                ctx_parts.append(f"EXHAUSTED SLOTS (do NOT ask again): {', '.join(exhausted)}")
+            if ctx_parts:
+                ctx_msg = "SESSION CONTEXT (backend state — treat as authoritative):\n" + "\n".join(ctx_parts)
+                messages.append({"role": "system", "content": ctx_msg})
+                logger.debug("Session context injected into LLM messages: %s", ctx_parts)
+
         for msg in history:
             role = "assistant" if msg.get("role") == "assistant" else "user"
             messages.append({"role": role, "content": msg.get("text", "")})
 
-        try:
-            response = self._client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=0.3,
-                max_tokens=1024,
-                response_format={"type": "json_object"},
-            )
-            raw = response.choices[0].message.content or ""
-            logger.debug("Groq raw response: %s", raw[:500])
-            return _parse_llm_json(raw)
-        except Exception as exc:
-            logger.error("Groq chat failed: %s", exc)
-            return dict(_EMPTY_LLM_RESPONSE)
+        _MAX_RETRIES = 3
+        _RETRY_DELAYS = [2, 5, 10]  # seconds between retries
 
-
-# ---------------------------------------------------------------------------
-# Gemini provider
-# ---------------------------------------------------------------------------
-
-class _GeminiProvider:
-    DEFAULT_MODEL = "gemini-2.0-flash"
-
-    def __init__(self, api_key: str) -> None:
-        self._client = None
-        self.model = os.environ.get("GEMINI_MODEL", self.DEFAULT_MODEL)
-        try:
-            from google import genai  # type: ignore
-            self._client = genai.Client(api_key=api_key)
-            logger.info("Gemini LLM initialised (model=%s)", self.model)
-        except ImportError:
-            logger.error("google-genai package not installed. Run: pip install google-genai")
-        except Exception as exc:
-            logger.error("Gemini init failed: %s", exc)
-
-    @property
-    def is_ready(self) -> bool:
-        return self._client is not None
-
-    def chat(
-        self,
-        history: List[Dict[str, str]],
-        language: str,
-        task: Optional[str] = None,
-        session_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        if not self.is_ready:
-            return dict(_EMPTY_LLM_RESPONSE)
-
-        lang_name = LANGUAGE_NAMES.get(language, "English")
-        
-        # FAZ 4: Use task-specific prompt (triage vs dialog)
-        prompt_task = task or "dialog"  # Default to dialog if not specified
-        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name, task=prompt_task)
-        
-        # FAZ 3: Inject session context for category locking (future: FAZ 4 will use this actively)
-        if session_context and session_context.get("initial_category"):
-            logger.debug("Session context injected (Gemini): category=%s, dispatch_status=%s, task=%s",
-                        session_context.get("initial_category"), 
-                        session_context.get("dispatch_status"),
-                        prompt_task)
-
-        messages = [{"role": "user", "content": system}]
-        for msg in history:
-            role = "model" if msg.get("role") == "assistant" else "user"
-            messages.append({"role": role, "content": msg.get("text", "")})
-
-        try:
-            response = self._client.models.generate_content(
-                model=self.model,
-                contents=messages,
-                generation_config={
-                    "temperature": 0.3,
-                    "top_p": 0.95,
-                    "max_output_tokens": 1024,
-                },
-            )
-            raw = response.text or ""
-            logger.debug("Gemini raw response: %s", raw[:500])
-            return _parse_llm_json(raw)
-        except Exception as exc:
-            logger.error("Gemini chat failed: %s", exc)
-            return dict(_EMPTY_LLM_RESPONSE)
-
-
-
-    def chat(
-        self,
-        history: List[Dict[str, str]],
-        language: str,
-        task: Optional[str] = None,
-        session_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        if not self.is_ready:
-            return dict(_EMPTY_LLM_RESPONSE)
-
-        try:
-            prompt = _build_local_prompt(history=history, language=language)
-            enc = self._tokenizer(
-                prompt,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512,
-            )
-            input_ids = enc["input_ids"].to(self._device)
-            attention_mask = enc["attention_mask"].to(self._device)
-
-            outputs = self._model.generate(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                max_new_tokens=256,
-                do_sample=False,
-            )
-            raw = self._tokenizer.decode(outputs[0], skip_special_tokens=True)
-            logger.debug("Local model raw response: %s", raw[:500])
-            return _parse_llm_json(raw)
-        except Exception as exc:
-            logger.error("Local model chat failed: %s", exc)
-            return dict(_EMPTY_LLM_RESPONSE)
+        for attempt in range(_MAX_RETRIES):
+            try:
+                response = self._client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=0.3,
+                    max_tokens=1024,
+                    response_format={"type": "json_object"},
+                )
+                raw = response.choices[0].message.content or ""
+                logger.debug("Groq raw response: %s", raw[:500])
+                return _parse_llm_json(raw)
+            except Exception as exc:
+                exc_str = str(exc).lower()
+                is_rate_limit = (
+                    "rate_limit" in exc_str
+                    or "429" in exc_str
+                    or "rate limit" in exc_str
+                    or "tokens per" in exc_str
+                    or "requests per" in exc_str
+                    or type(exc).__name__ in ("RateLimitError", "APIStatusError")
+                )
+                if is_rate_limit and attempt < _MAX_RETRIES - 1:
+                    wait = _RETRY_DELAYS[attempt]
+                    logger.warning(
+                        "Groq rate limit hit (attempt %d/%d). Retrying in %ds. Error: %s",
+                        attempt + 1, _MAX_RETRIES, wait, exc,
+                    )
+                    time.sleep(wait)
+                    continue
+                logger.error("Groq chat failed (attempt %d/%d): %s", attempt + 1, _MAX_RETRIES, exc)
+                return dict(_EMPTY_LLM_RESPONSE)
 
 
 # ---------------------------------------------------------------------------
@@ -340,7 +277,7 @@ class _GeminiProvider:
 # ---------------------------------------------------------------------------
 
 class LLMService:
-    """Auto-selects Groq or Gemini based on available API keys."""
+    """Uses Groq when GROQ_API_KEY is available."""
 
     def __init__(self) -> None:
         self._provider = None
@@ -348,11 +285,7 @@ class LLMService:
         self._init()
 
     def _init(self) -> None:
-        local_model_dir = os.environ.get("LOCAL_CHATBOT_MODEL_DIR", "").strip()
         groq_key = os.environ.get("GROQ_API_KEY")
-        gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-
-       
 
         if groq_key:
             p = _GroqProvider(api_key=groq_key)
@@ -361,15 +294,8 @@ class LLMService:
                 self._provider_name = f"groq/{p.model}"
                 return
 
-        if gemini_key:
-            p = _GeminiProvider(api_key=gemini_key)
-            if p.is_ready:
-                self._provider = p
-                self._provider_name = f"gemini/{p.model}"
-                return
-
         logger.warning(
-            "No LLM provider found (LOCAL_CHATBOT_MODEL_DIR, GROQ_API_KEY, GEMINI_API_KEY). "
+            "No LLM provider found (GROQ_API_KEY). "
             "LLM disabled - falling back to rule-based dialog."
         )
 

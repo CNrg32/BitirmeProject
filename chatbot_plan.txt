@@ -100,7 +100,6 @@ Faz 2 - Session state tasarimi
 
 Faz 2.1 - DİSPATCH LOCK IMPLEMENTASYONU (Safety-Critical)
 - Veri yapısı: vaka_id + dispatch_target (police/medical/fire) + timestamp
-- Storage: SessionStore'a dispatch_history hash table ekle
 - Kural: Aynı vaka_id'ye 2 kez dispatch YALNIZCA 48 saatlik TTL sonrası
 - Kontrol: session.dispatch_status == "DISPATCHED" → "Ekipler zaten gönderildi" cevabı
 - Redis alternatifi: Production'da Redis cache (durable, distributed)

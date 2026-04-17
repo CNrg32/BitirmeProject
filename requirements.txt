@@ -34,7 +34,6 @@ datasets>=2.16
 sentencepiece>=0.1.99
 # ── LLM ───────────────────────────────────────
 groq>=0.11          # Groq (ücretsiz, Türkiye)
-google-genai>=1.0   # Gemini (alternatif)
 python-dotenv>=1.0
 # ── Utilities ─────────────────────────────────────
 python-multipart>=0.0.6

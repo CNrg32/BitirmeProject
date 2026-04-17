@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/app_strings.dart';
 import '../core/app_theme.dart';
 import '../models/chat_message.dart';
+import '../screens/nearby_places_screen.dart';
 import '../services/api_service.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/image_analysis_card.dart';
@@ -57,10 +58,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final List<ChatMessage> _messages = [];
   bool _isRecording = false;
+  Timer? _inactivityTimer;
+  static const Duration _inactivityTimeout = Duration(minutes: 3);
   bool _isSending = false;
   Map<String, dynamic>? _triageResult;
   Map<String, dynamic>? _imageAnalysis;
   String? _report;
+  String? _dispatchStatus;
+  String? _followupStatus;
   bool _isComplete = false;
   int _recordingSeconds = 0;
   Timer? _recordingTimer;
@@ -74,6 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
   int? _playingMessageIndex;
   bool _initialMessageSent = false;
   bool _connectionError = false;
+  bool _hardLockedByTimeout = false;
 
   @override
   void initState() {
@@ -82,6 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
       text: widget.greeting,
       isUser: false,
     ));
+
     if (widget.greetingAudioB64 != null &&
         widget.greetingAudioB64!.isNotEmpty) {
       _playingMessageIndex = 0;
@@ -92,14 +99,17 @@ class _ChatScreenState extends State<ChatScreen> {
       _playAudioUrl(widget.greetingAudioUrl!);
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
+        if (widget.initialMessage != null &&
+            widget.initialMessage!.trim().isNotEmpty) {
           _sendInitialMessage();
         } else {
           _startRecording();
         }
       });
     }
+
     _captureLocation();
+    _restartInactivityTimer();
 
     _audioPlayer.onPlayerComplete.listen((_) {
       if (!mounted) return;
@@ -117,6 +127,86 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  bool _shouldLockSession() {
+    if (_hardLockedByTimeout) return true;
+
+    // Keep chat open after dispatch so caller can provide follow-up details,
+    // but close when backend explicitly marks follow-up as finished.
+    if (_dispatchStatus == 'DISPATCHED' ||
+        _dispatchStatus == 'SILENT_DISPATCHED') {
+      if (_followupStatus == 'no_dispatch_needed') {
+        return true;
+      }
+      return false;
+    }
+
+    if (_dispatchStatus == 'CANCELLED') return true;
+    return _isComplete;
+  }
+
+  void _restartInactivityTimer() {
+    _inactivityTimer?.cancel();
+    if (_shouldLockSession()) return;
+    _inactivityTimer = Timer(_inactivityTimeout, _handleInactivityTimeout);
+  }
+
+  void _handleInactivityTimeout() {
+    if (!mounted || _shouldLockSession()) return;
+
+    if (_isSending || _isRecording) {
+      _restartInactivityTimer();
+      return;
+    }
+
+    final timeoutMsg = (widget.language == 'tr')
+        ? '3 dakika boyunca yanıt alınamadı. Bu oturum güvenlik amacıyla sonlandırıldı. Yeni bir acil durum için lütfen yeniden başlatın.'
+        : 'No response for 3 minutes. This session has been safely ended. Please start a new session for a new emergency.';
+
+    setState(() {
+      _dispatchStatus = 'CANCELLED';
+      _followupStatus = 'no_dispatch_needed';
+      _isComplete = true;
+      _hardLockedByTimeout = true;
+      _messages.add(ChatMessage(text: timeoutMsg, isUser: false));
+    });
+    _scrollToBottom();
+  }
+
+  bool _isTimeoutClosureText(String text) {
+    final t = text.toLowerCase();
+    return t.contains('3 dakika boyunca yanıt alınamadı') ||
+      t.contains('3 dakika boyunca yanit alınamadı') ||
+      t.contains('3 dakika boyunca yanit alinamadi') ||
+        t.contains('3 dakika yanıt alamadığım için') ||
+      t.contains('3 dakika yanit alamadigim icin') ||
+        t.contains('no response for 3 minutes') ||
+        t.contains('ended due to inactivity');
+  }
+
+    bool _isGeneralClosureText(String text) {
+      final t = text.toLowerCase();
+      return _isTimeoutClosureText(text) ||
+      t.contains('anlamlı bir acil durum bilgisi alamadım') ||
+      t.contains('anlamli bir acil durum bilgisi alamadim') ||
+      t.contains('oturumu kapatıyorum') ||
+      t.contains('oturumu kapatiyorum') ||
+      t.contains('bu oturum tamamlandı') ||
+      t.contains('bu oturum tamamlandi') ||
+      t.contains('this session is already complete') ||
+      t.contains('i am closing this session') ||
+      t.contains('i could not get meaningful emergency details');
+    }
+
+    bool _responseRequestsFollowup(String text) {
+      final t = text.toLowerCase();
+      return t.contains('?') ||
+      t.contains('daha fazla bilgi var mı') ||
+      t.contains('daha fazla bilgi var mi') ||
+      t.contains('ek bilgi') ||
+      t.contains('any additional information') ||
+      t.contains('any updates');
+    }
+
   Future<void> _sendInitialMessage() async {
     if (_initialMessageSent) return;
     final text = widget.initialMessage!.trim();
@@ -130,6 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _isSending = true;
       _connectionError = false;
     });
+    _restartInactivityTimer();
     _scrollToBottom();
     try {
       final api = context.read<ApiService>();
@@ -154,6 +245,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _recordingTimer?.cancel();
+    _inactivityTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
     _audioPlayer.dispose();
@@ -182,6 +274,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendText() async {
+    if (_shouldLockSession()) return;
     final text = _textController.text.trim();
     if (text.isEmpty || _isSending) return;
 
@@ -199,6 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       _isSending = true;
     });
+    _restartInactivityTimer();
     _scrollToBottom();
 
     try {
@@ -249,6 +343,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Sunucudaki görüntü modeli ile analiz: oturuma görsel gönderir, triyaj + görsel analiz döner.
   Future<void> _sendImageBytes(Uint8List imgBytes) async {
+    if (_shouldLockSession()) return;
     if (_isSending) return;
     final imageB64 = base64Encode(imgBytes);
 
@@ -262,6 +357,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       _isSending = true;
     });
+    _restartInactivityTimer();
     _scrollToBottom();
 
     try {
@@ -339,6 +435,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _toggleRecording() async {
+    if (_shouldLockSession()) return;
     if (_isRecording) {
       await _stopAndSend();
     } else {
@@ -347,6 +444,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _startRecording() async {
+    if (_shouldLockSession()) return;
     if (!mounted) return;
 
     if (kIsWeb) {
@@ -442,6 +540,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _stopAndSend() async {
+    if (_shouldLockSession()) return;
     _recordingTimer?.cancel();
     final path = await _recorder.stop();
     setState(() {
@@ -450,6 +549,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _messages.add(ChatMessage(text: '...', isUser: true));
       if (widget.testMode && path != null) _lastRecordingPath = path;
     });
+    _restartInactivityTimer();
     _scrollToBottom();
 
     if (path == null) {
@@ -537,9 +637,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _addAssistant(text, audioBase64: audioB64);
 
+    final timedOut = _isTimeoutClosureText(text);
+    final generalCloseText = _isGeneralClosureText(text);
+
     if (resp['triage_result'] != null) {
       setState(() {
         _triageResult = resp['triage_result'] as Map<String, dynamic>;
+      });
+    }
+    if (resp['dispatch_status'] is String) {
+      setState(() {
+        _dispatchStatus = resp['dispatch_status'] as String;
+      });
+    }
+    if (resp['followup_status'] is String) {
+      setState(() {
+        _followupStatus = resp['followup_status'] as String;
       });
     }
     if (resp['image_analysis'] != null) {
@@ -554,6 +667,23 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() => _isComplete = true);
     }
 
+    final followupStatus = resp['followup_status'] as String?;
+    final backendClosed = followupStatus == 'no_dispatch_needed' ||
+        (resp['dispatch_status'] as String?) == 'CANCELLED';
+    final completed = resp['is_complete'] == true;
+    final asksFollowup = _responseRequestsFollowup(text);
+
+    if (timedOut || generalCloseText || backendClosed || (completed && !asksFollowup)) {
+      setState(() {
+        _isComplete = true;
+        _followupStatus = 'no_dispatch_needed';
+        if (timedOut) {
+          _dispatchStatus = 'CANCELLED';
+        }
+        _hardLockedByTimeout = true;
+      });
+    }
+
     if (audioB64 != null && audioB64.isNotEmpty) {
       setState(() => _playingMessageIndex = _messages.length - 1);
       _playAudioBase64(audioB64);
@@ -561,6 +691,8 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() => _playingMessageIndex = _messages.length - 1);
       _playAudioUrl(audioUrl);
     }
+
+    _restartInactivityTimer();
   }
 
   void _addAssistant(String text, {String? audioBase64}) {
@@ -616,6 +748,41 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  Future<void> _cancelDispatch() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text(AppStrings.cancelDispatchTitle),
+        content: const Text(AppStrings.cancelDispatchConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(AppStrings.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+                backgroundColor: AppTheme.criticalRed),
+            child: const Text(AppStrings.yesCancelDispatch),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() {
+      _dispatchStatus = 'CANCELLED';
+      _isComplete = true;
+      _followupStatus = 'no_dispatch_needed';
+      _hardLockedByTimeout = true;
+    });
+    _addAssistant(
+      widget.language == 'tr'
+          ? AppStrings.dispatchCancelledMsg
+          : AppStrings.dispatchCancelledMsgEn,
+    );
+  }
+
   Future<void> _callEmergency() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -664,12 +831,33 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  bool _shouldShowTriageCard() {
+    if (_triageResult == null) return false;
+
+    final hasConfirmedField = _triageResult!.containsKey('triage_confirmed');
+    final triageConfirmed = _triageResult!['triage_confirmed'] == true;
+    if (triageConfirmed) return true;
+    if (_isComplete) return true;
+    if (_dispatchStatus == 'DISPATCHED' ||
+        _dispatchStatus == 'SILENT_DISPATCHED') {
+      return true;
+    }
+
+    if (!hasConfirmedField) {
+      final userTurnCount = _messages.where((m) => m.isUser).length;
+      return userTurnCount >= 2;
+    }
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCritical = _triageResult?['triage_level'] == 'CRITICAL';
+    final isSessionLocked = _shouldLockSession();
 
-    final stepLabel = _isComplete
+    final stepLabel = isSessionLocked
         ? AppStrings.stepResult
         : _triageResult != null
             ? AppStrings.stepAssessing
@@ -733,7 +921,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           if (_connectionError) _buildErrorBanner(theme),
-          if (_triageResult != null)
+          if (_shouldShowTriageCard())
             TriageCard(
               result: _triageResult!,
               onCallEmergency: isCritical ? _callEmergency : null,
@@ -776,8 +964,47 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           if (_pendingImageBytes != null) _buildImagePreview(theme),
-          if (_isComplete) _buildCompletedBar(theme),
-          if (!_isComplete) _buildInputBar(theme),
+          if (!isSessionLocked &&
+              (_dispatchStatus == 'DISPATCHED' ||
+                  _dispatchStatus == 'SILENT_DISPATCHED'))
+            _buildDispatchCancelBanner(theme),
+          if (isSessionLocked) _buildCompletedBar(theme),
+          if (!isSessionLocked) _buildInputBar(theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDispatchCancelBanner(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: Colors.orange.withOpacity(0.08),
+      child: Row(
+        children: [
+          Icon(Icons.directions_run,
+              color: Colors.orange.shade700, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              AppStrings.dispatchedUnitsLabel,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.orange.shade800,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: _cancelDispatch,
+            icon: const Icon(Icons.cancel_outlined, size: 16),
+            label: const Text(AppStrings.cancelDispatch),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.criticalRed,
+              side: BorderSide(color: AppTheme.criticalRed),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              textStyle: const TextStyle(fontSize: 12),
+            ),
+          ),
         ],
       ),
     );
@@ -867,6 +1094,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildCompletedBar(ThemeData theme) {
     final isCritical = _triageResult?['triage_level'] == 'CRITICAL';
+    final isNonUrgent = _triageResult?['triage_level'] == 'NON_URGENT';
+    final hasDispatchToCancel =
+        _dispatchStatus == 'DISPATCHED' || _dispatchStatus == 'SILENT_DISPATCHED';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -897,30 +1127,54 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 if (_report != null)
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _showReport,
-                      icon: const Icon(Icons.assignment),
-                      label: const Text(AppStrings.viewReport),
-                    ),
+                  OutlinedButton.icon(
+                    onPressed: _showReport,
+                    icon: const Icon(Icons.assignment),
+                    label: const Text(AppStrings.viewReport),
                   ),
-                if (_report != null && isCritical)
-                  const SizedBox(width: 12),
                 if (isCritical)
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: _callEmergency,
-                      icon: const Icon(Icons.phone),
-                      label: const Text(AppStrings.call112),
-                      style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.criticalRed),
+                  FilledButton.icon(
+                    onPressed: _callEmergency,
+                    icon: const Icon(Icons.phone),
+                    label: const Text(AppStrings.call112),
+                    style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.criticalRed),
+                  ),
+                if (hasDispatchToCancel)
+                  OutlinedButton.icon(
+                    onPressed: _cancelDispatch,
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: const Text(AppStrings.cancelDispatch),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.criticalRed,
+                      side: BorderSide(color: AppTheme.criticalRed),
                     ),
                   ),
               ],
             ),
+            if (isNonUrgent)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NearbyPlacesScreen(),
+                      ),
+                    ),
+                    icon: const Icon(Icons.local_hospital_outlined),
+                    label: const Text(
+                        AppStrings.showNearbyFacilitiesSuggestion),
+                  ),
+                ),
+              ),
             if (_currentPosition != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),

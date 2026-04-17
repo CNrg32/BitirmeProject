@@ -3,8 +3,12 @@ from __future__ import annotations
 import threading
 import time
 import uuid
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -111,10 +115,47 @@ def truncate_message_history(session: Session, max_turns: int = 8) -> None:
 
 class SessionStore:
 
-    def __init__(self, ttl_seconds: int = 3600) -> None:
+    def __init__(self, ttl_seconds: int = 3600, inactivity_timeout_seconds: int = 180) -> None:
         self._sessions: Dict[str, Session] = {}
         self._ttl = ttl_seconds
+        self._inactivity_timeout = inactivity_timeout_seconds
         self._lock = threading.Lock()
+        self._watchdog_stop = threading.Event()
+        self._watchdog_thread = threading.Thread(
+            target=self._timeout_watchdog_loop,
+            name="session-timeout-watchdog",
+            daemon=True,
+        )
+        self._watchdog_thread.start()
+
+    def _timeout_watchdog_loop(self) -> None:
+        while not self._watchdog_stop.wait(5):
+            now = time.time()
+            with self._lock:
+                for session in self._sessions.values():
+                    if session.is_complete:
+                        continue
+                    if session.dispatch_status not in ("PENDING", "FALLBACK_PENDING"):
+                        continue
+                    if now - session.last_user_activity_at < self._inactivity_timeout:
+                        continue
+
+                    triage_level = (session.triage_result or {}).get("triage_level", "NON_URGENT")
+                    if triage_level in ("CRITICAL", "URGENT"):
+                        session.dispatch_status = "SILENT_DISPATCHED"
+                        session.dispatch_target = (session.triage_result or {}).get("category", "other")
+                        session.dispatch_timestamp = now
+                        logger.warning(
+                            "Silent dispatch triggered by watchdog after inactivity. vaka_id=%s, category=%s",
+                            session.session_id,
+                            session.dispatch_target,
+                        )
+                    else:
+                        session.dispatch_status = "CANCELLED"
+                        logger.info("Session auto-cancelled after inactivity. vaka_id=%s", session.session_id)
+
+                    session.is_complete = True
+                    session.resumed_after_timeout = True
 
     def create(self, language: Optional[str] = None) -> Session:
         with self._lock:
