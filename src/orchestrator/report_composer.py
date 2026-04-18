@@ -16,13 +16,13 @@ _TRIAGE_EMOJI = {
 _TRIAGE_HEADLINE = {
     "CRITICAL":   "CRITICAL EMERGENCY – Immediate Action Required",
     "URGENT":     "URGENT – Prompt Medical / Emergency Attention Needed",
-    "NON_URGENT": "Non-Urgent – Situation Under Control",
+    "NON_URGENT": "NON-CRITICAL – Situation Under Control",
 }
 
 _TRIAGE_HEADLINE_TR = {
     "CRITICAL": "KRITIK ACIL DURUM - Acil Eylem Gerekli",
     "URGENT": "ACIL - Hizli Müdahale Gerekli",
-    "NON_URGENT": "ACIL OLMAYAN - Durum Kontrollu",
+    "NON_URGENT": "KRITIK OLMAYAN - Durum Kontrollu",
 }
 
 _CATEGORY_UNIT = {
@@ -58,7 +58,7 @@ _ACTION_RESPONSES: Dict[tuple, Dict[str, Any]] = {
         ],
     },
     ("medical", "NON_URGENT"): {
-        "dispatch": "Your situation has been noted. You may request non-urgent medical advice or visit a clinic.",
+        "dispatch": "Your situation has been noted. You may request non-critical medical advice or visit a clinic.",
         "instructions": ["If symptoms worsen, call back or go to the nearest emergency room."],
     },
     ("crime", "CRITICAL"): {
@@ -198,6 +198,29 @@ _ACTION_RESPONSES_TR: Dict[tuple, Dict[str, Any]] = {
         "instructions": ["Durum değişirse tekrar arayın."],
     },
 }
+
+
+def compose_tts_instructions(
+    triage_result: Dict[str, Any],
+    language: str = "en",
+) -> str:
+    """Returns only the dispatch message + instruction bullets for TTS reading."""
+    lang = _lang_key(language)
+    level = triage_result.get("triage_level", "URGENT")
+    category = triage_result.get("category", "other")
+
+    action_key = (category, level)
+    action_bank = _ACTION_RESPONSES_TR if lang == "tr" else _ACTION_RESPONSES
+    action = action_bank.get(action_key) or action_bank.get(
+        (category, "URGENT")
+    ) or action_bank.get(("other", level))
+    if not action:
+        return ""
+
+    parts = [action["dispatch"]]
+    for instr in action.get("instructions", []):
+        parts.append(instr)
+    return ". ".join(parts)
 
 
 def compose_report(

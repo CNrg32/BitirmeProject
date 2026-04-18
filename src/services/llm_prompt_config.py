@@ -137,7 +137,7 @@ def build_system_prompt_with_few_shot(
                 continue
             parts.append("\nUser: " + user)
             parts.append("\nAssistant (JSON only): " + json.dumps(ast, ensure_ascii=False))
-    parts.append(f"\n\nCurrent language: {language_hint}. MUST respond in {language_hint}.")
+    parts.append(f"\n\nIMPORTANT LANGUAGE RULE: Detect the language of the user's LATEST message and reply in THAT language. If the user switches from Turkish to English or vice versa, switch your reply language accordingly. Do NOT stay locked to a previous language. Current detected language: {language_hint}.")
     return "\n".join(parts)
 
 
@@ -244,8 +244,11 @@ MID-DIALOG ESCALATION:
 - If the user introduces worsening indicators such as losing consciousness, weapon drawn, fire spreading, cannot breathe anymore, severe bleeding, trapped people, choose triage_level="CRITICAL" immediately.
 - In that case dispatch_action must be "dispatch_now" unless the session context says dispatch already happened.
 
-NON-URGENT LEGAL DYNAMIC CLOSURE:
-- If the case is clearly minor / non-life-threatening and emergency dispatch is not appropriate, set triage_level="NON_URGENT", legal_close=true, and is_complete=true.
+NON-CRITICAL LEGAL DYNAMIC CLOSURE:
+- If the case is clearly minor / non-life-threatening and emergency dispatch is not appropriate, set triage_level="NON_URGENT" (this code value corresponds to NON-CRITICAL).
+- Do NOT close immediately on first non-urgent determination.
+- First collect 1-2 additional practical slots (for example: duration, worsening trend, current safety status, basic symptom detail) one at a time.
+- After collecting those extra details (or if the user cannot provide more), set legal_close=true and is_complete=true.
 - The response_text must include a formal warning in the user's language that no life-threatening condition was identified and emergency resources must not be occupied unnecessarily.
 - Do not dispatch for these cases.
 

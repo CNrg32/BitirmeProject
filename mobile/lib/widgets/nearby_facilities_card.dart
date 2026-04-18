@@ -71,15 +71,19 @@ class NearbyFacilitiesCard extends StatelessWidget {
           Wrap(
             spacing: 8,
             children: [
-              ChoiceChip(
+              FilterChip(
                 label: const Text(AppStrings.hospitalOption),
                 selected: selectedType == NearbyFacilityType.hospital,
-                onSelected: (_) => onTypeChanged(NearbyFacilityType.hospital),
+                onSelected: (value) {
+                  if (value) onTypeChanged(NearbyFacilityType.hospital);
+                },
               ),
-              ChoiceChip(
+              FilterChip(
                 label: const Text(AppStrings.policeOption),
                 selected: selectedType == NearbyFacilityType.police,
-                onSelected: (_) => onTypeChanged(NearbyFacilityType.police),
+                onSelected: (value) {
+                  if (value) onTypeChanged(NearbyFacilityType.police);
+                },
               ),
             ],
           ),

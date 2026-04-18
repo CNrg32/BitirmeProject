@@ -671,9 +671,12 @@ class _ChatScreenState extends State<ChatScreen> {
     final backendClosed = followupStatus == 'no_dispatch_needed' ||
         (resp['dispatch_status'] as String?) == 'CANCELLED';
     final completed = resp['is_complete'] == true;
-    final asksFollowup = _responseRequestsFollowup(text);
 
-    if (timedOut || generalCloseText || backendClosed || (completed && !asksFollowup)) {
+    // Lock the session when backend signals completion, when the report card
+    // arrives, or any other closure condition. Do NOT check asksFollowup here —
+    // the report text may contain '?' characters in map URLs which would
+    // incorrectly prevent locking.
+    if (timedOut || generalCloseText || backendClosed || completed) {
       setState(() {
         _isComplete = true;
         _followupStatus = 'no_dispatch_needed';
