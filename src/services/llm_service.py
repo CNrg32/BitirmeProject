@@ -219,8 +219,17 @@ class _GroqProvider:
                 ctx_parts.append(f"LOCKED CATEGORY: {session_context['initial_category']}")
             if session_context.get("initial_triage_level"):
                 ctx_parts.append(f"LOCKED TRIAGE LEVEL: {session_context['initial_triage_level']}")
-            if session_context.get("dispatch_status"):
-                ctx_parts.append(f"DISPATCH STATUS: {session_context['dispatch_status']}")
+            dispatch_status = session_context.get("dispatch_status", "")
+            if dispatch_status:
+                ctx_parts.append(f"DISPATCH STATUS: {dispatch_status}")
+            if dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
+                ctx_parts.append(
+                    "DISPATCH ACTIVE: Emergency services are already on the way. "
+                    "Do NOT set is_complete=true yet. Continue collecting micro-location details "
+                    "(building, floor, apartment, entrance, landmark, gate code) ONE question at a time. "
+                    "Only set is_complete=true when you have no more useful questions OR the caller "
+                    "says they cannot provide more info."
+                )
             if session_context.get("witness_mode"):
                 ctx_parts.append("WITNESS MODE: true — caller is a bystander, NOT the victim. Apply witness question rules.")
             exhausted = session_context.get("exhausted_slots") or []

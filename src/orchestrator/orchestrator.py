@@ -319,13 +319,16 @@ def handle_message(
     # Reset noise counter once meaningful text is received.
     session.troll_count = 0
 
-    if not session.language_locked:
-        detected_text_lang = detect_language(user_text)
-        if detected_text_lang:
-            session.language = detected_text_lang
+    # Always re-detect language from each text message — supports mid-session language switching.
+    detected_text_lang = detect_language(user_text)
+    if detected_text_lang:
+        if session.language != detected_text_lang:
+            logger.info("Language switched: %s → %s", session.language, detected_text_lang)
+        session.language = detected_text_lang
+        lang = detected_text_lang
+        if not session.language_locked:
             session.language_locked = True
-            lang = detected_text_lang
-            logger.info("Language locked from first text input: %s", detected_text_lang)
+        logger.info("Language detected from text: %s", detected_text_lang)
 
     # ------------------------------------------------------------------
     # 5. Accumulate English text for ML models (sentiment etc.)
@@ -422,6 +425,8 @@ def _handle_with_llm(
     locked_category = (session.initial_triage or {}).get("category", "other")
 
     t0 = time.monotonic()
+    # Build exhausted slots list (attempted ≥2 times without answer)
+    exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
     llm_result = llm.chat(
         history=session.messages,
         language=lang,
@@ -430,6 +435,7 @@ def _handle_with_llm(
             "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
             "dispatch_status": session.dispatch_status,
             "witness_mode": session.witness_mode,
+            "exhausted_slots": exhausted_slots,
         }
     )
     logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
@@ -464,69 +470,108 @@ def _handle_with_llm(
                      locked_category, triage_level)
 
     # ------------------------------------------------------------------
-    # Guard 2 — Red-flag instant completion
-    # Life-threatening red flags → dispatch immediately, stop asking.
+    # Guard 2 — CRITICAL immediate dispatch (no confirmation wait)
+    # Dispatch at once on CRITICAL triage — do NOT wait for is_complete.
+    # Report card is shown later when LLM exhausts its slot questions.
     # ------------------------------------------------------------------
-    if red_flags and triage_level == "CRITICAL" and not is_complete:
-        is_complete = True
-        logger.info("Red flags detected (%s) with CRITICAL triage – forcing completion.",
-                    red_flags)
-        if not response_text:
-            response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
+    if triage_level == "CRITICAL" and session.dispatch_status == "PENDING":
+        if can_redispatch(session, redispatch_ttl_seconds=48 * 3600):
+            session.dispatch_status = "DISPATCHED"
+            session.dispatch_target = category
+            session.dispatch_timestamp = time.time()
+            logger.info("CRITICAL: Immediate dispatch triggered. vaka_id=%s, target=%s",
+                        session.session_id, category)
+            dispatch_notice = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
+            if response_text and dispatch_notice not in response_text:
+                response_text = dispatch_notice + " " + response_text
+            elif not response_text:
+                response_text = dispatch_notice
+        else:
+            logger.warning("Dispatch lock active: CRITICAL case already dispatched. Skipping.")
 
     # ------------------------------------------------------------------
     # FAZ 1.5: Dispatch Lock (Safety-Critical)
-    # Prevent redispatch of the same case within 48 hours
+    # CRITICAL cases are dispatched above. URGENT dispatches on is_complete.
     # ------------------------------------------------------------------
-    if is_complete and triage_level in ("CRITICAL", "URGENT"):
+    if is_complete and triage_level == "URGENT" and session.dispatch_status == "PENDING":
         if not can_redispatch(session, redispatch_ttl_seconds=48 * 3600):
-            # Already dispatched recently, don't dispatch again
-            logger.warning("Dispatch lock active: same case already dispatched. Preventing redispatch.")
-            is_complete = False  # Keep conversation open, don't force completion
+            logger.warning("Dispatch lock active: URGENT case already dispatched. Preventing redispatch.")
+            is_complete = False
             response_text = {
                 "tr": "Bu durum zaten kayda alındı. Daha fazla bilgi var mı?",
                 "en": "This case has already been reported. Is there any additional information?",
             }.get(lang, "This case has already been reported.")
         else:
-            # Can dispatch: set dispatch status and timestamp
             session.dispatch_status = "DISPATCHED"
-            session.dispatch_target = category  # store which service to dispatch to
+            session.dispatch_target = category
             session.dispatch_timestamp = time.time()
-            logger.info("Dispatch lock set: vaka_id=%s, target=%s, TTL=48h",
+            logger.info("URGENT dispatch: vaka_id=%s, target=%s, TTL=48h",
                         session.session_id, category)
 
     # ------------------------------------------------------------------
     # Guard 3 — Maximum turn limit (Dynamic based on triage_level)
     # FAZ 6: Operasyonel Mantik — Escalation Control
-    # CRITICAL: 1-2 turns max (immediate dispatch)
-    # URGENT: 4-5 turns max (collect essential + quick dispatch)
-    # NON_CRITICAL: 8 turns max (normal slot filling, soft close)
+    # CRITICAL: dispatched immediately (Guard 2 above), LLM controls completion.
+    #   Safety limit: 6 turns max post-dispatch for micro-location collection.
+    # URGENT: 4-5 turns max (collect essential + dispatch on is_complete)
+    # NON-CRITICAL: 8 turns max (normal slot filling, soft close)
     # ------------------------------------------------------------------
+    # For CRITICAL, after dispatch the LLM keeps asking micro-location questions.
+    # Give it up to 6 turns total before forcing completion.
+    critical_dispatched_max_turns = 6
     max_turns_map = {
-        "CRITICAL": 2,      # Critical: almost no delay
         "URGENT": 4,        # Urgent: collect essentials quickly
-        "NON_URGENT": 8,    # Non-urgent: normal dialog flow
+        "NON_URGENT": 8,    # Non-critical: normal dialog flow
     }
-    max_turns = max_turns_map.get(triage_level, 8)
+    non_critical_min_turns_before_close = 3
+    non_critical_min_informative_slots = 3  # chief_complaint + 1-2 extra details
     
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
+    # Include current turn's extracted slots when checking NON-CRITICAL readiness.
+    effective_slots = dict(session.collected_slots)
+    if extracted_slots:
+        effective_slots.update(extracted_slots)
+    informative_slot_count = len([
+        k for k in effective_slots.keys()
+        if k not in ("_asking_slot", "category", "triage_level")
+    ])
+
+    # NON-CRITICAL should not close too early: collect 1-2 additional slots first.
+    if triage_level == "NON_URGENT" and is_complete:
+        if (
+            user_turn_count < non_critical_min_turns_before_close
+            or informative_slot_count < non_critical_min_informative_slots
+        ):
+            is_complete = False
+            logger.info(
+                "NON_URGENT closure delayed: turns=%d/%d, slots=%d/%d",
+                user_turn_count,
+                non_critical_min_turns_before_close,
+                informative_slot_count,
+                non_critical_min_informative_slots,
+            )
+            if not response_text or "?" not in response_text:
+                response_text = {
+                    "tr": "Durumunuzu güvenli şekilde kapatmadan önce iki kısa bilgi daha alayım: şikayet ne zaman başladı ve şu an kötüleşme var mı?",
+                    "en": "Before safely closing this case, I need two short details: when did the complaint start, and is it getting worse right now?",
+                }.get(lang, "I need two short details before closing this case.")
     
-    # FAZ 6: CRITICAL escalation — force completion after max turns
-    if triage_level == "CRITICAL" and user_turn_count >= max_turns:
+    # FAZ 6: CRITICAL — LLM controls is_complete; safety limit at 6 turns
+    if triage_level == "CRITICAL" and user_turn_count >= critical_dispatched_max_turns and not is_complete:
         is_complete = True
-        logger.info("CRITICAL escalation: max turns (%d) reached – forcing dispatch.", max_turns)
+        logger.info("CRITICAL: safety max turns (%d) reached – forcing card display.", critical_dispatched_max_turns)
         if not response_text:
-            response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
+            response_text = _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
     
     # FAZ 6: URGENT escalation — collect key slots quickly, then dispatch
-    elif triage_level == "URGENT" and user_turn_count >= max_turns:
+    elif triage_level == "URGENT" and user_turn_count >= max_turns_map.get("URGENT", 4) and not is_complete:
         is_complete = True
-        logger.info("URGENT escalation: max turns (%d) reached – dispatching.", max_turns)
+        logger.info("URGENT escalation: max turns (%d) reached – dispatching.", max_turns_map["URGENT"])
         if not response_text:
             response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
     
-    # FAZ 6: NON_CRITICAL soft close — offer graceful exit
-    elif triage_level == "NON_URGENT" and user_turn_count >= max_turns - 1:
+    # FAZ 6: NON-CRITICAL soft close — offer graceful exit
+    elif triage_level == "NON_URGENT" and user_turn_count >= max_turns_map.get("NON_URGENT", 8) - 1:
         # At turn 7 (max 8), offer soft close
         is_complete = True
         logger.info("NON_CRITICAL: approaching max turns – soft close.")
@@ -585,6 +630,12 @@ def _handle_with_llm(
         )
         session.is_complete = True
 
+        # Fix 4: TTS reads LLM guidance + the advice/instruction bullets from the report.
+        # The full text (with report) is shown in the chat bubble, but audio = guidance + advice.
+        from orchestrator.report_composer import compose_tts_instructions
+        instructions_tts = compose_tts_instructions(session.triage_result, language=lang)
+        tts_parts = [p for p in [response_text, instructions_tts] if p]
+        tts_only = ". ".join(tts_parts) if tts_parts else _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
         final_text = (response_text + "\n\n" + report_local) if response_text else report_local
 
         return _reply(
@@ -595,6 +646,7 @@ def _handle_with_llm(
             report=report_local,
             is_complete=True,
             user_transcript=asr_transcript,
+            tts_text=tts_only,
         )
 
     # Conversation ongoing
@@ -705,11 +757,16 @@ def _reply(
     report: Optional[str] = None,
     is_complete: bool = False,
     user_transcript: Optional[str] = None,
+    tts_text: Optional[str] = None,
 ) -> Dict[str, Any]:
     session.messages.append({"role": "assistant", "text": text})
 
+    # Fix 4: TTS only reads the advice/instructions portion, not the structured report.
+    # When tts_text is provided (e.g. only the LLM's guidance), use that for audio.
+    audio_source = tts_text if tts_text else text
+
     t0 = time.monotonic()
-    audio_bytes = synthesize(text, lang=session.language or "en")
+    audio_bytes = synthesize(audio_source, lang=session.language or "en")
     audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
     audio_url = _audio_to_data_url(audio_bytes)
     logger.info("  [TIMING] TTS: %.2fs", time.monotonic() - t0)

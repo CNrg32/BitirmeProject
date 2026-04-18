@@ -20,8 +20,9 @@ _OVERPASS_ENDPOINTS = [
     for endpoint in os.environ.get("OVERPASS_API_URLS", ",".join(_DEFAULT_OVERPASS_ENDPOINTS)).split(",")
     if endpoint.strip()
 ]
-_OVERPASS_TIMEOUT_SECONDS = float(os.environ.get("OVERPASS_TIMEOUT_SECONDS", "8.0"))
+_OVERPASS_TIMEOUT_SECONDS = float(os.environ.get("OVERPASS_TIMEOUT_SECONDS", "12.0"))
 _OVERPASS_RETRIES = int(os.environ.get("OVERPASS_RETRIES", "2"))
+_OVERPASS_QUERY_TIMEOUT = int(os.environ.get("OVERPASS_QUERY_TIMEOUT", "10"))
 _CACHE_TTL_SECONDS = int(os.environ.get("NEARBY_CACHE_TTL_SECONDS", "180"))
 _SEARCH_RADII_METERS = (5000, 10000)
 _POLICE_SEARCH_RADII_METERS = (5000, 10000, 20000)
@@ -38,6 +39,22 @@ _CAMPUS_KEYWORDS = (
     "faculty",
     "fakulte",
     "fakülte",
+)
+
+_POLICE_NON_STATION_KEYWORDS = (
+    "polis akademisi",
+    "akademi",
+    "academy",
+    "egitim",
+    "eğitim",
+    "school",
+    "okul",
+    "kampus",
+    "kampüs",
+    "campus",
+    "universite",
+    "üniversite",
+    "university",
 )
 
 _NON_PUBLIC_ACCESS_VALUES = {"private", "no", "customers"}
@@ -108,8 +125,7 @@ def _fetch_overpass_elements(
                 try:
                     response = httpx.post(
                         endpoint,
-                        content=query,
-                        headers={"Content-Type": "text/plain; charset=utf-8"},
+                        data={"data": query},
                         timeout=_OVERPASS_TIMEOUT_SECONDS,
                     )
                     response.raise_for_status()
@@ -143,14 +159,14 @@ def _build_overpass_query(
     longitude: float,
 ) -> str:
     selectors = _selectors_for_type(place_type)
-    lines: List[str] = ["[out:json][timeout:4];", "("]
+    lines: List[str] = [f"[out:json][timeout:{_OVERPASS_QUERY_TIMEOUT}];", "("]
 
     for selector in selectors:
         lines.append(f"  node{selector}(around:{radius_meters},{latitude},{longitude});")
         lines.append(f"  way{selector}(around:{radius_meters},{latitude},{longitude});")
         lines.append(f"  relation{selector}(around:{radius_meters},{latitude},{longitude});")
 
-    lines.extend([")", "out center tags;"])
+    lines.extend([");", "out center tags;"])
     return "\n".join(lines)
 
 
@@ -221,14 +237,10 @@ def _amenity_for_type(place_type: str) -> str:
 
 def _selectors_for_type(place_type: str) -> List[str]:
     if place_type == "police":
-        # OSM karakol verileri farkli semalarda tutulabiliyor.
+        # En yaygın OSM karakol etiketleri — karmaşıklığı sınırla
         return [
             '["amenity"="police"]',
-            '["amenity"="police"]["police"="station"]',
             '["office"="government"]["government"="police"]',
-            '["office"="government"]["name"~"(emniyet|polis|police|karakol)",i]',
-            '["building"="police"]',
-            '["police"]',
         ]
 
     amenity = _amenity_for_type(place_type)
@@ -266,10 +278,21 @@ def _is_accessible_place(tags: Dict[str, Any], name: str, place_type: str) -> bo
     if access_value in _NON_PUBLIC_ACCESS_VALUES:
         return False
 
+    name_lower = name.lower()
+
+    if place_type == "police":
+        if any(keyword in name_lower for keyword in _POLICE_NON_STATION_KEYWORDS):
+            return False
+
+        operator_type = str(tags.get("operator:type") or "").strip().lower()
+        if operator_type in {"university", "education", "school"}:
+            return False
+
+        return True
+
     if place_type != "hospital":
         return True
 
-    name_lower = name.lower()
     if any(keyword in name_lower for keyword in _CAMPUS_KEYWORDS):
         return False
 

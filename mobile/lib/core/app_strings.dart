@@ -71,7 +71,7 @@ class AppStrings {
   // Triage
   static const String triageCritical = 'KRİTİK';
   static const String triageUrgent = 'ACİL';
-  static const String triageNonUrgent = 'ACİL DEĞİL';
+    static const String triageNonUrgent = 'KRİTİK DEĞİL';
   static const String category = 'Kategori';
   static const String redFlags = 'Uyarılar';
 
@@ -114,7 +114,7 @@ class AppStrings {
   static const String dispatchCancelledMsg = 'Yönlendirme iptal edildi. Oturum kapatıldı.';
   static const String dispatchCancelledMsgEn = 'Dispatch has been cancelled. Session closed.';
 
-  // NON_URGENT yakın kurumlar önerisi
+    // NON-CRITICAL yakın kurumlar önerisi
   static const String showNearbyFacilitiesSuggestion =
       'En yakın hastane ve karakolları görüntüle';
 
