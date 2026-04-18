@@ -229,6 +229,17 @@ def handle_message(
 
     # Guard: zaten tamamlanmış session'a yeni mesaj gelirse raporla cevap ver
     if session.is_complete:
+        if session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED") and (
+            image_bytes or (user_text and user_text.strip()) or audio_bytes
+        ):
+            if image_bytes:
+                session.image_bytes = image_bytes
+                _run_image_analysis(session)
+            return _handle_post_dispatch_update(
+                session,
+                user_text or "",
+                lang=session.language or "en",
+            )
         done_msg = {
             "tr": "Bu oturum tamamlandı. Yeni bir acil durum için lütfen yeniden başlatın.",
             "en": "This session is already complete. Please start a new session for a new emergency.",
@@ -283,10 +294,7 @@ def handle_message(
     # ------------------------------------------------------------------
     if not user_text or not user_text.strip():
         if image_bytes and session.image_analysis:
-            img_summary = session.image_analysis.get("summary", "Image received.")
-            ack_en = f"Image received and analyzed. {img_summary} Please also describe the emergency verbally."
-            ack_local = translate_from_english(ack_en, target_lang=lang) if lang != "en" else ack_en
-            return _reply(session, ack_local, image_analysis=session.image_analysis, user_transcript=asr_transcript)
+            return _handle_image_only(session, lang, asr_transcript)
         return _reply(
             session,
             "I didn't receive any input. Could you please describe your emergency?",
@@ -363,6 +371,128 @@ def handle_message(
         return _handle_with_llm(session, lang, asr_transcript)
     else:
         return _handle_with_rules(session, lang, asr_transcript)
+
+
+def _handle_image_only(
+    session: Session,
+    lang: str,
+    asr_transcript: Optional[str],
+) -> Dict[str, Any]:
+    image_analysis = session.image_analysis or {}
+    visual = image_analysis.get("visual_triage") or {}
+    action = visual.get("action")
+    triage_level = visual.get("triage_level", "URGENT")
+    category = visual.get("category", "other")
+
+    if action in ("RECAPTURE_IMAGE", "MANUAL_FALLBACK"):
+        session.image_attempt_count += 1
+        if session.image_attempt_count >= 2:
+            session.dispatch_status = "FALLBACK_PENDING"
+            msg = {
+                "tr": "Görseli güvenilir analiz edemedim. Lütfen Tıbbi, Polis, İtfaiye, Trafik/Kaza veya Diğer olarak seçip 1 cümle açıklama yazın.",
+                "en": "I could not reliably analyze the image. Please choose Medical, Police, Fire, Traffic/Accident, or Other and add one short sentence.",
+            }.get(lang, "Please choose a category and add one short sentence.")
+        else:
+            msg = {
+                "tr": "Görsel net değil veya model şu an kullanılamıyor. Mümkünse daha net fotoğraf gönderin ya da olayı kısaca yazın.",
+                "en": "The image is unclear or the model is unavailable. Please send a clearer photo or briefly describe the emergency.",
+            }.get(lang, "Please send a clearer photo or describe the emergency.")
+        return _reply(session, msg, image_analysis=image_analysis, user_transcript=asr_transcript)
+
+    triage = _triage_from_visual(image_analysis)
+    session.triage_result = triage
+    session.collected_slots.update({
+        "image_category": category,
+        "image_triage_level": triage_level,
+        "visual_flags": visual.get("visual_flags", []),
+    })
+
+    if action == "EARLY_DISPATCH":
+        _mark_dispatch(session, category)
+        msg = {
+            "tr": "Görselde kritik risk tespit edildi. Ekipler yönlendiriliyor. Güvenli alana geçin; bina, kat, daire veya tam konumu yazabilirseniz ekiplere ileteceğim.",
+            "en": "Critical risk was detected in the image. Emergency services are being dispatched. Move to a safe area; send building, floor, apartment, or exact location if you can.",
+        }.get(lang, "Emergency services are being dispatched.")
+        return _reply(session, msg, triage_result=triage, image_analysis=image_analysis)
+
+    if action == "VERIFY_THEN_DISPATCH":
+        msg = {
+            "tr": "Görsel acil durum belirtisi gösteriyor. Yaralı, duman/alev, silah veya mahsur kalan biri var mı? Kısaca yazın.",
+            "en": "The image suggests an emergency. Is there an injured person, smoke/fire, a weapon, or someone trapped? Please answer briefly.",
+        }.get(lang, "Please briefly verify the emergency.")
+        return _reply(session, msg, triage_result=triage, image_analysis=image_analysis)
+
+    msg = {
+        "tr": "Görselde net bir acil durum belirtisi görünmüyor. Yine de acil bir durum varsa lütfen kısaca açıklayın.",
+        "en": "The image does not show a clear emergency. If there is still an emergency, please briefly describe it.",
+    }.get(lang, "Please briefly describe the emergency.")
+    return _reply(session, msg, triage_result=triage, image_analysis=image_analysis)
+
+
+def _triage_from_visual(image_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    visual = image_analysis.get("visual_triage") or {}
+    classification = image_analysis.get("classification") or {}
+    return {
+        "category": visual.get("category", classification.get("mapped_category", "other")),
+        "triage_level": visual.get("triage_level", "URGENT"),
+        "confidence": classification.get("confidence"),
+        "red_flags": visual.get("visual_flags", []),
+        "slots": {
+            "image_detected_class": classification.get("detected_class"),
+            "image_action": visual.get("action"),
+            "image_quality": image_analysis.get("image_quality"),
+        },
+        "needs_more_info": visual.get("action") != "EARLY_DISPATCH",
+        "recommended_questions": _visual_questions(visual),
+        "image_analysis": image_analysis,
+    }
+
+
+def _visual_questions(visual: Dict[str, Any]) -> List[str]:
+    action = visual.get("action")
+    if action == "EARLY_DISPATCH":
+        return ["Exact location/building/floor?", "Immediate visible danger?"]
+    if action == "VERIFY_THEN_DISPATCH":
+        return ["Any injured/trapped person?", "Is fire/smoke/weapon still present?"]
+    if action in ("MANUAL_FALLBACK", "RECAPTURE_IMAGE"):
+        return ["Choose incident category.", "Add one short description."]
+    return ["Briefly describe what happened."]
+
+
+def _mark_dispatch(session: Session, category: str) -> None:
+    session.dispatch_status = "DISPATCHED"
+    session.dispatch_target = category or "other"
+    session.dispatch_timestamp = time.time()
+    session.pending_update_after_dispatch = True
+
+
+def _handle_post_dispatch_update(session: Session, user_text: str, lang: str) -> Dict[str, Any]:
+    image_analysis = session.image_analysis
+    update = {
+        "text": user_text,
+        "image_analysis": image_analysis,
+        "timestamp": time.time(),
+    }
+    session.image_updates.append(update)
+    visual = (image_analysis or {}).get("visual_triage") or {}
+    if visual.get("triage_level") == "CRITICAL" and session.triage_result:
+        session.triage_result["triage_level"] = "CRITICAL"
+        session.triage_result.setdefault("red_flags", [])
+        for flag in visual.get("visual_flags", []):
+            if flag not in session.triage_result["red_flags"]:
+                session.triage_result["red_flags"].append(flag)
+
+    msg = {
+        "tr": "Güncelleme alındı. Bu bilgi yoldaki ekiplere ek bilgi olarak iletilecek. Yeni risk varsa güvenli alanda kalın.",
+        "en": "Update received. This will be forwarded as additional information to the responding team. Stay in a safe area if risk remains.",
+    }.get(lang, "Update received.")
+    return _reply(
+        session,
+        msg,
+        triage_result=session.triage_result,
+        image_analysis=image_analysis,
+        is_complete=True,
+    )
 
 
 # ---------------------------------------------------------------------------

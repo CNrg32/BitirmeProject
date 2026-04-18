@@ -26,6 +26,8 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from api.schemas import (
+    ImageAnalysisListResponse,
+    ImageAnalysisRecordResponse,
     ImageAnalysisResult,
     NearbyPlacesRequest,
     NearbyPlacesResponse,
@@ -49,6 +51,37 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def _store_image_analysis_event(
+    *,
+    image_bytes: Optional[bytes],
+    analysis: Optional[Dict[str, Any]],
+    source: str,
+    session_id: Optional[str] = None,
+    filename: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    if not image_bytes or not analysis:
+        return None
+    try:
+        from services.image_analysis_store import (
+            ImageAnalysisRecord,
+            get_image_analysis_store,
+        )
+
+        record = ImageAnalysisRecord.create(
+            image_bytes=image_bytes,
+            analysis=analysis,
+            source=source,
+            session_id=session_id,
+            filename=filename,
+        )
+        return get_image_analysis_store().put(record)
+    except RuntimeError as exc:
+        logger.warning("Image analysis storage is unavailable: %s", exc)
+    except Exception as exc:
+        logger.error("Image analysis storage failed: %s", exc)
+    return None
 
 
 def simulate_fallback_for_session(session_id: str, text: str, scenario: str) -> Dict[str, Any]:
@@ -313,6 +346,12 @@ def session_message(req: SessionMessageRequest):
     image_analysis = None
     if out.get("image_analysis"):
         image_analysis = ImageAnalysisResult(**out["image_analysis"])
+        _store_image_analysis_event(
+            image_bytes=image_bytes,
+            analysis=out["image_analysis"],
+            source="session/message",
+            session_id=req.session_id,
+        )
 
     return SessionMessageResponse(
         session_id=out["session_id"],
@@ -397,6 +436,20 @@ def get_transcript(transcript_id: str):
     return TranscriptRecordResponse(**item)
 
 
+@app.get("/image-analyses", response_model=ImageAnalysisListResponse)
+def list_image_analyses(limit: int = 50):
+    try:
+        from services.image_analysis_store import get_image_analysis_store
+
+        safe_limit = min(max(limit, 1), 200)
+        items = get_image_analysis_store().list(limit=safe_limit)
+        return ImageAnalysisListResponse(
+            image_analyses=[ImageAnalysisRecordResponse(**item) for item in items]
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+
 @app.post("/test/simulate-fallback")
 def test_simulate_fallback(
     session_id: str = Form(...),
@@ -429,6 +482,12 @@ async def analyze_image_endpoint(
         image_bytes=content,
         text_category=text_category,
         text_triage_level=text_triage_level,
+    )
+    _store_image_analysis_event(
+        image_bytes=content,
+        analysis=result,
+        source="analyze-image",
+        filename=image.filename,
     )
 
     if not result.get("available"):

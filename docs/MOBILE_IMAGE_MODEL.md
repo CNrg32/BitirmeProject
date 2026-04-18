@@ -26,6 +26,28 @@ Kaggle’da eğittiğin model (`best_emergency_model.pth` + `image_class_names.j
    - Uygulama açılışta `out_models/best_emergency_model.pth` dosyasını arar; bulursa görüntü analizi açılır.
    - `/health` cevabında `image_model_loaded: true` görürsen model yüklü demektir.
 
+### AWS S3 üzerinden model yükleme
+
+Model dosyalarını repo içine koymak yerine AWS S3'te tutacaksan backend şu env değerleriyle açılabilir:
+
+```bash
+IMAGE_MODEL_S3_URI=s3://your-bucket/models/image/best_emergency_model.pth
+IMAGE_CLASS_NAMES_S3_URI=s3://your-bucket/models/image/image_class_names.json
+AWS_REGION=eu-central-1
+```
+
+`IMAGE_CLASS_NAMES_S3_URI` verilmezse backend aynı S3 klasöründe `image_class_names.json`
+aramayı dener. Dosyalar ilk yüklemede `out_models/` altına indirilir ve model buradan
+başlatılır. AWS kimlik bilgileri normal AWS provider chain üzerinden okunur:
+
+- `aws configure`
+- EC2/ECS/Lambda IAM role
+- `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
+
+Backend açıkken model dosyaları sonradan geldiyse fotoğraf analizi çağrısında model
+tekrar yüklenmeye çalışılır; bu yüzden uygulamayı tamamen kapatıp açmadan da analiz
+aktif hale gelebilir.
+
 ---
 
 ## 2. Mobil Uygulamada Nasıl Kullanılıyor?

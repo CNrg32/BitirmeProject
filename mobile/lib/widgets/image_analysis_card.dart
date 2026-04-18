@@ -11,9 +11,11 @@ class ImageAnalysisCard extends StatelessWidget {
     final theme = Theme.of(context);
     final classification = analysis['classification'] as Map<String, dynamic>?;
     final consistency = analysis['consistency'] as Map<String, dynamic>?;
+    final visualTriage = analysis['visual_triage'] as Map<String, dynamic>?;
+    final imageQuality = analysis['image_quality'] as Map<String, dynamic>?;
     final summary = analysis['summary'] as String?;
 
-    if (classification == null && summary == null) {
+    if (classification == null && summary == null && visualTriage == null) {
       return const SizedBox.shrink();
     }
 
@@ -26,6 +28,12 @@ class ImageAnalysisCard extends StatelessWidget {
     final isConsistent = consistency?['is_consistent'] as bool? ?? true;
     final consistencyDetail = consistency?['consistency_detail'] as String?;
     final riskNotes = (consistency?['risk_notes'] as List?)?.cast<String>() ?? [];
+    final action = visualTriage?['action'] as String?;
+    final triageLevel = visualTriage?['triage_level'] as String?;
+    final qualityReasons =
+        (imageQuality?['reasons'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    final fallbackOptions =
+        (visualTriage?['fallback_options'] as List?)?.whereType<Map>().toList() ?? [];
 
     return Container(
       width: double.infinity,
@@ -64,6 +72,40 @@ class ImageAnalysisCard extends StatelessWidget {
               color: theme.colorScheme.onSecondaryContainer,
             ),
           ),
+          if (triageLevel != null || action != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                [
+                  if (triageLevel != null) 'Seviye: $triageLevel',
+                  if (action != null) 'Aksiyon: $action',
+                ].join(' • '),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSecondaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          if (qualityReasons.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                'Görsel uyarısı: ${qualityReasons.join(", ")}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.orange[800],
+                ),
+              ),
+            ),
+          if (fallbackOptions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                'Manuel seçenekler: ${fallbackOptions.map((e) => e['label']).join(", ")}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSecondaryContainer,
+                ),
+              ),
+            ),
           if (dispatchUnits.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 2),

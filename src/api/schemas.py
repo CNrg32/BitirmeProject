@@ -70,6 +70,8 @@ class ImageAnalysisResult(BaseModel):
     consistency: Optional[ImageConsistency] = None
     summary: str = Field("", description="One-line human-readable summary")
     available: bool = Field(False, description="Whether image analysis was performed")
+    image_quality: Optional[Dict[str, Any]] = Field(None, description="Basic quality checks for the uploaded image")
+    visual_triage: Optional[Dict[str, Any]] = Field(None, description="Operational image triage decision and fallback metadata")
 
 
 class PredictResponse(BaseModel):
@@ -150,6 +152,21 @@ class TranscriptRecordResponse(BaseModel):
 
 class TranscriptListResponse(BaseModel):
     transcripts: List[TranscriptRecordResponse] = Field(default_factory=list)
+
+
+class ImageAnalysisRecordResponse(BaseModel):
+    image_event_id: str
+    image_sha256: str
+    image_size_bytes: int
+    analysis: Dict[str, Any]
+    source: str
+    session_id: Optional[str] = None
+    filename: Optional[str] = None
+    created_at: Optional[str] = None
+
+
+class ImageAnalysisListResponse(BaseModel):
+    image_analyses: List[ImageAnalysisRecordResponse] = Field(default_factory=list)
 
 
 class SessionMessageResponse(BaseModel):
