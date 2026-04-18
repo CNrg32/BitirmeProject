@@ -83,6 +83,43 @@ PYTHONPATH=src python scripts/export_groq_lora_data.py
 
 2. Dış pipeline'da (PEFT/Unsloth vb.) adapter eğit ve Groq hesabına yükle.
 
+### AWS (EC2/SageMaker) ile LoRA egitimi
+
+1. AWS GPU makinesinde repo'yu clone edin (g5/g6 gibi CUDA destekli instance onerilir) ve ortam kurun:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -r requirements-aws-lora.txt
+```
+
+2. Egitim verisini uret:
+```bash
+python scripts/generate_llm_finetune_examples.py --count 180
+PYTHONPATH=src python scripts/export_groq_lora_data.py
+```
+
+3. LoRA egitimi baslat:
+```bash
+python scripts/train_lora_aws.py \
+  --train-file data/llm_groq_lora_train.jsonl \
+  --base-model meta-llama/Llama-3.1-8B-Instruct \
+  --output-dir out_models/lora_adapter_aws \
+  --epochs 2 \
+  --batch-size 2 \
+  --grad-accum 8 \
+  --use-4bit
+```
+
+4. Groq upload icin adapter zip olustur:
+```bash
+python scripts/package_lora_for_groq.py \
+  --adapter-dir out_models/lora_adapter_aws \
+  --output out_models/lora_adapter_aws/groq_adapter.zip
+```
+
+5. Groq Console'a `groq_adapter.zip` dosyasini yukleyip model id (`ft:...`) alin.
+
 3. Uygulamayı Groq custom model ile çalıştır:
 ```bash
 export GROQ_API_KEY="gsk_..."
