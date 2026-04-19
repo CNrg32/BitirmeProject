@@ -102,8 +102,6 @@ class _ChatScreenState extends State<ChatScreen> {
         if (widget.initialMessage != null &&
             widget.initialMessage!.trim().isNotEmpty) {
           _sendInitialMessage();
-        } else {
-          _startRecording();
         }
       });
     }
@@ -120,8 +118,6 @@ class _ChatScreenState extends State<ChatScreen> {
             widget.initialMessage!.trim().isNotEmpty &&
             !_initialMessageSent) {
           _sendInitialMessage();
-        } else {
-          _startRecording();
         }
       }
     });
@@ -211,7 +207,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_initialMessageSent) return;
     final text = widget.initialMessage!.trim();
     if (text.isEmpty) {
-      _startRecording();
       return;
     }
     setState(() => _initialMessageSent = true);
@@ -1100,6 +1095,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final isNonUrgent = _triageResult?['triage_level'] == 'NON_URGENT';
     final hasDispatchToCancel =
         _dispatchStatus == 'DISPATCHED' || _dispatchStatus == 'SILENT_DISPATCHED';
+    final hasBottomActions = _report != null || hasDispatchToCancel;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1134,12 +1130,6 @@ class _ChatScreenState extends State<ChatScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                if (_report != null)
-                  OutlinedButton.icon(
-                    onPressed: _showReport,
-                    icon: const Icon(Icons.assignment),
-                    label: const Text(AppStrings.viewReport),
-                  ),
                 if (isCritical)
                   FilledButton.icon(
                     onPressed: _callEmergency,
@@ -1147,16 +1137,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     label: const Text(AppStrings.call112),
                     style: FilledButton.styleFrom(
                         backgroundColor: AppTheme.criticalRed),
-                  ),
-                if (hasDispatchToCancel)
-                  OutlinedButton.icon(
-                    onPressed: _cancelDispatch,
-                    icon: const Icon(Icons.cancel_outlined),
-                    label: const Text(AppStrings.cancelDispatch),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.criticalRed,
-                      side: BorderSide(color: AppTheme.criticalRed),
-                    ),
                   ),
               ],
             ),
@@ -1192,6 +1172,32 @@ class _ChatScreenState extends State<ChatScreen> {
                       style: theme.textTheme.bodySmall
                           ?.copyWith(color: theme.colorScheme.outline),
                     ),
+                  ],
+                ),
+              ),
+            if (hasBottomActions)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (_report != null)
+                      OutlinedButton.icon(
+                        onPressed: _showReport,
+                        icon: const Icon(Icons.assignment),
+                        label: const Text(AppStrings.viewReport),
+                      ),
+                    if (hasDispatchToCancel)
+                      OutlinedButton.icon(
+                        onPressed: _cancelDispatch,
+                        icon: const Icon(Icons.cancel_outlined),
+                        label: const Text(AppStrings.cancelDispatch),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.criticalRed,
+                          side: BorderSide(color: AppTheme.criticalRed),
+                        ),
+                      ),
                   ],
                 ),
               ),

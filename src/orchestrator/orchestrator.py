@@ -28,7 +28,7 @@ _SRC = Path(__file__).resolve().parent.parent
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from services.translation_service import translate_to_english, translate_from_english, detect_language
+from services.translation_service import translate_to_english, translate_from_english, detect_language, translate
 from services.tts_service import synthesize
 from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
@@ -115,6 +115,109 @@ _COMPLETE_MSG: Dict[str, str] = {
     "ar": "شكراً. لدي معلومات كافية. المساعدة في الطريق.",
     "ru": "Спасибо. У меня достаточно информации. Помощь уже едет.",
 }
+
+_URGENT_CRITICAL_SLOT_KEYS: Dict[str, List[str]] = {
+    "medical": ["breathing", "consciousness", "bleeding", "duration", "duration_minutes"],
+    "fire": ["trapped", "fire_size", "smoke_inhalation", "injuries"],
+    "crime": ["assailant_present", "weapon", "number_injured", "victim_count", "injuries"],
+    "other": ["current_danger", "symptom_severity", "risk_context"],
+}
+
+
+def _slot_has_value(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str) and value.strip().lower() in ("", "unknown", "n/a"):
+        return False
+    return True
+
+
+def _has_urgent_minimum_slots(slots: Dict[str, Any], category: str) -> bool:
+    has_chief_complaint = _slot_has_value(slots.get("chief_complaint"))
+    slot_keys = _URGENT_CRITICAL_SLOT_KEYS.get(category, _URGENT_CRITICAL_SLOT_KEYS["other"])
+    has_critical_slot = any(_slot_has_value(slots.get(key)) for key in slot_keys)
+    return has_chief_complaint and has_critical_slot
+
+
+def _urgent_missing_slot_question(lang: str, slots: Dict[str, Any], category: str) -> str:
+    if not _slot_has_value(slots.get("chief_complaint")):
+        return {
+            "tr": "Ekipleri doğru yönlendirebilmem için ana şikayeti net söyleyin: tam olarak ne oldu?",
+            "en": "To route teams correctly, I need the main complaint clearly: what exactly happened?",
+        }.get(lang, "Please state the main complaint clearly: what exactly happened?")
+
+    by_category = {
+        "medical": {
+            "tr": "Hızlıca bir kritik bilgi daha: kişi şu an nefes alıyor mu?",
+            "en": "One critical detail quickly: is the person breathing right now?",
+        },
+        "fire": {
+            "tr": "Hızlıca bir kritik bilgi daha: içeride mahsur kalan var mı?",
+            "en": "One critical detail quickly: is anyone trapped inside?",
+        },
+        "crime": {
+            "tr": "Hızlıca bir kritik bilgi daha: saldırgan hâlâ olay yerinde mi?",
+            "en": "One critical detail quickly: is the assailant still at the scene?",
+        },
+        "other": {
+            "tr": "Hızlıca bir kritik bilgi daha: şu an devam eden bir tehlike var mı?",
+            "en": "One critical detail quickly: is there an ongoing danger right now?",
+        },
+    }
+    localized = by_category.get(category, by_category["other"])
+    return localized.get(lang, localized["en"])
+
+
+def _urgent_micro_location_question(lang: str) -> str:
+    return {
+        "tr": "Ekipleri hassas yönlendirmek için son bir bilgi: bina, kat, daire ve giriş tarifini paylaşır mısınız?",
+        "en": "For precise routing, one final detail: can you share building, floor, apartment, and entrance info?",
+    }.get(lang, "For precise routing, please share building, floor, apartment, and entrance details.")
+
+
+# Unicode ranges for diacritics that never appear in Turkish/English/common languages
+# but are present in Vietnamese, Thai, Arabic, etc.
+_FOREIGN_DIACRITIC_RE = re.compile(
+    r"[\u0300-\u036f"       # combining diacritical marks (generic)
+    r"\u1e00-\u1eff"        # Latin Extended Additional (Vietnamese heavy use)
+    r"\u0e00-\u0e7f"        # Thai
+    r"\u0600-\u06ff"        # Arabic
+    r"\u4e00-\u9fff"        # CJK
+    r"\u3040-\u30ff]"       # Hiragana/Katakana
+)
+
+# Turkish has its own diacritics (ş, ğ, ü, ö, ı, ç) — whitelist them
+_TURKISH_SAFE_CHARS = set("şğüöıçŞĞÜÖİÇ")
+
+
+def _has_foreign_characters(text: str) -> bool:
+    """Return True if text contains non-Turkish foreign script/diacritic characters."""
+    for char in text:
+        if _FOREIGN_DIACRITIC_RE.match(char) and char not in _TURKISH_SAFE_CHARS:
+            return True
+    return False
+
+
+def _normalize_response_language(response_text: str, target_lang: str) -> str:
+    """Force assistant text to the user's latest language when LLM drifts or mixes languages."""
+    text = (response_text or "").strip()
+    if not text:
+        return response_text
+
+    # 1. Token-based: if ANY foreign diacritic character detected → forcibly retranslate
+    if _has_foreign_characters(text):
+        detected = detect_language(text)
+        src = detected if detected and detected != target_lang else "vi"  # fallback to vi (most common drift)
+        translated = translate(text, source=src, target=target_lang)
+        return translated or text
+
+    # 2. Full-text language mismatch detected by langdetect
+    detected = detect_language(text)
+    if detected and detected != target_lang:
+        translated = translate(text, source=detected, target=target_lang)
+        return translated or text
+
+    return text
 
 
 def _is_gibberish(text: str) -> bool:
@@ -446,6 +549,11 @@ def _handle_with_llm(
     category: str = llm_result.get("category", "other")
     is_complete: bool = llm_result.get("is_complete", False)
     red_flags: List[str] = llm_result.get("red_flags", [])
+    dispatch_action: str = str(llm_result.get("dispatch_action", "none") or "none").strip().lower()
+    legal_close: bool = bool(llm_result.get("legal_close", False))
+
+    if legal_close and triage_level == "NON_URGENT":
+        is_complete = True
 
     # ------------------------------------------------------------------
     # FAZ 5: Slot Attempt Tracking (2-Attempt Rule)
@@ -490,25 +598,6 @@ def _handle_with_llm(
             logger.warning("Dispatch lock active: CRITICAL case already dispatched. Skipping.")
 
     # ------------------------------------------------------------------
-    # FAZ 1.5: Dispatch Lock (Safety-Critical)
-    # CRITICAL cases are dispatched above. URGENT dispatches on is_complete.
-    # ------------------------------------------------------------------
-    if is_complete and triage_level == "URGENT" and session.dispatch_status == "PENDING":
-        if not can_redispatch(session, redispatch_ttl_seconds=48 * 3600):
-            logger.warning("Dispatch lock active: URGENT case already dispatched. Preventing redispatch.")
-            is_complete = False
-            response_text = {
-                "tr": "Bu durum zaten kayda alındı. Daha fazla bilgi var mı?",
-                "en": "This case has already been reported. Is there any additional information?",
-            }.get(lang, "This case has already been reported.")
-        else:
-            session.dispatch_status = "DISPATCHED"
-            session.dispatch_target = category
-            session.dispatch_timestamp = time.time()
-            logger.info("URGENT dispatch: vaka_id=%s, target=%s, TTL=48h",
-                        session.session_id, category)
-
-    # ------------------------------------------------------------------
     # Guard 3 — Maximum turn limit (Dynamic based on triage_level)
     # FAZ 6: Operasyonel Mantik — Escalation Control
     # CRITICAL: dispatched immediately (Guard 2 above), LLM controls completion.
@@ -520,7 +609,7 @@ def _handle_with_llm(
     # Give it up to 6 turns total before forcing completion.
     critical_dispatched_max_turns = 6
     max_turns_map = {
-        "URGENT": 4,        # Urgent: collect essentials quickly
+        "URGENT": 3,        # Urgent: force dispatch by turn 3 if still incomplete
         "NON_URGENT": 8,    # Non-critical: normal dialog flow
     }
     non_critical_min_turns_before_close = 3
@@ -535,6 +624,47 @@ def _handle_with_llm(
         k for k in effective_slots.keys()
         if k not in ("_asking_slot", "category", "triage_level")
     ])
+    urgent_minimum_ready = _has_urgent_minimum_slots(effective_slots, category)
+    urgent_dispatched_this_turn = False
+
+    if triage_level == "URGENT" and is_complete and not urgent_minimum_ready:
+        is_complete = False
+        response_text = _urgent_missing_slot_question(lang, effective_slots, category)
+
+    if triage_level == "URGENT" and session.dispatch_status == "PENDING":
+        wants_dispatch_now = dispatch_action == "dispatch_now" or is_complete
+        force_dispatch_at_turn = user_turn_count >= max_turns_map.get("URGENT", 3) and not urgent_minimum_ready
+
+        if wants_dispatch_now and not urgent_minimum_ready and not force_dispatch_at_turn:
+            is_complete = False
+            response_text = _urgent_missing_slot_question(lang, effective_slots, category)
+        elif wants_dispatch_now or force_dispatch_at_turn:
+            if not can_redispatch(session, redispatch_ttl_seconds=48 * 3600):
+                logger.warning("Dispatch lock active: URGENT case already dispatched. Preventing redispatch.")
+                is_complete = False
+                response_text = {
+                    "tr": "Bu durum zaten kayda alındı. Daha fazla bilgi var mı?",
+                    "en": "This case has already been reported. Is there any additional information?",
+                }.get(lang, "This case has already been reported.")
+            else:
+                session.dispatch_status = "DISPATCHED"
+                session.dispatch_target = category
+                session.dispatch_timestamp = time.time()
+                session.pending_update_after_dispatch = True
+                urgent_dispatched_this_turn = True
+                is_complete = False
+                dispatch_notice = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
+                followup_q = _urgent_micro_location_question(lang)
+                response_text = f"{dispatch_notice} {followup_q}" if response_text else f"{dispatch_notice} {followup_q}"
+                logger.info("URGENT dispatch: vaka_id=%s, target=%s, turn=%d",
+                            session.session_id, category, user_turn_count)
+
+    # URGENT pending state should never stall with advice-only text.
+    # If no question is present yet, append a direct follow-up question.
+    if triage_level == "URGENT" and session.dispatch_status == "PENDING" and not is_complete:
+        if "?" not in response_text:
+            next_q = _urgent_missing_slot_question(lang, effective_slots, category)
+            response_text = f"{response_text} {next_q}".strip() if response_text else next_q
 
     # NON-CRITICAL should not close too early: collect 1-2 additional slots first.
     if triage_level == "NON_URGENT" and is_complete:
@@ -563,13 +693,6 @@ def _handle_with_llm(
         if not response_text:
             response_text = _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
     
-    # FAZ 6: URGENT escalation — collect key slots quickly, then dispatch
-    elif triage_level == "URGENT" and user_turn_count >= max_turns_map.get("URGENT", 4) and not is_complete:
-        is_complete = True
-        logger.info("URGENT escalation: max turns (%d) reached – dispatching.", max_turns_map["URGENT"])
-        if not response_text:
-            response_text = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
-    
     # FAZ 6: NON-CRITICAL soft close — offer graceful exit
     elif triage_level == "NON_URGENT" and user_turn_count >= max_turns_map.get("NON_URGENT", 8) - 1:
         # At turn 7 (max 8), offer soft close
@@ -582,6 +705,20 @@ def _handle_with_llm(
             }.get(lang, "Thank you. Case recorded. Call 112 if needed.")
             response_text = soft_close
 
+    # URGENT post-dispatch: keep exactly one short follow-up turn for micro-location,
+    # then force completion and show the report card.
+    if (
+        triage_level == "URGENT"
+        and session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED")
+        and session.pending_update_after_dispatch
+        and not urgent_dispatched_this_turn
+    ):
+        session.pending_update_after_dispatch = False
+        is_complete = True
+        logger.info("URGENT: post-dispatch follow-up completed, closing session.")
+        if not response_text:
+            response_text = _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
+
     # Merge new slots into session
     if extracted_slots:
         session.collected_slots.update(extracted_slots)
@@ -590,6 +727,8 @@ def _handle_with_llm(
     if not response_text:
         # 6. Dil bazlı fallback mesajı
         response_text = _LLM_FALLBACK.get(lang, _LLM_FALLBACK["en"])
+
+    response_text = _normalize_response_language(response_text, lang)
 
     # Build triage result
     triage_result: Dict[str, Any] = {
@@ -629,6 +768,7 @@ def _handle_with_llm(
             else report_en
         )
         session.is_complete = True
+        session.pending_update_after_dispatch = False
 
         # Fix 4: TTS reads LLM guidance + the advice/instruction bullets from the report.
         # The full text (with report) is shown in the chat bubble, but audio = guidance + advice.
@@ -797,7 +937,10 @@ def _reply(
     # Followup status
     followup_status = None
     if session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
-        followup_status = "dispatch_sent" if session.dispatch_timestamp else "dispatch_pending"
+        if session.pending_update_after_dispatch and not session.is_complete:
+            followup_status = "waiting_for_micro_location"
+        else:
+            followup_status = "dispatch_sent" if session.dispatch_timestamp else "dispatch_pending"
     elif session.dispatch_status == "PENDING":
         followup_status = "waiting_for_info" if not session.is_complete else "no_dispatch_needed"
 

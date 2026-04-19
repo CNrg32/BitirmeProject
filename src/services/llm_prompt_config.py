@@ -137,7 +137,13 @@ def build_system_prompt_with_few_shot(
                 continue
             parts.append("\nUser: " + user)
             parts.append("\nAssistant (JSON only): " + json.dumps(ast, ensure_ascii=False))
-    parts.append(f"\n\nIMPORTANT LANGUAGE RULE: Detect the language of the user's LATEST message and reply in THAT language. If the user switches from Turkish to English or vice versa, switch your reply language accordingly. Do NOT stay locked to a previous language. Current detected language: {language_hint}.")
+    parts.append(
+        f"\n\nIMPORTANT LANGUAGE RULE: The user's current language is '{language_hint}'. "
+        "You MUST write the 'response_text' field ONLY in this language — no mixing, no other language words, no diacritics from unrelated scripts. "
+        "If the user switches language mid-session, follow their new language. "
+        "NEVER produce Vietnamese, Thai, Arabic, or CJK characters unless the user wrote in that language. "
+        f"Current detected language: {language_hint}. Violating this rule is a critical error."
+    )
     return "\n".join(parts)
 
 
@@ -243,6 +249,17 @@ MID-DIALOG ESCALATION:
 - Re-evaluate severity every turn.
 - If the user introduces worsening indicators such as losing consciousness, weapon drawn, fire spreading, cannot breathe anymore, severe bleeding, trapped people, choose triage_level="CRITICAL" immediately.
 - In that case dispatch_action must be "dispatch_now" unless the session context says dispatch already happened.
+
+URGENT DISPATCH POLICY (strict):
+- Before requesting completion/dispatch in URGENT, ensure minimum mandatory slots:
+    chief_complaint + at least one critical category slot.
+- Critical category slots examples:
+    medical: breathing/consciousness/bleeding,
+    fire: trapped/fire_size/smoke_inhalation,
+    crime: assailant_present/weapon/number_injured.
+- If by turn 3 those minimum slots are still incomplete, set dispatch_action="dispatch_now".
+- After dispatch, ask exactly one short micro-location follow-up question
+    (building/floor/apartment/entrance/landmark), then finish.
 
 NON-CRITICAL LEGAL DYNAMIC CLOSURE:
 - If the case is clearly minor / non-life-threatening and emergency dispatch is not appropriate, set triage_level="NON_URGENT" (this code value corresponds to NON-CRITICAL).

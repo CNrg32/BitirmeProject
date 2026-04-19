@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -202,3 +203,217 @@ class TestHandleMessage:
                             )
 
         assert out.get("nearby_places") == [{"id": "h1", "type": "hospital", "name": "A Hospital"}]
+
+    def test_urgent_minimum_slot_gate_blocks_early_dispatch_and_completion(self):
+        from orchestrator.orchestrator import handle_message
+
+        store = SessionStore(ttl_seconds=3600)
+        s = store.create(language="en")
+        s.messages.append({"role": "assistant", "text": "Hi"})
+
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.side_effect = [
+            {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.92,
+                "red_flags": [],
+            },
+            {
+                "response_text": "I have enough details.",
+                "extracted_slots": {"chief_complaint": "chest pain"},
+                "triage_level": "URGENT",
+                "category": "medical",
+                "is_complete": True,
+                "red_flags": [],
+                "dispatch_action": "dispatch_now",
+            },
+        ]
+
+        with patch("orchestrator.orchestrator.get_session_store", return_value=store):
+            with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
+                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
+                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                        out = handle_message(s.session_id, user_text="My father is unwell")
+
+        assert out.get("is_complete") is False
+        assert out.get("dispatch_status") == "PENDING"
+        sess = store.get(s.session_id)
+        assert sess is not None
+        assert sess.pending_update_after_dispatch is False
+
+    def test_urgent_turn_3_forces_dispatch_when_minimum_slots_missing(self):
+        from orchestrator.orchestrator import handle_message
+
+        store = SessionStore(ttl_seconds=3600)
+        s = store.create(language="en")
+        s.messages.append({"role": "assistant", "text": "Hi"})
+
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.side_effect = [
+            {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.9,
+                "red_flags": [],
+            },
+            {
+                "response_text": "Please share more details.",
+                "extracted_slots": {"chief_complaint": "pain"},
+                "triage_level": "URGENT",
+                "category": "medical",
+                "is_complete": False,
+                "red_flags": [],
+                "dispatch_action": "none",
+            },
+            {
+                "response_text": "Any update?",
+                "extracted_slots": {},
+                "triage_level": "URGENT",
+                "category": "medical",
+                "is_complete": False,
+                "red_flags": [],
+                "dispatch_action": "none",
+            },
+            {
+                "response_text": "Any update?",
+                "extracted_slots": {},
+                "triage_level": "URGENT",
+                "category": "medical",
+                "is_complete": False,
+                "red_flags": [],
+                "dispatch_action": "none",
+            },
+        ]
+
+        with patch("orchestrator.orchestrator.get_session_store", return_value=store):
+            with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
+                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
+                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                        handle_message(s.session_id, user_text="Emergency")
+                        handle_message(s.session_id, user_text="Still bad")
+                        out = handle_message(s.session_id, user_text="Please hurry")
+
+        assert out.get("dispatch_status") == "DISPATCHED"
+        assert out.get("is_complete") is False
+        assert out.get("followup_status") == "waiting_for_micro_location"
+
+    def test_urgent_post_dispatch_single_followup_then_complete(self):
+        from orchestrator.orchestrator import handle_message
+
+        store = SessionStore(ttl_seconds=3600)
+        s = store.create(language="en")
+        s.messages.append({"role": "assistant", "text": "Hi"})
+        s.initial_triage = {
+            "category": "medical",
+            "triage_level": "URGENT",
+            "confidence": 0.9,
+            "red_flags": [],
+        }
+        s.dispatch_status = "DISPATCHED"
+        s.dispatch_target = "medical"
+        s.dispatch_timestamp = time.time()
+        s.pending_update_after_dispatch = True
+
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.return_value = {
+            "response_text": "Thanks, we got it.",
+            "extracted_slots": {"building": "A", "floor": "2"},
+            "triage_level": "URGENT",
+            "category": "medical",
+            "is_complete": False,
+            "red_flags": [],
+            "dispatch_action": "already_dispatched",
+        }
+
+        with patch("orchestrator.orchestrator.get_session_store", return_value=store):
+            with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
+                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
+                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                        with patch("orchestrator.orchestrator.compose_report", return_value="REPORT"):
+                            out = handle_message(s.session_id, user_text="Building A, floor 2")
+
+        assert out.get("is_complete") is True
+        assert out.get("report") is not None
+        sess = store.get(s.session_id)
+        assert sess is not None
+        assert sess.pending_update_after_dispatch is False
+
+    def test_urgent_pending_advice_only_response_gets_followup_question(self):
+        from orchestrator.orchestrator import handle_message
+
+        store = SessionStore(ttl_seconds=3600)
+        s = store.create(language="en")
+        s.messages.append({"role": "assistant", "text": "Hi"})
+
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.side_effect = [
+            {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.9,
+                "red_flags": [],
+            },
+            {
+                "response_text": "Apply pressure to the bleeding area and keep calm.",
+                "extracted_slots": {
+                    "chief_complaint": "leg bleeding",
+                    "breathing": "normal",
+                },
+                "triage_level": "URGENT",
+                "category": "medical",
+                "is_complete": False,
+                "red_flags": [],
+                "dispatch_action": "none",
+            },
+        ]
+
+        with patch("orchestrator.orchestrator.get_session_store", return_value=store):
+            with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
+                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
+                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                        out = handle_message(s.session_id, user_text="My leg is bleeding")
+
+        assert out.get("is_complete") is False
+        assert "?" in out.get("assistant_text", "")
+
+    def test_response_language_is_normalized_to_latest_user_language(self):
+        from orchestrator.orchestrator import handle_message
+
+        store = SessionStore(ttl_seconds=3600)
+        s = store.create(language="en")
+        s.messages.append({"role": "assistant", "text": "Hello"})
+
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.side_effect = [
+            {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.9,
+                "red_flags": [],
+            },
+            {
+                "response_text": "Durum nghiem trong olabilir.",
+                "extracted_slots": {"chief_complaint": "bacak kanamasi"},
+                "triage_level": "URGENT",
+                "category": "medical",
+                "is_complete": False,
+                "red_flags": [],
+                "dispatch_action": "none",
+            },
+        ]
+
+        with patch("orchestrator.orchestrator.get_session_store", return_value=store):
+            with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
+                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
+                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                        with patch("orchestrator.orchestrator.detect_language", side_effect=["en", "vi"]):
+                            with patch("orchestrator.orchestrator.translate", return_value="Durum ciddi olabilir."):
+                                out = handle_message(s.session_id, user_text="my leg is bleeding")
+
+        assert "Durum ciddi olabilir." in out.get("assistant_text", "")

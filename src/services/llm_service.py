@@ -112,6 +112,9 @@ _EMPTY_LLM_RESPONSE: Dict[str, Any] = {
     "category": "other",
     "is_complete": False,
     "red_flags": [],
+    "dispatch_action": "none",
+    "post_dispatch_collect": False,
+    "legal_close": False,
 }
 
 
@@ -154,6 +157,9 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
         "category": data.get("category", "other"),
         "is_complete": bool(data.get("is_complete", False)),
         "red_flags": list(data.get("red_flags") or []),
+        "dispatch_action": str(data.get("dispatch_action", "none") or "none").strip().lower(),
+        "post_dispatch_collect": bool(data.get("post_dispatch_collect", False)),
+        "legal_close": bool(data.get("legal_close", False)),
     })
     return result
 
