@@ -6,6 +6,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,64 @@ def _resolve_class_names_path() -> Path:
         return nested
     return root
 
+
+def _parse_s3_uri(uri: str) -> Tuple[str, str]:
+    parsed = urlparse(uri)
+    if parsed.scheme != "s3" or not parsed.netloc or not parsed.path.strip("/"):
+        raise ValueError(f"Invalid S3 URI: {uri}")
+    return parsed.netloc, parsed.path.lstrip("/")
+
+
+def _download_s3_file(uri: str, target_path: Path) -> bool:
+    try:
+        import boto3
+    except ImportError:
+        logger.warning(
+            "boto3 is not installed; cannot download image model artifact from %s",
+            uri,
+        )
+        return False
+
+    bucket, key = _parse_s3_uri(uri)
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info("Downloading image model artifact from %s to %s", uri, target_path)
+    boto3.client("s3").download_file(bucket, key, str(target_path))
+    return True
+
+
+def _derive_class_names_s3_uri(model_s3_uri: str) -> Optional[str]:
+    try:
+        bucket, key = _parse_s3_uri(model_s3_uri)
+    except ValueError:
+        return None
+    prefix = key.rsplit("/", 1)[0] if "/" in key else ""
+    class_key = f"{prefix}/image_class_names.json" if prefix else "image_class_names.json"
+    return f"s3://{bucket}/{class_key}"
+
+
+def _ensure_cloud_artifacts(model_path: Path, class_names_path: Path) -> None:
+    model_s3_uri = os.environ.get("IMAGE_MODEL_S3_URI", "").strip()
+    class_names_s3_uri = os.environ.get("IMAGE_CLASS_NAMES_S3_URI", "").strip()
+
+    if model_s3_uri and not model_path.exists():
+        try:
+            _download_s3_file(model_s3_uri, model_path)
+        except Exception as exc:
+            logger.error("Image model download failed from %s: %s", model_s3_uri, exc)
+
+    if not class_names_s3_uri and model_s3_uri:
+        class_names_s3_uri = _derive_class_names_s3_uri(model_s3_uri) or ""
+
+    if class_names_s3_uri and not class_names_path.exists():
+        try:
+            _download_s3_file(class_names_s3_uri, class_names_path)
+        except Exception as exc:
+            logger.warning(
+                "Image class names download failed from %s: %s",
+                class_names_s3_uri,
+                exc,
+            )
+
 _CLASS_NAMES_FALLBACK: List[str] = [
     "Abuse", "Arrest", "Arson", "Assault", "Burglary", "Explosion", "Fighting",
     "NormalVideos", "RoadAccidents", "Robbery", "Shooting", "Shoplifting", "Stealing", "Vandalism",
@@ -89,6 +148,31 @@ DISPATCH_LOGIC: Dict[str, List[str]] = {
     "Vandalism":      ["Police"],
 }
 
+CRITICAL_IMAGE_CLASSES = {"Arson", "Explosion", "RoadAccidents", "Shooting"}
+URGENT_IMAGE_CLASSES = {"Abuse", "Arrest", "Assault", "Fighting", "Robbery"}
+NON_CRITICAL_IMAGE_CLASSES = {"NormalVideos", "Shoplifting", "Stealing", "Vandalism", "Burglary"}
+
+CLASS_VISUAL_FLAGS: Dict[str, List[str]] = {
+    "Arson": ["fire_visible", "possible_smoke"],
+    "Explosion": ["explosion_or_collapse", "mass_casualty_risk"],
+    "RoadAccidents": ["vehicle_crash", "possible_injury"],
+    "Shooting": ["weapon_threat", "possible_casualty"],
+    "Assault": ["violence_risk", "possible_injury"],
+    "Fighting": ["violence_risk"],
+    "Robbery": ["crime_in_progress"],
+    "Abuse": ["violence_risk", "vulnerable_person_risk"],
+    "Arrest": ["police_event"],
+    "NormalVideos": ["no_visible_emergency"],
+}
+
+FALLBACK_OPTIONS = [
+    {"label": "Tıbbi", "category": "medical"},
+    {"label": "Polis", "category": "crime"},
+    {"label": "İtfaiye", "category": "fire"},
+    {"label": "Trafik/Kaza", "category": "medical"},
+    {"label": "Diğer", "category": "other"},
+]
+
 _transforms = None
 
 
@@ -123,6 +207,7 @@ class ImageModelService:
     def load(self, model_path: Optional[str] = None) -> bool:
         model_path = Path(model_path) if model_path else _resolve_model_path()
         class_names_path = _resolve_class_names_path()
+        _ensure_cloud_artifacts(model_path, class_names_path)
         if not model_path.exists():
             logger.warning(
                 "Image model not found at %s – image analysis will be unavailable.",
@@ -295,12 +380,104 @@ def analyze_consistency(
     }
 
 
+def analyze_image_quality(image_bytes: bytes) -> Dict[str, Any]:
+    try:
+        from PIL import Image, ImageStat
+
+        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        width, height = img.size
+        gray = img.convert("L")
+        stat = ImageStat.Stat(gray)
+        brightness = float(stat.mean[0])
+        contrast = float(stat.stddev[0])
+
+        reasons: List[str] = []
+        if width < 160 or height < 160:
+            reasons.append("too_small")
+        if brightness < 25:
+            reasons.append("too_dark")
+        elif brightness > 235:
+            reasons.append("too_bright")
+        if contrast < 8:
+            reasons.append("low_contrast_or_blurry")
+
+        return {
+            "usable": not reasons,
+            "width": width,
+            "height": height,
+            "brightness": round(brightness, 2),
+            "contrast": round(contrast, 2),
+            "reasons": reasons,
+        }
+    except Exception as exc:
+        return {"usable": False, "reasons": ["invalid_image"], "error": str(exc)}
+
+
+def derive_visual_triage(classification: Dict[str, Any]) -> Dict[str, Any]:
+    cls_name = str(classification.get("detected_class") or "")
+    confidence = float(classification.get("confidence") or 0.0)
+    category = classification.get("mapped_category") or IMAGE_CLASS_TO_CATEGORY.get(cls_name, "other")
+    visual_flags = CLASS_VISUAL_FLAGS.get(cls_name, [])
+
+    if confidence < 0.5:
+        triage_level = "URGENT"
+        action = "MANUAL_FALLBACK"
+        reason = "low_confidence"
+    elif cls_name in CRITICAL_IMAGE_CLASSES and confidence >= 0.7:
+        triage_level = "CRITICAL"
+        action = "EARLY_DISPATCH"
+        reason = "critical_visual_signal"
+    elif cls_name in URGENT_IMAGE_CLASSES or (cls_name in CRITICAL_IMAGE_CLASSES and confidence < 0.7):
+        triage_level = "URGENT"
+        action = "VERIFY_THEN_DISPATCH"
+        reason = "urgent_visual_signal"
+    elif cls_name in NON_CRITICAL_IMAGE_CLASSES:
+        triage_level = "NON_URGENT"
+        action = "TEXT_REQUIRED"
+        reason = "no_or_low_visible_emergency"
+    else:
+        triage_level = "URGENT"
+        action = "VERIFY_THEN_DISPATCH"
+        reason = "unmapped_visual_signal"
+
+    return {
+        "category": category,
+        "triage_level": triage_level,
+        "visual_flags": visual_flags,
+        "action": action,
+        "reason": reason,
+        "requires_manual_fallback": action == "MANUAL_FALLBACK",
+        "fallback_options": FALLBACK_OPTIONS if action == "MANUAL_FALLBACK" else [],
+    }
+
+
 def analyze_image(
     image_bytes: bytes,
     text_category: Optional[str] = None,
     text_triage_level: Optional[str] = None,
 ) -> Dict[str, Any]:
     svc = get_image_model_service()
+    quality = analyze_image_quality(image_bytes)
+    if not quality.get("usable"):
+        return {
+            "classification": None,
+            "consistency": None,
+            "summary": "Image could not be analyzed reliably. Please send a clearer photo or describe the emergency.",
+            "available": False,
+            "image_quality": quality,
+            "visual_triage": {
+                "triage_level": "URGENT",
+                "category": "other",
+                "action": "RECAPTURE_IMAGE",
+                "reason": "image_quality_unusable",
+                "requires_manual_fallback": True,
+                "fallback_options": FALLBACK_OPTIONS,
+                "visual_flags": [],
+            },
+        }
+
+    if not svc.is_loaded:
+        svc.load()
 
     if not svc.is_loaded:
         return {
@@ -308,9 +485,20 @@ def analyze_image(
             "consistency": None,
             "summary": "Image analysis unavailable – model not loaded.",
             "available": False,
+            "image_quality": quality,
+            "visual_triage": {
+                "triage_level": "URGENT",
+                "category": "other",
+                "action": "MANUAL_FALLBACK",
+                "reason": "model_not_loaded",
+                "requires_manual_fallback": True,
+                "fallback_options": FALLBACK_OPTIONS,
+                "visual_flags": [],
+            },
         }
 
     classification = svc.predict(image_bytes)
+    visual_triage = derive_visual_triage(classification)
 
     consistency = analyze_consistency(
         image_result=classification,
@@ -341,6 +529,8 @@ def analyze_image(
         "consistency": consistency,
         "summary": summary,
         "available": True,
+        "image_quality": quality,
+        "visual_triage": visual_triage,
     }
 
 

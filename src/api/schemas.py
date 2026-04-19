@@ -70,6 +70,8 @@ class ImageAnalysisResult(BaseModel):
     consistency: Optional[ImageConsistency] = None
     summary: str = Field("", description="One-line human-readable summary")
     available: bool = Field(False, description="Whether image analysis was performed")
+    image_quality: Optional[Dict[str, Any]] = Field(None, description="Basic quality checks for the uploaded image")
+    visual_triage: Optional[Dict[str, Any]] = Field(None, description="Operational image triage decision and fallback metadata")
 
 
 class PredictResponse(BaseModel):
@@ -128,6 +130,47 @@ class NearbyPlacesRequest(BaseModel):
 
 class NearbyPlacesResponse(BaseModel):
     nearby_places: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class TranscriptImportRequest(BaseModel):
+    csv_path: Optional[str] = Field(
+        None,
+        description="Path to CSV file. Defaults to data/labels/auto_transcripts.csv",
+    )
+
+
+class TranscriptImportResponse(BaseModel):
+    imported_count: int
+    table_name: Optional[str] = None
+
+
+class TranscriptRecordResponse(BaseModel):
+    transcript_id: str
+    path: str
+    text: str
+    avg_confidence: Optional[float] = None
+    chunks: Optional[str] = None
+    source: Optional[str] = None
+    imported_at: Optional[str] = None
+
+
+class TranscriptListResponse(BaseModel):
+    transcripts: List[TranscriptRecordResponse] = Field(default_factory=list)
+
+
+class ImageAnalysisRecordResponse(BaseModel):
+    image_event_id: str
+    image_sha256: str
+    image_size_bytes: int
+    analysis: Dict[str, Any]
+    source: str
+    session_id: Optional[str] = None
+    filename: Optional[str] = None
+    created_at: Optional[str] = None
+
+
+class ImageAnalysisListResponse(BaseModel):
+    image_analyses: List[ImageAnalysisRecordResponse] = Field(default_factory=list)
 
 
 class SessionMessageResponse(BaseModel):

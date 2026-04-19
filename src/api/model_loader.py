@@ -39,10 +39,6 @@ def _text_with_meta(text_en: str, meta: Optional[Dict[str, Any]] = None) -> str:
     return f"{text_en} [deaths:{deaths} potential_death:{potential_death} false_alarm:{false_alarm}]"
 
 
-import joblib
-import numpy as np
-import torch
-
 logger = logging.getLogger(__name__)
 
 _BASE = Path(__file__).resolve().parent.parent.parent
@@ -66,6 +62,7 @@ class DistilBertTriageWrapper:
     def _ensure_loaded(self):
         if self._model is None:
             from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
+            import torch
 
             self._tokenizer = DistilBertTokenizer.from_pretrained(self.model_path)
             self._model = DistilBertForSequenceClassification.from_pretrained(self.model_path)
@@ -80,13 +77,19 @@ class DistilBertTriageWrapper:
 
     @property
     def classes_(self):
+        import numpy as np
+
         return np.array(self.labels)
 
     def predict(self, texts):
+        import numpy as np
+
         proba = self.predict_proba(texts)
         return [self.labels[i] for i in np.argmax(proba, axis=1)]
 
     def predict_proba(self, texts):
+        import torch
+
         self._ensure_loaded()
         if isinstance(texts, str):
             texts = [texts]
@@ -131,6 +134,7 @@ class TriageModelService:
             model_type_hint = lmap.get("model_type")
 
         if pipeline_path.exists():
+            import joblib
             import sys
             _this_module = sys.modules[__name__]
             for alias in ("__main__", "__mp_main__", "train_distilbert"):
@@ -150,6 +154,8 @@ class TriageModelService:
             return True
 
         if tfidf_path.exists() and clf_path.exists():
+            import joblib
+
             self.tfidf = joblib.load(tfidf_path)
             self.clf = joblib.load(clf_path)
             self._loaded = True
@@ -185,6 +191,8 @@ class TriageModelService:
             X = self.tfidf.transform([X_input])
             proba = self.clf.predict_proba(X)[0]
             classes = self.clf.classes_
+
+        import numpy as np
 
         idx = int(np.argmax(proba))
         label = classes[idx]

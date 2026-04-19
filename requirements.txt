@@ -39,3 +39,4 @@ python-dotenv>=1.0
 python-multipart>=0.0.6
 aiofiles>=23.2
 httpx>=0.25
+boto3>=1.34

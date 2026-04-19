@@ -26,6 +26,8 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from api.schemas import (
+    ImageAnalysisListResponse,
+    ImageAnalysisRecordResponse,
     ImageAnalysisResult,
     NearbyPlacesRequest,
     NearbyPlacesResponse,
@@ -37,6 +39,10 @@ from api.schemas import (
     SessionStartResponse,
     SessionTranscribeRequest,
     SessionTranscribeResponse,
+    TranscriptImportRequest,
+    TranscriptImportResponse,
+    TranscriptListResponse,
+    TranscriptRecordResponse,
 )
 from api.model_loader import apply_redflag_override, get_model_service
 
@@ -45,6 +51,37 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def _store_image_analysis_event(
+    *,
+    image_bytes: Optional[bytes],
+    analysis: Optional[Dict[str, Any]],
+    source: str,
+    session_id: Optional[str] = None,
+    filename: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    if not image_bytes or not analysis:
+        return None
+    try:
+        from services.image_analysis_store import (
+            ImageAnalysisRecord,
+            get_image_analysis_store,
+        )
+
+        record = ImageAnalysisRecord.create(
+            image_bytes=image_bytes,
+            analysis=analysis,
+            source=source,
+            session_id=session_id,
+            filename=filename,
+        )
+        return get_image_analysis_store().put(record)
+    except RuntimeError as exc:
+        logger.warning("Image analysis storage is unavailable: %s", exc)
+    except Exception as exc:
+        logger.error("Image analysis storage failed: %s", exc)
+    return None
 
 
 def simulate_fallback_for_session(session_id: str, text: str, scenario: str) -> Dict[str, Any]:
@@ -309,6 +346,12 @@ def session_message(req: SessionMessageRequest):
     image_analysis = None
     if out.get("image_analysis"):
         image_analysis = ImageAnalysisResult(**out["image_analysis"])
+        _store_image_analysis_event(
+            image_bytes=image_bytes,
+            analysis=out["image_analysis"],
+            source="session/message",
+            session_id=req.session_id,
+        )
 
     return SessionMessageResponse(
         session_id=out["session_id"],
@@ -340,6 +383,71 @@ def nearby_places(req: NearbyPlacesRequest):
         limit_per_type=req.limit_per_type,
     )
     return NearbyPlacesResponse(nearby_places=places)
+
+
+@app.post("/transcripts/import-auto-csv", response_model=TranscriptImportResponse)
+def import_auto_transcripts(req: TranscriptImportRequest):
+    try:
+        from services.transcript_store import (
+            DEFAULT_AUTO_TRANSCRIPTS_CSV,
+            get_transcript_store,
+            load_auto_transcripts_csv,
+        )
+
+        csv_path = req.csv_path or DEFAULT_AUTO_TRANSCRIPTS_CSV
+        records = load_auto_transcripts_csv(csv_path)
+        store = get_transcript_store()
+        imported_count = store.put_many(records)
+        return TranscriptImportResponse(
+            imported_count=imported_count,
+            table_name=getattr(store, "table_name", None),
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+    except FileNotFoundError as exc:
+        raise HTTPException(404, f"CSV file not found: {exc.filename}")
+
+
+@app.get("/transcripts", response_model=TranscriptListResponse)
+def list_transcripts(limit: int = 50):
+    try:
+        from services.transcript_store import get_transcript_store
+
+        safe_limit = min(max(limit, 1), 200)
+        items = get_transcript_store().list(limit=safe_limit)
+        return TranscriptListResponse(
+            transcripts=[TranscriptRecordResponse(**item) for item in items]
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+
+@app.get("/transcripts/{transcript_id}", response_model=TranscriptRecordResponse)
+def get_transcript(transcript_id: str):
+    try:
+        from services.transcript_store import get_transcript_store
+
+        item = get_transcript_store().get(transcript_id)
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+    if item is None:
+        raise HTTPException(404, "Transcript not found.")
+    return TranscriptRecordResponse(**item)
+
+
+@app.get("/image-analyses", response_model=ImageAnalysisListResponse)
+def list_image_analyses(limit: int = 50):
+    try:
+        from services.image_analysis_store import get_image_analysis_store
+
+        safe_limit = min(max(limit, 1), 200)
+        items = get_image_analysis_store().list(limit=safe_limit)
+        return ImageAnalysisListResponse(
+            image_analyses=[ImageAnalysisRecordResponse(**item) for item in items]
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
 
 
 @app.post("/test/simulate-fallback")
@@ -374,6 +482,12 @@ async def analyze_image_endpoint(
         image_bytes=content,
         text_category=text_category,
         text_triage_level=text_triage_level,
+    )
+    _store_image_analysis_event(
+        image_bytes=content,
+        analysis=result,
+        source="analyze-image",
+        filename=image.filename,
     )
 
     if not result.get("available"):

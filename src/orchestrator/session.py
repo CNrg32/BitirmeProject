@@ -74,6 +74,10 @@ class Session:
     # FAZ 5: Track which slot is currently being asked for (2-attempt rule)
     pending_question_key: Optional[str] = None
 
+    # Image-layer state: invalid/unclear image retry count and post-dispatch updates.
+    image_attempt_count: int = 0
+    image_updates: List[Dict[str, Any]] = field(default_factory=list)
+
 
 def can_redispatch(session: Session, redispatch_ttl_seconds: int = 48 * 3600) -> bool:
     """
