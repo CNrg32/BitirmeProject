@@ -70,70 +70,51 @@ Chatbot cevaplarını kendi istediğiniz forma getirmek için:
    ```
    Çıktı: `data/llm_groq_lora_train.jsonl`
 
-## Groq ile model özelleştirme akışı
+## Together AI ile model özelleştirme akışı
 
-Bu repo Groq'u inference için kullanır. Groq tarafında doğrudan eğitim yerine,
-LoRA/SFT adapter'ı dışarıda eğitip Groq'a model kimliği (model id) olarak tanımlarsınız.
+Bu repoda veri üretimi lokal yapılır, fine-tune işlemi Together AI API üzerinden tetiklenir.
+Groq entegrasyonu kullanacaksanız model uyumluluğunu ayrıca doğrulamanız gerekir.
 
-1. Eğitim verisini üret:
-```bash
-python scripts/generate_llm_finetune_examples.py --count 180
-PYTHONPATH=src python scripts/export_groq_lora_data.py
-```
-
-2. Dış pipeline'da (PEFT/Unsloth vb.) adapter eğit ve Groq hesabına yükle.
-
-### AWS (EC2/SageMaker) ile LoRA egitimi
-
-1. AWS GPU makinesinde repo'yu clone edin (g5/g6 gibi CUDA destekli instance onerilir) ve ortam kurun:
+1. Ortamı kur:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-pip install -r requirements-aws-lora.txt
+pip install -r requirements-together-finetune.txt
 ```
 
-2. Egitim verisini uret:
+2. Eğitim verisini üret:
 ```bash
-python scripts/generate_llm_finetune_examples.py --count 180
+python scripts/generate_llm_finetune_examples.py --count 1200
 PYTHONPATH=src python scripts/export_groq_lora_data.py
 ```
 
-3. LoRA egitimi baslat:
+3. Together LoRA fine-tune job oluştur:
 ```bash
-python scripts/train_lora_aws.py \
+export TOGETHER_API_KEY="..."
+PYTHONPATH=src python scripts/train_lora_together.py \
   --train-file data/llm_groq_lora_train.jsonl \
-  --base-model meta-llama/Llama-3.1-8B-Instruct \
-  --output-dir out_models/lora_adapter_aws \
-  --epochs 2 \
-  --batch-size 2 \
-  --grad-accum 8 \
-  --use-4bit
+  --base-model meta-llama/Meta-Llama-3.1-8B-Instruct-Reference \
+  --epochs 3 \
+  --batch-size 4 \
+  --learning-rate 1e-5 \
+  --lora \
+  --wait
 ```
 
-4. Groq upload icin adapter zip olustur:
+4. Job tamamlandıktan sonra Together model adını/ID'sini alın.
+   - Output adını Together dashboard veya API job detayından görebilirsiniz.
+
+5. JSON uyumu kontrolü için mevcut script ile hızlı test yapın (kendi model id'nizi verin):
 ```bash
-python scripts/package_lora_for_groq.py \
-  --adapter-dir out_models/lora_adapter_aws \
-  --output out_models/lora_adapter_aws/groq_adapter.zip
-```
-
-5. Groq Console'a `groq_adapter.zip` dosyasini yukleyip model id (`ft:...`) alin.
-
-3. Uygulamayı Groq custom model ile çalıştır:
-```bash
-export GROQ_API_KEY="gsk_..."
-export GROQ_FINE_TUNED_MODEL="ft:your-groq-model-id"
-uvicorn src.main:app --host 127.0.0.1 --port 8000
-```
-
-Not: `GROQ_FINE_TUNED_MODEL` set edilmezse sırasıyla `GROQ_MODEL`, sonra varsayılan model kullanılır.
-
-4. Modeli JSON uyumu açısından hızlı test et:
-```bash
-GROQ_API_KEY="gsk_..." GROQ_FINE_TUNED_MODEL="ft:your-groq-model-id" \
+GROQ_API_KEY="gsk_..." GROQ_FINE_TUNED_MODEL="ft:your-model-id" \
 PYTHONPATH=src python scripts/eval_groq_json_mode.py
 ```
+
+Not:
+- Bu repodaki backend varsayılan olarak Groq kullanır.
+- Together'da fine-tune edilen modeli doğrudan backend'e bağlamak isterseniz ek provider entegrasyonu gerekir.
+- Eski AWS tabanlı yerel LoRA akışı için `scripts/train_lora_aws.py` scripti repoda tutulmuştur.
 
 ## Legacy local fine-tuning notes
 
