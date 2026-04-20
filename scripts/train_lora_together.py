@@ -10,8 +10,11 @@ Usage:
     --train-file data/llm_groq_lora_train.jsonl \
     --base-model meta-llama/Meta-Llama-3.1-8B-Instruct-Reference \
     --epochs 3 \
-    --batch-size 4 \
+    --batch-size 8 \
     --learning-rate 1e-5 \
+    --lora \
+    --lora-r 16 \
+    --lora-alpha 32 \
     --wait
 """
 from __future__ import annotations
@@ -67,6 +70,24 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--wait", action="store_true", help="Poll job status until completion.")
     parser.add_argument("--poll-seconds", type=int, default=20, help="Polling interval in seconds.")
     parser.add_argument("--lora", action="store_true", help="Request LoRA mode explicitly.")
+    parser.add_argument(
+        "--lora-r",
+        type=int,
+        default=None,
+        help="Optional LoRA rank. Use 8 or 16 when the adapter must be small enough for Groq upload.",
+    )
+    parser.add_argument(
+        "--lora-alpha",
+        type=float,
+        default=None,
+        help="Optional LoRA alpha. A common starting point is 2x --lora-r.",
+    )
+    parser.add_argument("--lora-dropout", type=float, default=None, help="Optional LoRA dropout.")
+    parser.add_argument(
+        "--lora-trainable-modules",
+        default="",
+        help="Optional comma-separated LoRA target modules accepted by Together.",
+    )
     return parser.parse_args()
 
 
@@ -94,6 +115,22 @@ def _create_job(client: Together, args: argparse.Namespace, train_file_id: str, 
     }
     if args.lora:
         req["lora"] = True
+    if args.lora_r is not None:
+        req["lora"] = True
+        req["lora_r"] = args.lora_r
+    if args.lora_alpha is not None:
+        req["lora"] = True
+        req["lora_alpha"] = args.lora_alpha
+    if args.lora_dropout is not None:
+        req["lora"] = True
+        req["lora_dropout"] = args.lora_dropout
+    if args.lora_trainable_modules:
+        req["lora"] = True
+        req["lora_trainable_modules"] = [
+            module.strip()
+            for module in args.lora_trainable_modules.split(",")
+            if module.strip()
+        ]
     if val_file_id:
         req["validation_file"] = val_file_id
 

@@ -11,12 +11,14 @@ build/
 # ── Environment / Secrets ────────────────────────────
 .env
 *.env
+.env.*
 
 # ── Virtual Environment ──────────────────────────────
 .venv/
 venv/
 env/
 .vendor/
+.finetune_vendor/
 .flutter_sdk/
 .pytest_tmp/
 .pytest_cache/
