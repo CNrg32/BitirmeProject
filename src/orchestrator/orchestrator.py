@@ -28,8 +28,15 @@ _SRC = Path(__file__).resolve().parent.parent
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from services.translation_service import translate_to_english, translate_from_english, detect_language, translate
-from services.tts_service import synthesize
+from services.asr_service import get_asr_runtime_info_str
+from services.translation_service import (
+    translate_to_english,
+    translate_from_english,
+    detect_language,
+    translate,
+    get_translation_backend_name,
+)
+from services.tts_service import synthesize, get_tts_runtime_info_str
 from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
 
@@ -250,31 +257,6 @@ def _is_gibberish(text: str) -> bool:
     return False
 
 
-def _is_gibberish_with_llm(text: str, lang: str) -> Optional[bool]:
-    """Ask LLM whether input is gibberish. Returns None if decision unavailable."""
-    try:
-        from services.llm_service import get_llm_service
-
-        llm = get_llm_service()
-        if not llm.is_available:
-            return None
-
-        result = llm.chat(
-            history=[{"role": "user", "text": text}],
-            language=lang,
-            task="gibberish_check",
-        )
-        marker = str((result.get("extracted_slots") or {}).get("meaningfulness", "")).strip().lower()
-        if marker in ("gibberish", "noise", "nonsense"):
-            return True
-        if marker in ("meaningful", "valid"):
-            return False
-        return None
-    except Exception as exc:
-        logger.debug("LLM gibberish check skipped: %s", exc)
-        return None
-
-
 def handle_message(
     session_id: str,
     user_text: Optional[str] = None,
@@ -373,7 +355,12 @@ def handle_message(
             transcript, detected_lang, _conf = transcribe_audio(
                 audio_bytes=audio_bytes, language=asr_lang_hint,
             )
-            logger.info("  [TIMING] ASR: %.2fs", time.monotonic() - t0)
+            logger.info(
+                "  [TIMING] ASR: %.2fs %s translation_backend=%s",
+                time.monotonic() - t0,
+                get_asr_runtime_info_str(),
+                get_translation_backend_name(),
+            )
             user_text = transcript
             asr_transcript = transcript
             if detected_lang and not session.language_locked:
@@ -408,8 +395,7 @@ def handle_message(
     # 4. Language detection from text (if not already locked)
     # ------------------------------------------------------------------
     hard_noise = _is_gibberish(user_text)
-    llm_noise = None if hard_noise else _is_gibberish_with_llm(user_text, lang)
-    is_noise = hard_noise if hard_noise else bool(llm_noise)
+    is_noise = hard_noise
 
     if is_noise:
         session.troll_count += 1
@@ -624,54 +610,79 @@ def _handle_with_llm(
                  len(session.message_history))
 
     # ------------------------------------------------------------------
-    # FAZ 3: Groq Triage (Turn 1 only)
-    # On first user message: run triage (category + severity)
-    # Lock the category so LLM doesn't change it across turns
+    # FAZ 3: Groq — turn 1 uses single "first_turn" call (triage + first reply);
+    # later turns use "dialog" with locked category (latency: avoids 2x Groq on turn 1).
     # ------------------------------------------------------------------
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
-    
-    if user_turn_count == 1 and session.initial_triage is None:
-        # First turn: perform Groq triage
-        logger.info("Turn 1: Running Groq triage...")
+    is_first_llm_turn = user_turn_count == 1 and session.initial_triage is None
+
+    if is_first_llm_turn:
+        logger.info("Turn 1: Groq first_turn (triage + dialog in one call)")
         t0 = time.monotonic()
-        
-        # Call Groq for initial triage
-        triage_result = llm.chat(
+        llm_result = llm.chat(
             history=session.messages,
             language=lang,
-            task="triage"  # Signal to LLM: perform triage, not dialog
+            task="first_turn",
         )
-        logger.info("  [TIMING] LLM Triage: %.2fs", time.monotonic() - t0)
-        
-        # Save initial triage result
-        initial_triage = {
-            "category": triage_result.get("category", "other"),
-            "triage_level": triage_result.get("triage_level", "URGENT"),
-            "confidence": triage_result.get("confidence", 0.85),
-            "red_flags": triage_result.get("red_flags", []),
-        }
-        session.initial_triage = initial_triage
-        logger.info("Initial triage saved: category=%s, level=%s",
-                    initial_triage["category"], initial_triage["triage_level"])
-    
-    # Lock category from initial triage (prevent LLM from changing it)
-    locked_category = (session.initial_triage or {}).get("category", "other")
+        logger.info("  [TIMING] LLM first_turn: %.2fs", time.monotonic() - t0)
+    else:
+        t0 = time.monotonic()
+        exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
+        llm_result = llm.chat(
+            history=session.messages,
+            language=lang,
+            session_context={
+                "initial_category": (session.initial_triage or {}).get("category", "other"),
+                "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
+                "dispatch_status": session.dispatch_status,
+                "witness_mode": session.witness_mode,
+                "exhausted_slots": exhausted_slots,
+            },
+        )
+        logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
 
-    t0 = time.monotonic()
-    # Build exhausted slots list (attempted ≥2 times without answer)
-    exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
-    llm_result = llm.chat(
-        history=session.messages,
-        language=lang,
-        session_context={  # Pass locked triage to LLM
-            "initial_category": locked_category,
-            "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
-            "dispatch_status": session.dispatch_status,
-            "witness_mode": session.witness_mode,
-            "exhausted_slots": exhausted_slots,
+    input_quality = str(llm_result.get("input_quality") or "meaningful").strip().lower()
+    if input_quality not in ("meaningful", "gibberish", "out_of_scope"):
+        input_quality = "meaningful"
+
+    if input_quality == "gibberish":
+        session.troll_count += 1
+        if session.troll_count >= 2:
+            session.is_complete = True
+            close_msg = {
+                "tr": "Anlamlı bir acil durum bilgisi alamadım. Oturumu kapatıyorum. Gerçek acil durumda lütfen yeniden yazın veya 112'yi arayın.",
+                "en": "I could not get meaningful emergency details. I am closing this session. In a real emergency, please start again or call 112.",
+            }.get(lang, "I could not get meaningful emergency details. Session closed.")
+            return _reply(session, close_msg, is_complete=True, user_transcript=asr_transcript)
+        clarify_msg = {
+            "tr": "Mesajı anlayamadım. Lütfen acil durumu kısa ve net yazın (örnek: 'Babam nefes almıyor').",
+            "en": "I could not understand. Please describe the emergency clearly (example: 'My father is not breathing').",
+        }.get(lang, "Please describe the emergency clearly.")
+        return _reply(session, clarify_msg, user_transcript=asr_transcript)
+
+    if is_first_llm_turn:
+        conf_raw = llm_result.get("confidence")
+        conf_f = 0.85
+        if conf_raw is not None:
+            try:
+                conf_f = float(conf_raw)
+            except (TypeError, ValueError):
+                pass
+        session.initial_triage = {
+            "category": llm_result.get("category", "other"),
+            "triage_level": llm_result.get("triage_level", "URGENT"),
+            "confidence": conf_f,
+            "red_flags": llm_result.get("red_flags", []),
         }
-    )
-    logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
+        if llm_result.get("is_witness"):
+            session.witness_mode = True
+        logger.info(
+            "Initial triage saved: category=%s, level=%s",
+            session.initial_triage["category"],
+            session.initial_triage["triage_level"],
+        )
+
+    locked_category = (session.initial_triage or {}).get("category", "other")
 
     response_text: str = llm_result.get("response_text", "")
     extracted_slots: Dict[str, Any] = llm_result.get("extracted_slots", {})
@@ -1039,7 +1050,11 @@ def _reply(
     audio_bytes = synthesize(audio_source, lang=session.language or "en")
     audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
     audio_url = _audio_to_data_url(audio_bytes)
-    logger.info("  [TIMING] TTS: %.2fs", time.monotonic() - t0)
+    logger.info(
+        "  [TIMING] TTS: %.2fs %s",
+        time.monotonic() - t0,
+        get_tts_runtime_info_str(),
+    )
 
     # FAZ 8-9: Build response with dispatch + resume info
     

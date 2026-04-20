@@ -40,6 +40,34 @@ uvicorn src.main:app --host 127.0.0.1 --port 8000
 
 **Not:** İnsanı/doğal ses (Edge TTS) için `edge-tts` paketi yüklü olmalı. Backend’i çalıştırdığınız aynı Python ortamında `pip install edge-tts` veya `pip install -r requirements.txt` çalıştırın.
 
+### ASR / TTS / çeviri ortam değişkenleri (performans ve tutarlılık)
+
+| Değişken | Açıklama |
+|----------|----------|
+| `ASR_MODEL_SIZE` | Whisper modeli: `tiny`, `base`, `small`, `medium`, `large-v3`, … (varsayılan **`small`**, zayıf CPU için `base`) |
+| `ASR_DEVICE` | `cpu`, `cuda`, `mps` (boş = CPU) |
+| `ASR_COMPUTE_TYPE` | `int8`, `float16` (GPU’da genelde `float16`) |
+| `ASR_BEAM_SIZE` | Çözümleme ışını; daha yüksek = daha tutarlı, daha yavaş (varsayılan `5`) |
+| `ASR_CONDITION_ON_PREVIOUS_TEXT` | `true`/`false` — segmentler arası bağlam (varsayılan `false`) |
+| `ASR_VAD_FILTER` | `true`/`false` — sessiz bölgeleri atla (varsayılan `true`) |
+| `ASR_PREPROCESS` | `true`/`false` — `ffmpeg` varsa 16 kHz mono WAV’a çevir (varsayılan `true`) |
+| `TRANSLATION_BACKEND` | `deep_translator` (varsayılan), `deepl`, `google`, `local` (Marian tr↔en) |
+| `DEEPL_API_KEY` | `TRANSLATION_BACKEND=deepl` için; isteğe `DEEPL_USE_FREE_API=1` |
+| `GOOGLE_TRANSLATE_API_KEY` | `TRANSLATION_BACKEND=google` için (veya `TRANSLATE_GOOGLE_API_KEY`) |
+| `TTS_CACHE_MAX` | LRU önbellekte tutulacak maksimum farklı (metin, dil) sayısı (`0` = kapalı) |
+| `TTS_EDGE_MAX_RETRIES` | Edge TTS ağ hatalarında yeniden deneme (varsayılan `3`) |
+| `TTS_EDGE_RETRY_BASE_S` | Üstel geri çekilme tabanı saniye (varsayılan `0.35`) |
+| `TTS_EDGE_VOICE_<LANG>` | Edge ses adını geçersiz kıl; örn. `TTS_EDGE_VOICE_EN=en-US-GuyNeural`, `TTS_EDGE_VOICE_ZH_CN=...` |
+| `TTS_EDGE_RATE` / `TTS_EDGE_PITCH` / `TTS_EDGE_VOLUME` | Edge prosodi (örn. `TTS_EDGE_RATE=-6%` daha doğal tempo; `+0%` ile sıfırla) |
+| `TTS_PROVIDER` | `auto` (Google anahtarı varsa önce Google), `edge` (yalnız Edge), `google` (Google sonra Edge yedeği) |
+| `GOOGLE_TTS_API_KEY` | [Google Cloud Text-to-Speech](https://cloud.google.com/text-to-speech) API anahtarı — TR/EN için Neural2/Wavenet, Edge’den genelde daha tutarlı |
+| `TTS_GOOGLE_VOICE_EN` / `TTS_GOOGLE_VOICE_TR` | Örn. `en-US-Neural2-F`, `tr-TR-Neural2-A` |
+| `TTS_GOOGLE_SPEAKING_RATE` / `TTS_GOOGLE_PITCH` | Google TTS konuşma hızı (1.0) ve perde (0.0) |
+
+Daha doğal **TTS** için: `GOOGLE_TTS_API_KEY` ile `TTS_PROVIDER=auto` (veya `google`) kullanın; sadece Edge kullanacaksanız varsayılan sesler `en-US-AriaNeural` / `tr-TR-EmelNeural` ve hafif yavaşlatma (`TTS_EDGE_RATE=-6%`) uygulanır. **Çeviri** kalitesi için üretimde `TRANSLATION_BACKEND=deepl` veya `google` + resmi API anahtarı önerilir.
+
+`ffmpeg` sistem PATH’inde değilse ön-işleme atlanır; üretimde mobil/webm kayıtları için kurulması önerilir.
+
 ## Running the mobile (Flutter) client
 
 ```bash

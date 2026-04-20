@@ -80,6 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _initialMessageSent = false;
   bool _connectionError = false;
   bool _hardLockedByTimeout = false;
+  bool _replacingSession = false;
 
   @override
   void initState() {
@@ -693,6 +694,41 @@ class _ChatScreenState extends State<ChatScreen> {
     _restartInactivityTimer();
   }
 
+  Future<void> _replaceWithNewSession() async {
+    if (_replacingSession || !mounted) return;
+    setState(() => _replacingSession = true);
+    try {
+      final api = context.read<ApiService>();
+      final result = await api.startSession(widget.language);
+      if (!mounted) return;
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            sessionId: result['session_id'] as String,
+            greeting: result['greeting'] as String,
+            greetingAudioUrl: result['greeting_audio_url'] as String?,
+            greetingAudioB64: result['greeting_audio_b64'] as String?,
+            language: widget.language,
+            testMode: widget.testMode,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _replacingSession = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${AppStrings.connectionFailed}: $e'),
+          action: SnackBarAction(
+            label: AppStrings.retry,
+            onPressed: _replaceWithNewSession,
+          ),
+        ),
+      );
+    }
+  }
+
   void _addAssistant(String text, {String? audioBase64}) {
     setState(() {
       _messages.add(ChatMessage(
@@ -910,9 +946,18 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           if (_isComplete)
             IconButton(
-              icon: const Icon(Icons.check_circle),
+              icon: _replacingSession
+                  ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.check_circle),
               tooltip: AppStrings.sessionComplete,
-              onPressed: () {},
+              onPressed: _replacingSession ? null : _replaceWithNewSession,
             ),
         ],
       ),

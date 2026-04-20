@@ -115,6 +115,9 @@ _EMPTY_LLM_RESPONSE: Dict[str, Any] = {
     "dispatch_action": "none",
     "post_dispatch_collect": False,
     "legal_close": False,
+    "confidence": None,
+    "input_quality": "meaningful",
+    "is_witness": False,
 }
 
 
@@ -147,6 +150,16 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
             return dict(_EMPTY_LLM_RESPONSE)
 
     result = dict(_EMPTY_LLM_RESPONSE)
+    conf_raw = data.get("confidence")
+    conf: Optional[float] = None
+    if conf_raw is not None:
+        try:
+            conf = float(conf_raw)
+        except (TypeError, ValueError):
+            pass
+    iq = str(data.get("input_quality") or "meaningful").strip().lower()
+    if iq not in ("meaningful", "gibberish", "out_of_scope"):
+        iq = "meaningful"
     result.update({
         "response_text": data.get("response_text", ""),
         "extracted_slots": {
@@ -160,6 +173,9 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
         "dispatch_action": str(data.get("dispatch_action", "none") or "none").strip().lower(),
         "post_dispatch_collect": bool(data.get("post_dispatch_collect", False)),
         "legal_close": bool(data.get("legal_close", False)),
+        "confidence": conf,
+        "input_quality": iq,
+        "is_witness": bool(data.get("is_witness", False)),
     })
     return result
 
