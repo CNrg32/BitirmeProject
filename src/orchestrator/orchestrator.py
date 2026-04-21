@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import os
 import re
 import time
 from pathlib import Path
@@ -41,6 +42,15 @@ from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
 
 logger = logging.getLogger(__name__)
+
+
+def _uses_single_call_first_turn(llm: Any) -> bool:
+    model = str(getattr(llm, "MODEL", ""))
+    if model.startswith("groq/"):
+        return os.environ.get("GROQ_FAST_PATH", "true").strip().lower() not in ("0", "false", "no")
+    if model.startswith("openai/ft:"):
+        return os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower() not in ("0", "false", "no")
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +265,35 @@ def _is_gibberish(text: str) -> bool:
         return True
 
     return False
+
+
+def _is_gibberish_with_llm(text: str, lang: str) -> Optional[bool]:
+    """Ask LLM whether input is gibberish. Returns None if decision unavailable."""
+    try:
+        from services.llm_service import get_llm_service
+
+        llm = get_llm_service()
+        if not llm.is_available:
+            return None
+
+        compact = re.sub(r"\s+", " ", (text or "").strip())
+        if _uses_single_call_first_turn(llm) and len(compact) > 12:
+            return None
+
+        result = llm.chat(
+            history=[{"role": "user", "text": text}],
+            language=lang,
+            task="gibberish_check",
+        )
+        marker = str((result.get("extracted_slots") or {}).get("meaningfulness", "")).strip().lower()
+        if marker in ("gibberish", "noise", "nonsense"):
+            return True
+        if marker in ("meaningful", "valid"):
+            return False
+        return None
+    except Exception as exc:
+        logger.debug("LLM gibberish check skipped: %s", exc)
+        return None
 
 
 def handle_message(
@@ -614,73 +653,69 @@ def _handle_with_llm(
     # later turns use "dialog" with locked category (latency: avoids 2x Groq on turn 1).
     # ------------------------------------------------------------------
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
-    is_first_llm_turn = user_turn_count == 1 and session.initial_triage is None
+    exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
+    fast_first_turn = user_turn_count == 1 and session.initial_triage is None and _uses_single_call_first_turn(llm)
 
-    if is_first_llm_turn:
-        logger.info("Turn 1: Groq first_turn (triage + dialog in one call)")
+    if fast_first_turn:
+        logger.info("Turn 1: Running LLM triage+dialog fast path.")
         t0 = time.monotonic()
         llm_result = llm.chat(
             history=session.messages,
             language=lang,
-            task="first_turn",
-        )
-        logger.info("  [TIMING] LLM first_turn: %.2fs", time.monotonic() - t0)
-    else:
-        t0 = time.monotonic()
-        exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
-        llm_result = llm.chat(
-            history=session.messages,
-            language=lang,
+            task="triage_dialog",
             session_context={
-                "initial_category": (session.initial_triage or {}).get("category", "other"),
-                "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
                 "dispatch_status": session.dispatch_status,
                 "witness_mode": session.witness_mode,
                 "exhausted_slots": exhausted_slots,
             },
         )
-        logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
-
-    input_quality = str(llm_result.get("input_quality") or "meaningful").strip().lower()
-    if input_quality not in ("meaningful", "gibberish", "out_of_scope"):
-        input_quality = "meaningful"
-
-    if input_quality == "gibberish":
-        session.troll_count += 1
-        if session.troll_count >= 2:
-            session.is_complete = True
-            close_msg = {
-                "tr": "Anlamlı bir acil durum bilgisi alamadım. Oturumu kapatıyorum. Gerçek acil durumda lütfen yeniden yazın veya 112'yi arayın.",
-                "en": "I could not get meaningful emergency details. I am closing this session. In a real emergency, please start again or call 112.",
-            }.get(lang, "I could not get meaningful emergency details. Session closed.")
-            return _reply(session, close_msg, is_complete=True, user_transcript=asr_transcript)
-        clarify_msg = {
-            "tr": "Mesajı anlayamadım. Lütfen acil durumu kısa ve net yazın (örnek: 'Babam nefes almıyor').",
-            "en": "I could not understand. Please describe the emergency clearly (example: 'My father is not breathing').",
-        }.get(lang, "Please describe the emergency clearly.")
-        return _reply(session, clarify_msg, user_transcript=asr_transcript)
-
-    if is_first_llm_turn:
-        conf_raw = llm_result.get("confidence")
-        conf_f = 0.85
-        if conf_raw is not None:
-            try:
-                conf_f = float(conf_raw)
-            except (TypeError, ValueError):
-                pass
+        logger.info("  [TIMING] LLM First Turn Combined: %.2fs", time.monotonic() - t0)
         session.initial_triage = {
             "category": llm_result.get("category", "other"),
             "triage_level": llm_result.get("triage_level", "URGENT"),
-            "confidence": conf_f,
+            "confidence": llm_result.get("confidence", 0.85),
             "red_flags": llm_result.get("red_flags", []),
         }
-        if llm_result.get("is_witness"):
-            session.witness_mode = True
         logger.info(
-            "Initial triage saved: category=%s, level=%s",
+            "Initial triage saved from fast path: category=%s, level=%s",
             session.initial_triage["category"],
             session.initial_triage["triage_level"],
         )
+    else:
+        if user_turn_count == 1 and session.initial_triage is None:
+            logger.info("Turn 1: Running LLM triage...")
+            t0 = time.monotonic()
+            triage_result = llm.chat(
+                history=session.messages,
+                language=lang,
+                task="triage",
+            )
+            logger.info("  [TIMING] LLM Triage: %.2fs", time.monotonic() - t0)
+            initial_triage = {
+                "category": triage_result.get("category", "other"),
+                "triage_level": triage_result.get("triage_level", "URGENT"),
+                "confidence": triage_result.get("confidence", 0.85),
+                "red_flags": triage_result.get("red_flags", []),
+            }
+            session.initial_triage = initial_triage
+            logger.info("Initial triage saved: category=%s, level=%s",
+                        initial_triage["category"], initial_triage["triage_level"])
+
+        locked_category = (session.initial_triage or {}).get("category", "other")
+
+        t0 = time.monotonic()
+        llm_result = llm.chat(
+            history=session.messages,
+            language=lang,
+            session_context={
+                "initial_category": locked_category,
+                "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
+                "dispatch_status": session.dispatch_status,
+                "witness_mode": session.witness_mode,
+                "exhausted_slots": exhausted_slots,
+            }
+        )
+        logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
 
     locked_category = (session.initial_triage or {}).get("category", "other")
 
@@ -1115,6 +1150,9 @@ def _resolve_nearby_places(
     session: Session,
     triage_result: Optional[Dict[str, Any]],
 ) -> Optional[List[Dict[str, Any]]]:
+    if os.environ.get("NEARBY_PLACES_ENABLED", "false").strip().lower() not in ("1", "true", "yes"):
+        return None
+
     latitude = session.collected_slots.get("latitude")
     longitude = session.collected_slots.get("longitude")
     if latitude is None or longitude is None:

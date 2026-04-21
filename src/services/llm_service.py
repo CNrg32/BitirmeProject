@@ -2,9 +2,11 @@
 LLM service for emergency triage conversation.
 
 Provider selection:
-    1. GROQ_API_KEY   → Groq (llama-3.3-70b)
+    1. OPENAI_API_KEY → OpenAI / fine-tuned OpenAI model
+    2. GROQ_API_KEY   → Groq (llama-3.3-70b)
 
-Set the key in .env file:
+Set one of these keys in .env file:
+    OPENAI_API_KEY="<YOUR_OPENAI_API_KEY>"
     GROQ_API_KEY="<YOUR_GROQ_API_KEY>"
 """
 from __future__ import annotations
@@ -181,6 +183,127 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# OpenAI provider
+# ---------------------------------------------------------------------------
+
+class _OpenAIProvider:
+    DEFAULT_MODEL = "gpt-4.1-mini-2025-04-14"
+
+    def __init__(self, api_key: str) -> None:
+        self._client = None
+        self.model = (
+            os.environ.get("OPENAI_FINE_TUNED_MODEL", "").strip()
+            or os.environ.get("OPENAI_MODEL", "").strip()
+            or self.DEFAULT_MODEL
+        )
+        self.fast_finetune = (
+            self.model.startswith("ft:")
+            and os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower()
+            not in ("0", "false", "no")
+        )
+        self.max_tokens = int(os.environ.get("OPENAI_MAX_TOKENS", "360" if self.fast_finetune else "1024"))
+        try:
+            from openai import OpenAI  # type: ignore
+            self._client = OpenAI(api_key=api_key)
+            logger.info("OpenAI LLM initialised (model=%s)", self.model)
+        except ImportError:
+            logger.error("openai package not installed. Run: pip install openai")
+        except Exception as exc:
+            logger.error("OpenAI init failed: %s", exc)
+
+    @property
+    def is_ready(self) -> bool:
+        return self._client is not None
+
+    def chat(
+        self,
+        history: List[Dict[str, str]],
+        language: str,
+        task: Optional[str] = None,
+        session_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if not self.is_ready:
+            return dict(_EMPTY_LLM_RESPONSE)
+
+        lang_name = LANGUAGE_NAMES.get(language, "English")
+        prompt_task = task or "dialog"
+        max_few_shot = 0 if self.fast_finetune else 5
+        system = build_system_prompt_with_few_shot(
+            SYSTEM_PROMPT,
+            lang_name,
+            max_few_shot=max_few_shot,
+            task=prompt_task,
+        )
+        messages = [{"role": "system", "content": system}]
+
+        if session_context and prompt_task == "dialog":
+            ctx_parts = []
+            if session_context.get("initial_category"):
+                ctx_parts.append(f"LOCKED CATEGORY: {session_context['initial_category']}")
+            if session_context.get("initial_triage_level"):
+                ctx_parts.append(f"LOCKED TRIAGE LEVEL: {session_context['initial_triage_level']}")
+            dispatch_status = session_context.get("dispatch_status", "")
+            if dispatch_status:
+                ctx_parts.append(f"DISPATCH STATUS: {dispatch_status}")
+            if dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
+                ctx_parts.append(
+                    "DISPATCH ACTIVE: Emergency services are already on the way. "
+                    "Do NOT set is_complete=true yet. Continue collecting micro-location details "
+                    "(building, floor, apartment, entrance, landmark, gate code) ONE question at a time. "
+                    "Only set is_complete=true when you have no more useful questions OR the caller "
+                    "says they cannot provide more info."
+                )
+            if session_context.get("witness_mode"):
+                ctx_parts.append("WITNESS MODE: true - caller is a bystander, NOT the victim. Apply witness question rules.")
+            exhausted = session_context.get("exhausted_slots") or []
+            if exhausted:
+                ctx_parts.append(f"EXHAUSTED SLOTS (do NOT ask again): {', '.join(exhausted)}")
+            if ctx_parts:
+                messages.append({
+                    "role": "system",
+                    "content": "SESSION CONTEXT (backend state - treat as authoritative):\n" + "\n".join(ctx_parts),
+                })
+
+        for msg in history:
+            role = "assistant" if msg.get("role") == "assistant" else "user"
+            messages.append({"role": role, "content": msg.get("text", "")})
+
+        _MAX_RETRIES = 3
+        _RETRY_DELAYS = [2, 5, 10]
+
+        for attempt in range(_MAX_RETRIES):
+            try:
+                response = self._client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=0.3,
+                    max_tokens=self.max_tokens,
+                    response_format={"type": "json_object"},
+                )
+                raw = response.choices[0].message.content or ""
+                logger.debug("OpenAI raw response: %s", raw[:500])
+                return _parse_llm_json(raw)
+            except Exception as exc:
+                exc_str = str(exc).lower()
+                is_rate_limit = (
+                    "rate_limit" in exc_str
+                    or "429" in exc_str
+                    or "rate limit" in exc_str
+                    or type(exc).__name__ in ("RateLimitError", "APIStatusError")
+                )
+                if is_rate_limit and attempt < _MAX_RETRIES - 1:
+                    wait = _RETRY_DELAYS[attempt]
+                    logger.warning(
+                        "OpenAI rate limit hit (attempt %d/%d). Retrying in %ds. Error: %s",
+                        attempt + 1, _MAX_RETRIES, wait, exc,
+                    )
+                    time.sleep(wait)
+                    continue
+                logger.error("OpenAI chat failed (attempt %d/%d): %s", attempt + 1, _MAX_RETRIES, exc)
+                return dict(_EMPTY_LLM_RESPONSE)
+
+
+# ---------------------------------------------------------------------------
 # Groq provider
 # ---------------------------------------------------------------------------
 
@@ -196,6 +319,8 @@ class _GroqProvider:
             or os.environ.get("GROQ_MODEL", "").strip()
             or self.DEFAULT_MODEL
         )
+        self.fast_path = os.environ.get("GROQ_FAST_PATH", "true").strip().lower() not in ("0", "false", "no")
+        self.max_tokens = int(os.environ.get("GROQ_MAX_TOKENS", "512" if self.fast_path else "1024"))
         try:
             from groq import Groq  # type: ignore
             self._client = Groq(api_key=api_key)
@@ -223,7 +348,13 @@ class _GroqProvider:
         
         # FAZ 4: Use task-specific prompt (triage vs dialog)
         prompt_task = task or "dialog"  # Default to dialog if not specified
-        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name, task=prompt_task)
+        max_few_shot = 0 if self.fast_path else 5
+        system = build_system_prompt_with_few_shot(
+            SYSTEM_PROMPT,
+            lang_name,
+            max_few_shot=max_few_shot,
+            task=prompt_task,
+        )
         
         # FAZ 3: Inject session context for category locking (future: FAZ 4 will use this actively)
         if session_context and session_context.get("initial_category"):
@@ -275,7 +406,7 @@ class _GroqProvider:
                     model=self.model,
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1024,
+                    max_tokens=self.max_tokens,
                     response_format={"type": "json_object"},
                 )
                 raw = response.choices[0].message.content or ""
@@ -308,7 +439,7 @@ class _GroqProvider:
 # ---------------------------------------------------------------------------
 
 class LLMService:
-    """Uses Groq when GROQ_API_KEY is available."""
+    """Uses Groq for runtime chat by default, with OpenAI as explicit override/fallback."""
 
     def __init__(self) -> None:
         self._provider = None
@@ -316,17 +447,39 @@ class LLMService:
         self._init()
 
     def _init(self) -> None:
+        provider = os.environ.get("LLM_PROVIDER", "").strip().lower()
+        openai_key = os.environ.get("OPENAI_API_KEY")
         groq_key = os.environ.get("GROQ_API_KEY")
 
-        if groq_key:
+        if provider and provider not in ("groq", "openai"):
+            logger.warning("Unknown LLM_PROVIDER=%s; falling back to Groq-first selection.", provider)
+
+        if provider == "openai" and openai_key:
+            p = _OpenAIProvider(api_key=openai_key)
+            if p.is_ready:
+                self._provider = p
+                self._provider_name = f"openai/{p.model}"
+                return
+
+        if provider != "openai" and groq_key:
             p = _GroqProvider(api_key=groq_key)
             if p.is_ready:
                 self._provider = p
                 self._provider_name = f"groq/{p.model}"
                 return
 
+        if openai_key and (
+            os.environ.get("OPENAI_FINE_TUNED_MODEL", "").strip()
+            or os.environ.get("OPENAI_MODEL", "").strip()
+        ):
+            p = _OpenAIProvider(api_key=openai_key)
+            if p.is_ready:
+                self._provider = p
+                self._provider_name = f"openai/{p.model}"
+                return
+
         logger.warning(
-            "No LLM provider found (GROQ_API_KEY). "
+            "No LLM provider found (OPENAI_API_KEY or GROQ_API_KEY). "
             "LLM disabled - falling back to rule-based dialog."
         )
 
