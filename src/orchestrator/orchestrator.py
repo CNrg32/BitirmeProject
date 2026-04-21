@@ -37,12 +37,13 @@ from orchestrator.report_composer import compose_report
 logger = logging.getLogger(__name__)
 
 
-def _is_fast_finetuned_llm(llm: Any) -> bool:
-    return (
-        str(getattr(llm, "MODEL", "")).startswith("openai/ft:")
-        and os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower()
-        not in ("0", "false", "no")
-    )
+def _uses_single_call_first_turn(llm: Any) -> bool:
+    model = str(getattr(llm, "MODEL", ""))
+    if model.startswith("groq/"):
+        return os.environ.get("GROQ_FAST_PATH", "true").strip().lower() not in ("0", "false", "no")
+    if model.startswith("openai/ft:"):
+        return os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower() not in ("0", "false", "no")
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -269,7 +270,7 @@ def _is_gibberish_with_llm(text: str, lang: str) -> Optional[bool]:
             return None
 
         compact = re.sub(r"\s+", " ", (text or "").strip())
-        if _is_fast_finetuned_llm(llm) and len(compact) > 12:
+        if _uses_single_call_first_turn(llm) and len(compact) > 12:
             return None
 
         result = llm.chat(
@@ -643,10 +644,10 @@ def _handle_with_llm(
     # ------------------------------------------------------------------
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
     exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
-    fast_first_turn = user_turn_count == 1 and session.initial_triage is None and _is_fast_finetuned_llm(llm)
+    fast_first_turn = user_turn_count == 1 and session.initial_triage is None and _uses_single_call_first_turn(llm)
 
     if fast_first_turn:
-        logger.info("Turn 1: Running fine-tuned OpenAI triage+dialog fast path.")
+        logger.info("Turn 1: Running LLM triage+dialog fast path.")
         t0 = time.monotonic()
         llm_result = llm.chat(
             history=session.messages,
@@ -1135,6 +1136,9 @@ def _resolve_nearby_places(
     session: Session,
     triage_result: Optional[Dict[str, Any]],
 ) -> Optional[List[Dict[str, Any]]]:
+    if os.environ.get("NEARBY_PLACES_ENABLED", "false").strip().lower() not in ("1", "true", "yes"):
+        return None
+
     latitude = session.collected_slots.get("latitude")
     longitude = session.collected_slots.get("longitude")
     if latitude is None or longitude is None:

@@ -303,6 +303,8 @@ class _GroqProvider:
             or os.environ.get("GROQ_MODEL", "").strip()
             or self.DEFAULT_MODEL
         )
+        self.fast_path = os.environ.get("GROQ_FAST_PATH", "true").strip().lower() not in ("0", "false", "no")
+        self.max_tokens = int(os.environ.get("GROQ_MAX_TOKENS", "512" if self.fast_path else "1024"))
         try:
             from groq import Groq  # type: ignore
             self._client = Groq(api_key=api_key)
@@ -330,7 +332,13 @@ class _GroqProvider:
         
         # FAZ 4: Use task-specific prompt (triage vs dialog)
         prompt_task = task or "dialog"  # Default to dialog if not specified
-        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name, task=prompt_task)
+        max_few_shot = 0 if self.fast_path else 5
+        system = build_system_prompt_with_few_shot(
+            SYSTEM_PROMPT,
+            lang_name,
+            max_few_shot=max_few_shot,
+            task=prompt_task,
+        )
         
         # FAZ 3: Inject session context for category locking (future: FAZ 4 will use this actively)
         if session_context and session_context.get("initial_category"):
@@ -382,7 +390,7 @@ class _GroqProvider:
                     model=self.model,
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1024,
+                    max_tokens=self.max_tokens,
                     response_format={"type": "json_object"},
                 )
                 raw = response.choices[0].message.content or ""
@@ -415,7 +423,7 @@ class _GroqProvider:
 # ---------------------------------------------------------------------------
 
 class LLMService:
-    """Uses OpenAI or Groq when a supported API key is available."""
+    """Uses Groq for runtime chat by default, with OpenAI as explicit override/fallback."""
 
     def __init__(self) -> None:
         self._provider = None
@@ -427,6 +435,9 @@ class LLMService:
         openai_key = os.environ.get("OPENAI_API_KEY")
         groq_key = os.environ.get("GROQ_API_KEY")
 
+        if provider and provider not in ("groq", "openai"):
+            logger.warning("Unknown LLM_PROVIDER=%s; falling back to Groq-first selection.", provider)
+
         if provider == "openai" and openai_key:
             p = _OpenAIProvider(api_key=openai_key)
             if p.is_ready:
@@ -434,7 +445,7 @@ class LLMService:
                 self._provider_name = f"openai/{p.model}"
                 return
 
-        if provider == "groq" and groq_key:
+        if provider != "openai" and groq_key:
             p = _GroqProvider(api_key=groq_key)
             if p.is_ready:
                 self._provider = p
@@ -449,13 +460,6 @@ class LLMService:
             if p.is_ready:
                 self._provider = p
                 self._provider_name = f"openai/{p.model}"
-                return
-
-        if groq_key:
-            p = _GroqProvider(api_key=groq_key)
-            if p.is_ready:
-                self._provider = p
-                self._provider_name = f"groq/{p.model}"
                 return
 
         logger.warning(
