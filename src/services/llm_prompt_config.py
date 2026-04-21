@@ -143,11 +143,11 @@ def build_system_prompt_with_few_shot(
             parts.append("\nUser: " + user)
             parts.append("\nAssistant (JSON only): " + json.dumps(ast, ensure_ascii=False))
     parts.append(
-        f"\n\nIMPORTANT LANGUAGE RULE: The user's current language is '{language_hint}'. "
+        f"\n\nIMPORTANT LANGUAGE RULE: The session language is '{language_hint}' for the entire conversation. "
         "You MUST write the 'response_text' field ONLY in this language — no mixing, no other language words, no diacritics from unrelated scripts. "
-        "If the user switches language mid-session, follow their new language. "
-        "NEVER produce Vietnamese, Thai, Arabic, or CJK characters unless the user wrote in that language. "
-        f"Current detected language: {language_hint}. Violating this rule is a critical error."
+        "Do not change language mid-session even if the user writes in another language. "
+        "NEVER produce Vietnamese, Thai, Arabic, or CJK characters unless this session language is one of those. "
+        f"Session language (fixed): {language_hint}. Violating this rule is a critical error."
     )
     return "\n".join(parts)
 

@@ -63,6 +63,9 @@ uvicorn src.main:app --host 127.0.0.1 --port 8000
 | `GOOGLE_TTS_API_KEY` | [Google Cloud Text-to-Speech](https://cloud.google.com/text-to-speech) API anahtarı — TR/EN için Neural2/Wavenet, Edge’den genelde daha tutarlı |
 | `TTS_GOOGLE_VOICE_EN` / `TTS_GOOGLE_VOICE_TR` | Örn. `en-US-Neural2-F`, `tr-TR-Neural2-A` |
 | `TTS_GOOGLE_SPEAKING_RATE` / `TTS_GOOGLE_PITCH` | Google TTS konuşma hızı (1.0) ve perde (0.0) |
+| `USE_OPENAI_FINAL_REPORT` | `true` ise oturum **son raporunu** yalnızca bu adımda OpenAI (GPT) üretir; diyalog hâlâ `GROQ_API_KEY` ile Groq’ta kalır. `OPENAI_API_KEY` gerekir. |
+| `OPENAI_FINAL_REPORT_MODEL` | İsteğe bağlı; boşsa `OPENAI_MODEL` veya `gpt-4.1-mini-2025-04-14` kullanılır. |
+| `OPENAI_FINAL_REPORT_MAX_TOKENS` | Son rapor üst sınırı (varsayılan `1200`). |
 
 Daha doğal **TTS** için: `GOOGLE_TTS_API_KEY` ile `TTS_PROVIDER=auto` (veya `google`) kullanın; sadece Edge kullanacaksanız varsayılan sesler `en-US-AriaNeural` / `tr-TR-EmelNeural` ve hafif yavaşlatma (`TTS_EDGE_RATE=-6%`) uygulanır. **Çeviri** kalitesi için üretimde `TRANSLATION_BACKEND=deepl` veya `google` + resmi API anahtarı önerilir.
 

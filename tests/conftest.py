@@ -99,10 +99,22 @@ def mock_llm_unavailable():
 def mock_translate_functions():
     """Keep translation as pass-through so tests are deterministic."""
     with patch("services.translation_service.translate", side_effect=lambda t, source=None, target=None: t or ""):
-        with patch("services.translation_service.translate_to_english", side_effect=lambda t, sl: t or ""):
-            with patch("services.translation_service.translate_from_english", side_effect=lambda t, tl: t or ""):
-                with patch("orchestrator.orchestrator.translate_to_english", side_effect=lambda t, sl: t or ""):
-                    with patch("orchestrator.orchestrator.translate_from_english", side_effect=lambda t, tl: t or ""):
+        with patch(
+            "services.translation_service.translate_to_english",
+            side_effect=lambda t, source_lang="en": t or "",
+        ):
+            with patch(
+                "services.translation_service.translate_from_english",
+                side_effect=lambda t, target_lang="en": t or "",
+            ):
+                with patch(
+                    "orchestrator.orchestrator.translate_to_english",
+                    side_effect=lambda t, source_lang="en": t or "",
+                ):
+                    with patch(
+                        "orchestrator.orchestrator.translate_from_english",
+                        side_effect=lambda t, target_lang="en": t or "",
+                    ):
                         with patch("orchestrator.orchestrator.detect_language", return_value="en"):
                             yield
 

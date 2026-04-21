@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import os
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -148,28 +149,29 @@ class TestSessionMessage:
         start = client.post("/session/start", json={"language": "en"})
         sid = start.json()["session_id"]
 
-        with patch(
-            "services.nearby_places_service.get_nearby_places",
-            return_value=[
-                {
-                    "id": "p1",
-                    "type": "police",
-                    "name": "Central Police",
-                    "distance_meters": 450,
-                    "latitude": 41.0,
-                    "longitude": 29.0,
-                }
-            ],
-        ):
-            r = client.post(
-                "/session/message",
-                json={
-                    "session_id": sid,
-                    "text": "Someone is attacking me",
-                    "latitude": 41.0,
-                    "longitude": 29.0,
-                },
-            )
+        with patch.dict(os.environ, {"NEARBY_PLACES_ENABLED": "true"}):
+            with patch(
+                "services.nearby_places_service.get_nearby_places",
+                return_value=[
+                    {
+                        "id": "p1",
+                        "type": "police",
+                        "name": "Central Police",
+                        "distance_meters": 450,
+                        "latitude": 41.0,
+                        "longitude": 29.0,
+                    }
+                ],
+            ):
+                r = client.post(
+                    "/session/message",
+                    json={
+                        "session_id": sid,
+                        "text": "Someone is attacking me",
+                        "latitude": 41.0,
+                        "longitude": 29.0,
+                    },
+                )
 
         assert r.status_code == 200
         data = r.json()

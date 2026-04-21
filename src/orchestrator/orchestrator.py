@@ -3,7 +3,7 @@ Orchestrator – main entry point for session management and message handling.
 
 Turn flow (LLM-powered):
   1.  ASR (if audio provided)
-  2.  Language detection / lock
+  2.  Session language (preference, first ASR, or first text — then fixed)
   3.  Slot extraction + response generation via Gemini (full conversation history)
   4.  Sentiment analysis on audio (enhances triage level if panic detected)
   5.  Image analysis (if image was attached)
@@ -40,6 +40,7 @@ from services.translation_service import (
 from services.tts_service import synthesize, get_tts_runtime_info_str
 from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
+from services.final_report_openai import generate_final_report_openai
 
 logger = logging.getLogger(__name__)
 
@@ -216,7 +217,7 @@ def _has_foreign_characters(text: str) -> bool:
 
 
 def _normalize_response_language(response_text: str, target_lang: str) -> str:
-    """Force assistant text to the user's latest language when LLM drifts or mixes languages."""
+    """Force assistant text into the fixed session language when the LLM drifts or mixes languages."""
     text = (response_text or "").strip()
     if not text:
         return response_text
@@ -431,10 +432,14 @@ def handle_message(
         )
 
     # ------------------------------------------------------------------
-    # 4. Language detection from text (if not already locked)
+    # 4. Noise / gibberish (hard filter, then optional LLM check)
     # ------------------------------------------------------------------
     hard_noise = _is_gibberish(user_text)
     is_noise = hard_noise
+    if not is_noise:
+        llm_noise = _is_gibberish_with_llm(user_text, lang)
+        if llm_noise is True:
+            is_noise = True
 
     if is_noise:
         session.troll_count += 1
@@ -455,16 +460,14 @@ def handle_message(
     # Reset noise counter once meaningful text is received.
     session.troll_count = 0
 
-    # Always re-detect language from each text message — supports mid-session language switching.
-    detected_text_lang = detect_language(user_text)
-    if detected_text_lang:
-        if session.language != detected_text_lang:
-            logger.info("Language switched: %s → %s", session.language, detected_text_lang)
-        session.language = detected_text_lang
-        lang = detected_text_lang
-        if not session.language_locked:
+    # Session language is fixed after: explicit preference at start_session, first ASR lock, or first text detection.
+    if not session.language_locked:
+        detected_text_lang = detect_language(user_text)
+        if detected_text_lang:
+            session.language = detected_text_lang
             session.language_locked = True
-        logger.info("Language detected from text: %s", detected_text_lang)
+            lang = detected_text_lang
+            logger.info("Language locked from text: %s", detected_text_lang)
 
     # ------------------------------------------------------------------
     # 5. Accumulate English text for ML models (sentiment etc.)
@@ -597,6 +600,30 @@ def _mark_dispatch(session: Session, category: str) -> None:
     session.pending_update_after_dispatch = True
 
 
+def _compose_session_report(
+    triage_result: Optional[Dict[str, Any]],
+    slots: Dict[str, Any],
+    image_analysis: Optional[Dict[str, Any]],
+    lang: str,
+) -> str:
+    """Template report, or OpenAI (GPT) when USE_OPENAI_FINAL_REPORT=true and key set."""
+    tr = triage_result or {}
+    gpt = generate_final_report_openai(
+        triage_result=tr,
+        slots=slots,
+        image_analysis=image_analysis,
+        language=lang,
+    )
+    if gpt:
+        return gpt
+    return compose_report(
+        triage_result=tr,
+        slots=slots,
+        image_analysis=image_analysis,
+        language=lang,
+    )
+
+
 def _handle_post_dispatch_update(session: Session, user_text: str, lang: str) -> Dict[str, Any]:
     image_analysis = session.image_analysis
     update = {
@@ -673,7 +700,7 @@ def _handle_with_llm(
         session.initial_triage = {
             "category": llm_result.get("category", "other"),
             "triage_level": llm_result.get("triage_level", "URGENT"),
-            "confidence": llm_result.get("confidence", 0.85),
+            "confidence": llm_result.get("confidence", 1.00),
             "red_flags": llm_result.get("red_flags", []),
         }
         logger.info(
@@ -694,7 +721,7 @@ def _handle_with_llm(
             initial_triage = {
                 "category": triage_result.get("category", "other"),
                 "triage_level": triage_result.get("triage_level", "URGENT"),
-                "confidence": triage_result.get("confidence", 0.85),
+                "confidence": triage_result.get("confidence", 1.00),
                 "red_flags": triage_result.get("red_flags", []),
             }
             session.initial_triage = initial_triage
@@ -910,7 +937,7 @@ def _handle_with_llm(
     triage_result: Dict[str, Any] = {
         "triage_level": triage_level,
         "category": category,
-        "confidence": 0.85,
+        "confidence": 1.00,
         "red_flags": red_flags,
         "slots": session.collected_slots,
         "llm_powered": True,
@@ -933,15 +960,11 @@ def _handle_with_llm(
     # Conversation complete → compose structured report
     # ------------------------------------------------------------------
     if is_complete:
-        report_en = compose_report(
+        report_local = _compose_session_report(
             triage_result=session.triage_result,
             slots=session.collected_slots,
             image_analysis=session.image_analysis,
-        )
-        report_local = (
-            translate_from_english(report_en, target_lang=lang)
-            if lang != "en"
-            else report_en
+            lang=lang,
         )
         session.is_complete = True
         session.pending_update_after_dispatch = False
@@ -1038,15 +1061,11 @@ def _handle_with_rules(
                     user_transcript=asr_transcript,
                 )
 
-    report_en = compose_report(
+    report_local = _compose_session_report(
         triage_result=session.triage_result,
         slots=session.collected_slots,
         image_analysis=session.image_analysis,
-    )
-    report_local = (
-        translate_from_english(report_en, target_lang=lang)
-        if lang != "en"
-        else report_en
+        lang=lang,
     )
     session.is_complete = True
 
