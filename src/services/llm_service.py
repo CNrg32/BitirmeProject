@@ -420,9 +420,22 @@ class LLMService:
         openai_key = os.environ.get("OPENAI_API_KEY")
         groq_key = os.environ.get("GROQ_API_KEY")
 
-        if openai_key and (
-            provider == "openai"
-            or os.environ.get("OPENAI_FINE_TUNED_MODEL", "").strip()
+        if provider == "groq" and groq_key:
+            p = _GroqProvider(api_key=groq_key)
+            if p.is_ready:
+                self._provider = p
+                self._provider_name = f"groq/{p.model}"
+                return
+
+        if provider == "openai" and openai_key:
+            p = _OpenAIProvider(api_key=openai_key)
+            if p.is_ready:
+                self._provider = p
+                self._provider_name = f"openai/{p.model}"
+                return
+
+        if not provider and openai_key and (
+            os.environ.get("OPENAI_FINE_TUNED_MODEL", "").strip()
             or os.environ.get("OPENAI_MODEL", "").strip()
         ):
             p = _OpenAIProvider(api_key=openai_key)
