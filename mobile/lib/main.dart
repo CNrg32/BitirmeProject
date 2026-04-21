@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/app_config.dart';
 import 'core/app_theme.dart';
 import 'services/api_service.dart';
+import 'screens/startup_screen.dart';
 import 'screens/welcome_screen.dart';
 
 void main() {
@@ -27,7 +29,9 @@ class EmergencyAssistantApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
-      home: const WelcomeScreen(),
+      home: kEmergencyTestFlow
+          ? const WelcomeScreen()
+          : const StartupScreen(),
     );
   }
 }

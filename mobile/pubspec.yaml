@@ -19,7 +19,7 @@ dependencies:
   http: ^1.2.0
 
   # Audio recording & playback
-  record: ^5.1.0
+  record: ^6.2.0
   audioplayers: ^6.0.0
 
   # State

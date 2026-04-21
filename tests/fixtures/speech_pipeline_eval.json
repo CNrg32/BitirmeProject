@@ -1,0 +1,11 @@
+{
+  "description": "Reference phrases for manual or automated ASR/translation regression checks (not golden WER).",
+  "asr_smoke_phrases": [
+    { "lang": "en", "text_hint": "I need an ambulance right now." },
+    { "lang": "tr", "text_hint": "Hemen ambulans gönderin." }
+  ],
+  "translation_pairs": [
+    { "source": "en", "target": "tr", "text": "The person is not breathing." },
+    { "source": "tr", "target": "en", "text": "Yaralı bilinci açık değil." }
+  ]
+}

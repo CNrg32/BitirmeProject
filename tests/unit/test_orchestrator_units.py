@@ -95,9 +95,20 @@ class TestHandleMessage:
         s = store.create(language="tr")
         s.messages.append({"role": "assistant", "text": "Merhaba"})
 
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.return_value = {
+            "response_text": "",
+            "input_quality": "gibberish",
+            "triage_level": "NON_URGENT",
+            "category": "other",
+            "red_flags": [],
+            "is_complete": False,
+        }
+
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=True):
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
                     out = handle_message(s.session_id, user_text="akska")
 
         assert out.get("is_complete") is False
@@ -129,9 +140,20 @@ class TestHandleMessage:
         s = store.create(language="tr")
         s.messages.append({"role": "assistant", "text": "Merhaba"})
 
+        mock_llm = MagicMock()
+        mock_llm.is_available = True
+        mock_llm.chat.return_value = {
+            "response_text": "",
+            "input_quality": "gibberish",
+            "triage_level": "NON_URGENT",
+            "category": "other",
+            "red_flags": [],
+            "is_complete": False,
+        }
+
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=True):
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
                     out = handle_message(s.session_id, user_text="qwe12e")
 
         assert out.get("is_complete") is False
@@ -170,37 +192,30 @@ class TestHandleMessage:
 
         mock_llm = MagicMock()
         mock_llm.is_available = True
-        mock_llm.chat.side_effect = [
-            {
-                "category": "medical",
-                "triage_level": "URGENT",
-                "confidence": 0.9,
-                "red_flags": [],
-            },
-            {
-                "response_text": "Help is on the way.",
-                "extracted_slots": {},
-                "triage_level": "URGENT",
-                "category": "medical",
-                "is_complete": False,
-                "red_flags": [],
-            },
-        ]
+        mock_llm.chat.return_value = {
+            "category": "medical",
+            "triage_level": "URGENT",
+            "confidence": 0.9,
+            "red_flags": [],
+            "response_text": "Help is on the way.",
+            "extracted_slots": {},
+            "is_complete": False,
+            "dispatch_action": "none",
+        }
 
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
-                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
-                        with patch(
-                            "services.nearby_places_service.get_nearby_places",
-                            return_value=[{"id": "h1", "type": "hospital", "name": "A Hospital"}],
-                        ):
-                            out = handle_message(
-                                s.session_id,
-                                user_text="My father has chest pain",
-                                latitude=41.0,
-                                longitude=29.0,
-                            )
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                    with patch(
+                        "services.nearby_places_service.get_nearby_places",
+                        return_value=[{"id": "h1", "type": "hospital", "name": "A Hospital"}],
+                    ):
+                        out = handle_message(
+                            s.session_id,
+                            user_text="My father has chest pain",
+                            latitude=41.0,
+                            longitude=29.0,
+                        )
 
         assert out.get("nearby_places") == [{"id": "h1", "type": "hospital", "name": "A Hospital"}]
 
@@ -213,29 +228,21 @@ class TestHandleMessage:
 
         mock_llm = MagicMock()
         mock_llm.is_available = True
-        mock_llm.chat.side_effect = [
-            {
-                "category": "medical",
-                "triage_level": "URGENT",
-                "confidence": 0.92,
-                "red_flags": [],
-            },
-            {
-                "response_text": "I have enough details.",
-                "extracted_slots": {"chief_complaint": "chest pain"},
-                "triage_level": "URGENT",
-                "category": "medical",
-                "is_complete": True,
-                "red_flags": [],
-                "dispatch_action": "dispatch_now",
-            },
-        ]
+        mock_llm.chat.return_value = {
+            "category": "medical",
+            "triage_level": "URGENT",
+            "confidence": 0.92,
+            "red_flags": [],
+            "response_text": "I have enough details.",
+            "extracted_slots": {"chief_complaint": "chest pain"},
+            "is_complete": True,
+            "dispatch_action": "dispatch_now",
+        }
 
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
-                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
-                        out = handle_message(s.session_id, user_text="My father is unwell")
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                    out = handle_message(s.session_id, user_text="My father is unwell")
 
         assert out.get("is_complete") is False
         assert out.get("dispatch_status") == "PENDING"
@@ -258,14 +265,9 @@ class TestHandleMessage:
                 "triage_level": "URGENT",
                 "confidence": 0.9,
                 "red_flags": [],
-            },
-            {
                 "response_text": "Please share more details.",
                 "extracted_slots": {"chief_complaint": "pain"},
-                "triage_level": "URGENT",
-                "category": "medical",
                 "is_complete": False,
-                "red_flags": [],
                 "dispatch_action": "none",
             },
             {
@@ -290,11 +292,10 @@ class TestHandleMessage:
 
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
-                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
-                        handle_message(s.session_id, user_text="Emergency")
-                        handle_message(s.session_id, user_text="Still bad")
-                        out = handle_message(s.session_id, user_text="Please hurry")
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                    handle_message(s.session_id, user_text="Emergency")
+                    handle_message(s.session_id, user_text="Still bad")
+                    out = handle_message(s.session_id, user_text="Please hurry")
 
         assert out.get("dispatch_status") == "DISPATCHED"
         assert out.get("is_complete") is False
@@ -331,10 +332,9 @@ class TestHandleMessage:
 
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
-                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
-                        with patch("orchestrator.orchestrator.compose_report", return_value="REPORT"):
-                            out = handle_message(s.session_id, user_text="Building A, floor 2")
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                    with patch("orchestrator.orchestrator.compose_report", return_value="REPORT"):
+                        out = handle_message(s.session_id, user_text="Building A, floor 2")
 
         assert out.get("is_complete") is True
         assert out.get("report") is not None
@@ -351,32 +351,24 @@ class TestHandleMessage:
 
         mock_llm = MagicMock()
         mock_llm.is_available = True
-        mock_llm.chat.side_effect = [
-            {
-                "category": "medical",
-                "triage_level": "URGENT",
-                "confidence": 0.9,
-                "red_flags": [],
+        mock_llm.chat.return_value = {
+            "category": "medical",
+            "triage_level": "URGENT",
+            "confidence": 0.9,
+            "red_flags": [],
+            "response_text": "Apply pressure to the bleeding area and keep calm.",
+            "extracted_slots": {
+                "chief_complaint": "leg bleeding",
+                "breathing": "normal",
             },
-            {
-                "response_text": "Apply pressure to the bleeding area and keep calm.",
-                "extracted_slots": {
-                    "chief_complaint": "leg bleeding",
-                    "breathing": "normal",
-                },
-                "triage_level": "URGENT",
-                "category": "medical",
-                "is_complete": False,
-                "red_flags": [],
-                "dispatch_action": "none",
-            },
-        ]
+            "is_complete": False,
+            "dispatch_action": "none",
+        }
 
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
-                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
-                        out = handle_message(s.session_id, user_text="My leg is bleeding")
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                    out = handle_message(s.session_id, user_text="My leg is bleeding")
 
         assert out.get("is_complete") is False
         assert "?" in out.get("assistant_text", "")
@@ -390,30 +382,22 @@ class TestHandleMessage:
 
         mock_llm = MagicMock()
         mock_llm.is_available = True
-        mock_llm.chat.side_effect = [
-            {
-                "category": "medical",
-                "triage_level": "URGENT",
-                "confidence": 0.9,
-                "red_flags": [],
-            },
-            {
-                "response_text": "Durum nghiem trong olabilir.",
-                "extracted_slots": {"chief_complaint": "bacak kanamasi"},
-                "triage_level": "URGENT",
-                "category": "medical",
-                "is_complete": False,
-                "red_flags": [],
-                "dispatch_action": "none",
-            },
-        ]
+        mock_llm.chat.return_value = {
+            "category": "medical",
+            "triage_level": "URGENT",
+            "confidence": 0.9,
+            "red_flags": [],
+            "response_text": "Durum nghiem trong olabilir.",
+            "extracted_slots": {"chief_complaint": "bacak kanamasi"},
+            "is_complete": False,
+            "dispatch_action": "none",
+        }
 
         with patch("orchestrator.orchestrator.get_session_store", return_value=store):
             with patch("orchestrator.orchestrator.synthesize", return_value=b"\xff"):
-                with patch("orchestrator.orchestrator._is_gibberish_with_llm", return_value=False):
-                    with patch("services.llm_service.get_llm_service", return_value=mock_llm):
-                        with patch("orchestrator.orchestrator.detect_language", side_effect=["en", "vi"]):
-                            with patch("orchestrator.orchestrator.translate", return_value="Durum ciddi olabilir."):
-                                out = handle_message(s.session_id, user_text="my leg is bleeding")
+                with patch("services.llm_service.get_llm_service", return_value=mock_llm):
+                    with patch("orchestrator.orchestrator.detect_language", side_effect=["en", "vi"]):
+                        with patch("orchestrator.orchestrator.translate", return_value="Durum ciddi olabilir."):
+                            out = handle_message(s.session_id, user_text="my leg is bleeding")
 
         assert "Durum ciddi olabilir." in out.get("assistant_text", "")

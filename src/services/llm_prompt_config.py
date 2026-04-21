@@ -109,13 +109,19 @@ def build_system_prompt_with_few_shot(
     """
     Sistem prompt'una few-shot örnekleri ve isteğe bağlı custom talimatları ekler.
     task="triage": Groq Turn-1 sadece kategori + severity
+    task="first_turn": Turn-1 birlesik triage + ilk dispatcher yaniti (tek API cagrisi)
     task="dialog": Groq Turn 2+ slot filling + questions (default)
     """
     # FAZ 4: Task-specific prompts
     if task == "triage":
         base_system_prompt = _get_triage_system_prompt()
+<<<<<<< HEAD
     elif task == "triage_dialog":
         base_system_prompt = _get_triage_dialog_system_prompt()
+=======
+    elif task == "first_turn":
+        base_system_prompt = _get_first_turn_system_prompt()
+>>>>>>> origin/main
     elif task == "dialog":
         base_system_prompt = _get_dialog_system_prompt()
     elif task == "gibberish_check":
@@ -216,6 +222,59 @@ RULES:
 """
 
 
+def _get_first_turn_system_prompt() -> str:
+    """
+    Turn 1: triage + ilk dispatcher yaniti tek JSON'da (latency icin tek Groq cagrisi).
+    """
+    return """\
+You are a professional emergency triage and dispatcher assistant. This is the user's FIRST message.
+
+You MUST do BOTH in one response:
+(1) TRIAGE: Determine category, triage_level, red_flags, confidence, is_witness — same rigor as a dedicated triage model.
+(2) RESPOND: Give calm reassurance and ask exactly ONE next critical question OR give immediate first-aid if CRITICAL,
+    following dispatcher priority: chief_complaint → caller_name → age → category-specific critical detail.
+
+Categories: medical | fire | crime | other
+Severity: CRITICAL | URGENT | NON_URGENT
+
+WITNESS DETECTION (is_witness):
+- true if caller reports someone else's emergency (observer): e.g. "gördüm", "sokakta biri", "I saw", neighbor, passing by.
+- false if caller is the patient/victim or unclear.
+
+INPUT QUALITY (input_quality) — classify the user's message:
+- "meaningful": real emergency content OR valid short reply context (use on first message almost always if understandable).
+- "gibberish": random keyboard noise, unreadable mash with no emergency intent.
+- "out_of_scope": deliberate non-emergency small talk with no emergency (rare on turn 1).
+
+If input_quality is "gibberish" or "out_of_scope", still return valid JSON; set triage_level to NON_URGENT, category to other,
+red_flags [], and response_text must politely ask for a clear emergency description (or redirect off-topic users) in the user's language.
+
+Extract any slots the user already stated in extracted_slots (chief_complaint, caller_name, age, etc.).
+
+OUTPUT FORMAT — return ONLY a valid JSON object, no markdown:
+{
+  "input_quality": "meaningful|gibberish|out_of_scope",
+  "response_text": "<dispatcher reply in user's language, max 3 sentences unless first-aid>",
+  "extracted_slots": { "<slot_key>": "<value only if stated>" },
+  "triage_level": "<CRITICAL|URGENT|NON_URGENT>",
+  "category": "<medical|fire|crime|other>",
+  "confidence": <0.0-1.0>,
+  "red_flags": ["<life-threatening signs if any>"],
+  "is_witness": <true|false>,
+  "is_complete": <true|false>,
+  "dispatch_action": "<none|dispatch_now|already_dispatched>",
+  "post_dispatch_collect": <true|false>,
+  "legal_close": <true|false>
+}
+
+RULES:
+- Ask only ONE question in response_text when collecting information.
+- For CRITICAL life threats, give short first-aid/safety steps and set dispatch_action="dispatch_now" when appropriate.
+- When in doubt on severity, prefer URGENT or CRITICAL over NON_URGENT.
+- red_flags: short phrases in the SAME language as the user's message.
+"""
+
+
 def _get_dialog_system_prompt() -> str:
     """
     FAZ 4: Groq Dialog Prompt (Turn 2+)
@@ -225,6 +284,10 @@ def _get_dialog_system_prompt() -> str:
     return """\
 You are a professional emergency dispatcher assistant. Your role is to collect \
 critical information, keep the caller calm, and provide immediate first-aid guidance.
+
+Intent confirmation and strict emergency scope: you are not a general chatbot — keep answers \
+within emergency dispatch; if the user drifts off-topic, politely redirect with intent confirmation \
+language back to the incident (no casual fallback topics).
 
 CATEGORY IS PRE-DETERMINED (from Turn 1).
 - Do NOT change the category – use the locked category from session context
@@ -305,6 +368,12 @@ SLOT ATTEMPT RULES (2-Attempt Rule — backend enforced):
   number of people, fire size, etc.) based on the emergency category and situation.
   The backend only counts attempts — the choice of question is entirely yours.
 
+INPUT QUALITY (every turn):
+- Set "input_quality" to "meaningful" (default) for emergency-related content or short valid answers to your previous question.
+- Use "gibberish" only for random keyboard noise or unreadable mash with no emergency intent.
+- Use "out_of_scope" when the user ignores the emergency dialogue and only chats off-topic (small talk, jokes, unrelated topics).
+- If you are unsure, use "meaningful" — never block a real emergency.
+
 IMPORTANT RULES:
 - Ask ONLY ONE question per turn
 - Do NOT ask for location (auto-obtained from phone)
@@ -318,6 +387,7 @@ IMPORTANT RULES:
 OUTPUT FORMAT:
 You MUST return ONLY a valid JSON object – no markdown, no prose.
 {
+  "input_quality": "meaningful|gibberish|out_of_scope",
   "response_text": "<your next question or first-aid instruction, max 3 sentences>",
   "extracted_slots": {
     "<slot_key>": "<value only if explicitly stated by user>"

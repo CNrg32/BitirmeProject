@@ -266,7 +266,9 @@ class TestTranslate:
         r = client.post("/translate", data={"text": "Hello", "source": "en", "target": "tr"})
         assert r.status_code == 200
         # With mock we get same text back
-        assert "translated" in r.json()
+        body = r.json()
+        assert "translated" in body
+        assert "translation_backend" in body
 
 
 class TestTTS:

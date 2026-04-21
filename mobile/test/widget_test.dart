@@ -1,5 +1,8 @@
 // Acil Yardım uygulaması widget testi.
 // Ana ekranın (Welcome) açıldığını ve 112 butonunun göründüğünü doğrular.
+//
+// Bu senaryo yalnızca test akışı (EMERGENCY_TEST_FLOW) ile derlenir; çalıştırma:
+//   flutter test --dart-define=EMERGENCY_TEST_FLOW=true
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
