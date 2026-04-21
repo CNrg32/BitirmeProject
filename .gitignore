@@ -19,6 +19,7 @@ venv/
 env/
 .vendor/
 .finetune_vendor/
+.openai_vendor/
 .flutter_sdk/
 .pytest_tmp/
 .pytest_cache/
