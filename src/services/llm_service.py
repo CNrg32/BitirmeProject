@@ -178,6 +178,8 @@ class _OpenAIProvider:
             or os.environ.get("OPENAI_MODEL", "").strip()
             or self.DEFAULT_MODEL
         )
+        self.max_tokens = int(os.environ.get("OPENAI_MAX_TOKENS", "420"))
+        self.max_few_shot = int(os.environ.get("OPENAI_MAX_FEW_SHOT", "2"))
         try:
             from openai import OpenAI  # type: ignore
             self._client = OpenAI(api_key=api_key)
@@ -203,7 +205,12 @@ class _OpenAIProvider:
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
         prompt_task = task or "dialog"
-        system = build_system_prompt_with_few_shot(SYSTEM_PROMPT, lang_name, task=prompt_task)
+        system = build_system_prompt_with_few_shot(
+            SYSTEM_PROMPT,
+            lang_name,
+            max_few_shot=self.max_few_shot,
+            task=prompt_task,
+        )
         messages = [{"role": "system", "content": system}]
 
         if session_context and prompt_task == "dialog":
@@ -247,7 +254,7 @@ class _OpenAIProvider:
                     model=self.model,
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1024,
+                    max_tokens=self.max_tokens,
                     response_format={"type": "json_object"},
                 )
                 raw = response.choices[0].message.content or ""

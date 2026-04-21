@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -74,6 +75,7 @@ FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
 ]
 
 
+@lru_cache(maxsize=1)
 def _load_examples_from_file() -> List[Dict[str, Any]]:
     """data/llm_fine_tune_examples.json varsa oradan örnek yükle (few-shot + fine-tune verisi)."""
     base = Path(__file__).resolve().parent
@@ -112,10 +114,21 @@ def build_system_prompt_with_few_shot(
     # FAZ 4: Task-specific prompts
     if task == "triage":
         base_system_prompt = _get_triage_system_prompt()
+    elif task == "triage_dialog":
+        base_system_prompt = _get_triage_dialog_system_prompt()
     elif task == "dialog":
         base_system_prompt = _get_dialog_system_prompt()
     elif task == "gibberish_check":
         base_system_prompt = _get_gibberish_check_prompt()
+
+    if task == "gibberish_check":
+        max_few_shot = 0
+    elif task == "triage":
+        max_few_shot = min(max_few_shot, 1)
+    elif task == "triage_dialog":
+        max_few_shot = min(max_few_shot, 1)
+    elif task == "dialog":
+        max_few_shot = min(max_few_shot, 2)
     
     parts = [base_system_prompt]
     if DEBUG_FALLBACK_MODE:
@@ -322,7 +335,55 @@ Do NOT change the locked category.
 You may upgrade severity when the situation worsens.
 When you have enough info, mark is_complete=true and provide final guidance.
 """
+def _get_triage_dialog_system_prompt() -> str:
+    """
+    First-turn fast path: classify the emergency and generate the next dispatcher
+    response in a single model call.
+    """
+    return """\
+You are a professional emergency dispatcher assistant handling the FIRST meaningful user message.
 
+TASK:
+- Determine emergency category and urgency from the user's message.
+- Extract only the slots explicitly stated by the user.
+- Produce the next assistant response in the user's language.
+- Prefer immediate dispatch guidance for clearly critical situations.
+
+CATEGORIES:
+- medical
+- fire
+- crime
+- other
+
+SEVERITY:
+- CRITICAL
+- URGENT
+- NON_URGENT
+
+RULES:
+- Ask ONLY ONE question at a time.
+- Do NOT ask for location - it is obtained automatically from the phone.
+- If the case is clearly CRITICAL, give a short dispatch/safety response first and ask only the single most important next question.
+- If the caller sounds like a witness/bystander, do not ask about age or medical history unless explicitly known.
+- Extract only information directly present in the user's message.
+- Keep response_text concise: max 3 sentences.
+
+OUTPUT FORMAT:
+You MUST return ONLY a valid JSON object - no markdown, no prose.
+{
+  "response_text": "<next dispatcher response in the user's language>",
+  "extracted_slots": {
+    "<slot_key>": "<value>"
+  },
+  "triage_level": "<CRITICAL|URGENT|NON_URGENT>",
+  "category": "<medical|fire|crime|other>",
+  "is_complete": <true|false>,
+  "red_flags": ["<life-threatening sign if present>"],
+  "dispatch_action": "<none|dispatch_now|already_dispatched>",
+  "post_dispatch_collect": <true|false>,
+  "legal_close": <true|false>
+}
+"""
 
 def _get_gibberish_check_prompt() -> str:
         """
