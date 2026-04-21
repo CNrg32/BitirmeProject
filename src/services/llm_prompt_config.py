@@ -93,6 +93,8 @@ def _load_examples_from_file() -> List[Dict[str, Any]]:
 
 def get_few_shot_examples(max_examples: int = 5) -> List[Dict[str, Any]]:
     """Önce dosyadan, yoksa FEW_SHOT_EXAMPLES'tan en fazla max_examples döndür."""
+    if max_examples <= 0:
+        return []
     file_examples = _load_examples_from_file()
     source = file_examples if file_examples else FEW_SHOT_EXAMPLES
     return source[:max_examples]
@@ -112,6 +114,8 @@ def build_system_prompt_with_few_shot(
     # FAZ 4: Task-specific prompts
     if task == "triage":
         base_system_prompt = _get_triage_system_prompt()
+    elif task == "triage_dialog":
+        base_system_prompt = _get_triage_dialog_system_prompt()
     elif task == "dialog":
         base_system_prompt = _get_dialog_system_prompt()
     elif task == "gibberish_check":
@@ -321,6 +325,41 @@ You MUST return ONLY a valid JSON object – no markdown, no prose.
 Do NOT change the locked category.
 You may upgrade severity when the situation worsens.
 When you have enough info, mark is_complete=true and provide final guidance.
+"""
+
+
+def _get_triage_dialog_system_prompt() -> str:
+    """First-turn fast path for fine-tuned models."""
+    return """\
+You are a professional emergency dispatcher assistant handling the FIRST meaningful user message.
+
+TASK:
+- Determine category and urgency.
+- Extract only explicitly stated slots.
+- Produce the next dispatcher response in the user's language.
+- For clearly CRITICAL cases, dispatch immediately and ask only one essential follow-up.
+
+CATEGORIES: medical, fire, crime, other
+SEVERITY: CRITICAL, URGENT, NON_URGENT
+
+RULES:
+- Ask ONLY ONE question.
+- Do NOT ask for location; it is obtained automatically from the phone.
+- If the caller is a witness/bystander, avoid age or medical history unless stated.
+- Keep response_text concise, max 3 sentences.
+
+OUTPUT JSON ONLY:
+{
+  "response_text": "<next dispatcher response>",
+  "extracted_slots": {},
+  "triage_level": "<CRITICAL|URGENT|NON_URGENT>",
+  "category": "<medical|fire|crime|other>",
+  "is_complete": false,
+  "red_flags": [],
+  "dispatch_action": "<none|dispatch_now|already_dispatched>",
+  "post_dispatch_collect": false,
+  "legal_close": false
+}
 """
 
 

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import os
 import re
 import time
 from pathlib import Path
@@ -34,6 +35,14 @@ from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
 
 logger = logging.getLogger(__name__)
+
+
+def _is_fast_finetuned_llm(llm: Any) -> bool:
+    return (
+        str(getattr(llm, "MODEL", "")).startswith("openai/ft:")
+        and os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower()
+        not in ("0", "false", "no")
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -257,6 +266,10 @@ def _is_gibberish_with_llm(text: str, lang: str) -> Optional[bool]:
 
         llm = get_llm_service()
         if not llm.is_available:
+            return None
+
+        compact = re.sub(r"\s+", " ", (text or "").strip())
+        if _is_fast_finetuned_llm(llm) and len(compact) > 12:
             return None
 
         result = llm.chat(
@@ -629,49 +642,71 @@ def _handle_with_llm(
     # Lock the category so LLM doesn't change it across turns
     # ------------------------------------------------------------------
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
-    
-    if user_turn_count == 1 and session.initial_triage is None:
-        # First turn: perform Groq triage
-        logger.info("Turn 1: Running Groq triage...")
+    exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
+    fast_first_turn = user_turn_count == 1 and session.initial_triage is None and _is_fast_finetuned_llm(llm)
+
+    if fast_first_turn:
+        logger.info("Turn 1: Running fine-tuned OpenAI triage+dialog fast path.")
         t0 = time.monotonic()
-        
-        # Call Groq for initial triage
-        triage_result = llm.chat(
+        llm_result = llm.chat(
             history=session.messages,
             language=lang,
-            task="triage"  # Signal to LLM: perform triage, not dialog
+            task="triage_dialog",
+            session_context={
+                "dispatch_status": session.dispatch_status,
+                "witness_mode": session.witness_mode,
+                "exhausted_slots": exhausted_slots,
+            },
         )
-        logger.info("  [TIMING] LLM Triage: %.2fs", time.monotonic() - t0)
-        
-        # Save initial triage result
-        initial_triage = {
-            "category": triage_result.get("category", "other"),
-            "triage_level": triage_result.get("triage_level", "URGENT"),
-            "confidence": triage_result.get("confidence", 0.85),
-            "red_flags": triage_result.get("red_flags", []),
+        logger.info("  [TIMING] LLM First Turn Combined: %.2fs", time.monotonic() - t0)
+        session.initial_triage = {
+            "category": llm_result.get("category", "other"),
+            "triage_level": llm_result.get("triage_level", "URGENT"),
+            "confidence": llm_result.get("confidence", 0.85),
+            "red_flags": llm_result.get("red_flags", []),
         }
-        session.initial_triage = initial_triage
-        logger.info("Initial triage saved: category=%s, level=%s",
-                    initial_triage["category"], initial_triage["triage_level"])
-    
-    # Lock category from initial triage (prevent LLM from changing it)
-    locked_category = (session.initial_triage or {}).get("category", "other")
+        logger.info(
+            "Initial triage saved from fast path: category=%s, level=%s",
+            session.initial_triage["category"],
+            session.initial_triage["triage_level"],
+        )
+    else:
+        if user_turn_count == 1 and session.initial_triage is None:
+            logger.info("Turn 1: Running LLM triage...")
+            t0 = time.monotonic()
+            triage_result = llm.chat(
+                history=session.messages,
+                language=lang,
+                task="triage",
+            )
+            logger.info("  [TIMING] LLM Triage: %.2fs", time.monotonic() - t0)
+            initial_triage = {
+                "category": triage_result.get("category", "other"),
+                "triage_level": triage_result.get("triage_level", "URGENT"),
+                "confidence": triage_result.get("confidence", 0.85),
+                "red_flags": triage_result.get("red_flags", []),
+            }
+            session.initial_triage = initial_triage
+            logger.info("Initial triage saved: category=%s, level=%s",
+                        initial_triage["category"], initial_triage["triage_level"])
 
-    t0 = time.monotonic()
-    # Build exhausted slots list (attempted ≥2 times without answer)
-    exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
-    llm_result = llm.chat(
-        history=session.messages,
-        language=lang,
-        session_context={  # Pass locked triage to LLM
-            "initial_category": locked_category,
-            "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
-            "dispatch_status": session.dispatch_status,
-            "witness_mode": session.witness_mode,
-            "exhausted_slots": exhausted_slots,
-        }
-    )
-    logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
+        locked_category = (session.initial_triage or {}).get("category", "other")
+
+        t0 = time.monotonic()
+        llm_result = llm.chat(
+            history=session.messages,
+            language=lang,
+            session_context={
+                "initial_category": locked_category,
+                "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
+                "dispatch_status": session.dispatch_status,
+                "witness_mode": session.witness_mode,
+                "exhausted_slots": exhausted_slots,
+            }
+        )
+        logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
+
+    locked_category = (session.initial_triage or {}).get("category", "other")
 
     response_text: str = llm_result.get("response_text", "")
     extracted_slots: Dict[str, Any] = llm_result.get("extracted_slots", {})
