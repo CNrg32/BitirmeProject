@@ -4,7 +4,17 @@ import 'package:flutter/foundation.dart' show kIsWeb, TargetPlatform, defaultTar
 import 'package:http/http.dart' as http;
 
 class ApiService {
+  static const Duration _requestTimeout = Duration(seconds: 12);
+
+  /// Override with: `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8001`
+  static const String _apiBaseUrlOverride =
+      String.fromEnvironment('API_BASE_URL', defaultValue: '');
+
   static String get _baseUrl {
+    final override = _apiBaseUrlOverride.trim();
+    if (override.isNotEmpty) {
+      return override.endsWith('/') ? override.substring(0, override.length - 1) : override;
+    }
     if (kIsWeb) {
       return 'http://localhost:8000';
     }
@@ -16,7 +26,9 @@ class ApiService {
 
   Future<bool> healthCheck() async {
     try {
-      final resp = await http.get(Uri.parse('$_baseUrl/health'));
+      final resp = await http
+          .get(Uri.parse('$_baseUrl/health'))
+          .timeout(_requestTimeout);
       return resp.statusCode == 200;
     } catch (_) {
       return false;
@@ -26,11 +38,13 @@ class ApiService {
   Future<Map<String, dynamic>> startSession(String? language) async {
     final body = <String, dynamic>{};
     if (language != null) body['language'] = language;
-    final resp = await http.post(
-      Uri.parse('$_baseUrl/session/start'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    final resp = await http
+        .post(
+          Uri.parse('$_baseUrl/session/start'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('Failed to start session: ${resp.body}');
     }
@@ -54,11 +68,13 @@ class ApiService {
     if (latitude != null) body['latitude'] = latitude;
     if (longitude != null) body['longitude'] = longitude;
 
-    final resp = await http.post(
-      Uri.parse('$_baseUrl/session/message'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    final resp = await http
+        .post(
+          Uri.parse('$_baseUrl/session/message'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('Message failed: ${resp.body}');
     }
@@ -80,11 +96,13 @@ class ApiService {
       body['preferred_type'] = preferredType;
     }
 
-    final resp = await http.post(
-      Uri.parse('$_baseUrl/nearby-places'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    final resp = await http
+        .post(
+          Uri.parse('$_baseUrl/nearby-places'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('Nearby places failed: ${resp.body}');
     }
@@ -101,14 +119,16 @@ class ApiService {
     required String sessionId,
     required String audioBase64,
   }) async {
-    final resp = await http.post(
-      Uri.parse('$_baseUrl/session/transcribe'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'session_id': sessionId,
-        'audio_base64': audioBase64,
-      }),
-    );
+    final resp = await http
+        .post(
+          Uri.parse('$_baseUrl/session/transcribe'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'session_id': sessionId,
+            'audio_base64': audioBase64,
+          }),
+        )
+        .timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('Transcribe failed: ${resp.body}');
     }
@@ -116,15 +136,17 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> predict(String textEn) async {
-    final resp = await http.post(
-      Uri.parse('$_baseUrl/predict'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'text_en': textEn,
-        'meta': {'deaths': 0, 'potential_death': 0, 'false_alarm': 0},
-        'slots': {},
-      }),
-    );
+    final resp = await http
+        .post(
+          Uri.parse('$_baseUrl/predict'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'text_en': textEn,
+            'meta': {'deaths': 0, 'potential_death': 0, 'false_alarm': 0},
+            'slots': {},
+          }),
+        )
+        .timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('Predict failed: ${resp.body}');
     }
@@ -132,10 +154,12 @@ class ApiService {
   }
 
   Future<Uint8List> tts(String text, String language) async {
-    final resp = await http.post(
-      Uri.parse('$_baseUrl/tts'),
-      body: {'text': text, 'language': language},
-    );
+    final resp = await http
+        .post(
+          Uri.parse('$_baseUrl/tts'),
+          body: {'text': text, 'language': language},
+        )
+        .timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('TTS failed: ${resp.body}');
     }
@@ -162,8 +186,8 @@ class ApiService {
     if (textTriageLevel != null) {
       request.fields['text_triage_level'] = textTriageLevel;
     }
-    final streamed = await request.send();
-    final resp = await http.Response.fromStream(streamed);
+    final streamed = await request.send().timeout(_requestTimeout);
+    final resp = await http.Response.fromStream(streamed).timeout(_requestTimeout);
     if (resp.statusCode != 200) {
       throw Exception('Image analysis failed: ${resp.body}');
     }

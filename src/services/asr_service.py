@@ -108,12 +108,12 @@ def _get_model():
                 _MODEL_SIZE,
                 time.monotonic() - t0,
             )
-        except ImportError:
-            logger.warning(
-                "faster-whisper is not installed. ASR will not be available. "
-                "Install with: pip install faster-whisper"
-            )
-            raise
+        except ImportError as exc:
+            raise ImportError(
+                "faster-whisper is not installed. ASR is unavailable until you install it "
+                "(e.g. `pip install faster-whisper` or `pip install -r requirements.txt` "
+                "from the project root)."
+            ) from exc
     return _model
 
 
@@ -203,6 +203,9 @@ def preload_model() -> bool:
     try:
         _get_model()
         return True
+    except ImportError as exc:
+        logger.warning("ASR preload skipped — %s", exc)
+        return False
     except Exception as exc:
         logger.warning("ASR model preload failed: %s", exc)
         return False

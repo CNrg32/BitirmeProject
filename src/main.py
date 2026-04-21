@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import os
+
+# PyTorch (image) + faster-whisper/CTranslate2 both ship OpenMP on macOS; duplicate libiomp5 aborts without this.
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+
 import base64
 import logging
-import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -51,6 +55,17 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = (os.getenv(name) or "").strip().lower()
+    if not raw:
+        return default
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    if raw in ("0", "false", "no", "off"):
+        return False
+    return default
 
 
 def _store_image_analysis_event(
@@ -131,12 +146,15 @@ async def lifespan(app: FastAPI):
     try:
         from services.image_service import get_image_model_service
 
-        img_svc = get_image_model_service()
-        img_loaded = img_svc.load()
-        if img_loaded:
-            logger.info("Image model loaded successfully.")
+        if _env_bool("IMAGE_PRELOAD", True):
+            img_svc = get_image_model_service()
+            img_loaded = img_svc.load()
+            if img_loaded:
+                logger.info("Image model loaded successfully.")
+            else:
+                logger.warning("Image model NOT loaded – image analysis unavailable.")
         else:
-            logger.warning("Image model NOT loaded – image analysis unavailable.")
+            logger.info("Image model preload disabled via IMAGE_PRELOAD=false.")
     except Exception as exc:
         logger.warning("Image model setup skipped: %s", exc)
 
@@ -153,10 +171,16 @@ async def lifespan(app: FastAPI):
     try:
         from services.asr_service import preload_model as preload_asr
 
-        if preload_asr():
-            logger.info("ASR (Whisper) model pre-loaded successfully.")
+        if _env_bool("ASR_PRELOAD", True):
+            if preload_asr():
+                logger.info("ASR (Whisper) model pre-loaded successfully.")
+            else:
+                logger.warning(
+                    "ASR model NOT pre-loaded (see ASR logs above). "
+                    "If faster-whisper is missing, install it before expecting /asr or transcribe to work."
+                )
         else:
-            logger.warning("ASR model NOT pre-loaded – will load on first request.")
+            logger.info("ASR preload disabled via ASR_PRELOAD=false.")
     except Exception as exc:
         logger.warning("ASR model preload skipped: %s", exc)
 
