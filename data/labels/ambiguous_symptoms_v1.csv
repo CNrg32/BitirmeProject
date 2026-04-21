@@ -1,0 +1,701 @@
+case_id,text_en,source,label_category_gold,label_triage_gold,red_flags_gold
+ambig_en_0042,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0114,"Cut my hand, still bleeding. Wrapped it but soaking through. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0259,"I'm pregnant, lower abdominal cramps. No bleeding but worried. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0079,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0075,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0185,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0167,"Never felt pain like this, under the right chest. Worse on breathing. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0024,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0068,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu. Ambulans mi cagirayim?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0105,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0119,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0397,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0383,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0233,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0223,"Severe abdominal pain on the right side, for a few hours. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0416,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0394,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0202,"A young man is lying on the ground, conscious but not talking clearly. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0145,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0355,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0013,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0334,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0054,"Cut my hand, still bleeding. Wrapped it but soaking through. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0170,"My kid fell and hit his head. Cried, now calm but drowsy. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0151,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0061,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0153,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0010,"Never felt pain like this, under the right chest. Worse on breathing. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0259,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0265,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0271,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0009,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0030,"I saw blood in my stool, small amount. I'm anxious. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0173,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0212,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0288,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0031,"My kid fell and hit his head. Cried, now calm but drowsy. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0007,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0243,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0276,"A young man is lying on the ground, conscious but not talking clearly. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0045,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0255,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0403,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0004,My child may have swallowed medication by accident. Awake but drowsy. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0248,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0105,"I saw blood in my stool, small amount. I'm anxious. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0181,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0100,My child may have swallowed medication by accident. Awake but drowsy.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0273,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0407,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0233,"Burned my hand, red and blistered. Ring is stuck due to swelling.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0048,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0085,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0380,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0092,My child may have swallowed medication by accident. Awake but drowsy. Will my medication work or should we not wait?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0058,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0175,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0260,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0270,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0252,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0079,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0252,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0281,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0215,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0015,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0130,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0135,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0362,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0209,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0198,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0205,"I feel an asthma attack coming, my inhaler is not with me. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0344,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0255,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0220,"Karnim cok agriyor, saga dogru. Birkac saattir. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0063,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0405,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0338,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0071,"Burned my hand, red and blistered. Ring is stuck due to swelling. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0118,My child may have swallowed medication by accident. Awake but drowsy.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0304,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0327,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0204,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0274,"I'm pregnant, lower abdominal cramps. No bleeding but worried. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0162,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0239,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0015,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0132,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0059,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0154,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0247,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0391,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0330,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0351,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0070,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0363,"Karnim cok agriyor, saga dogru. Birkac saattir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0278,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0048,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0305,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0195,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0158,"A young man is lying on the ground, conscious but not talking clearly. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0303,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0232,I have vertigo and vomiting. Can barely stand. Will my medication work or should we not wait?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0125,"Burned my hand, red and blistered. Ring is stuck due to swelling.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0140,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0090,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0018,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0022,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0418,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0139,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0349,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0408,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0150,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0319,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0121,"I'm pregnant, lower abdominal cramps. No bleeding but worried. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0128,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0141,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0059,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0336,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0361,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0251,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0262,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0102,"Severe abdominal pain on the right side, for a few hours. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0023,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0159,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0229,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0093,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0208,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0148,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0157,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0169,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0093,"Severe abdominal pain on the right side, for a few hours. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0392,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0275,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0279,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0206,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0098,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0246,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0250,"Severe abdominal pain on the right side, for a few hours. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0179,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0101,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0266,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0160,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0130,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0193,"Astim krizim baslar gibi, inhalerim yok yaninda. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0125,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0083,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0100,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0131,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0414,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0318,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0183,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0021,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0005,"Astim krizim baslar gibi, inhalerim yok yaninda. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0402,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0071,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0176,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0134,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0270,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0049,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0409,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0204,"A young man is lying on the ground, conscious but not talking clearly. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0083,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0023,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0045,"High fever with shivering, I feel slightly confused.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0205,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0272,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0239,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0098,Pressure in my chest radiating slightly to my left arm. I'm anxious. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0199,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0078,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0066,I have vertigo and vomiting. Can barely stand.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0197,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0035,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0002,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0325,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0238,"High fever with shivering, I feel slightly confused.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0246,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0000,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0172,"My fever is 38.5C, I'm shivering. Headache too. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0253,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0264,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0256,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0117,My child may have swallowed medication by accident. Awake but drowsy. Should I take my son to the ER?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0210,"I feel an asthma attack coming, my inhaler is not with me. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0284,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0226,"I saw blood in my stool, small amount. I'm anxious. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0165,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0180,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0149,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0139,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0063,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0001,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0226,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0209,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0021,I have vertigo and vomiting. Can barely stand. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0264,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0340,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0127,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0261,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0395,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0031,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0282,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0337,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0191,"I feel an asthma attack coming, my inhaler is not with me. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0359,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0114,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0229,"My elderly mother fell, can't stand but can speak. Her hip hurts. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0322,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0088,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0221,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0228,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0384,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0230,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0043,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0052,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0047,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0369,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0400,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0033,"Minor car accident, my neck hurts but I can walk. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0268,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu. Hastaneye nasil gidecegimi bilmiyorum.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0152,"Cut my hand, still bleeding. Wrapped it but soaking through. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0081,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0357,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0230,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0060,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0366,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0289,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0182,"High fever with shivering, I feel slightly confused.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0358,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0274,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0181,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0037,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0350,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0396,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0165,"I'm pregnant, lower abdominal cramps. No bleeding but worried. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0137,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0182,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0417,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0011,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0158,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0085,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0082,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0096,I have vertigo and vomiting. Can barely stand. I don't want to be alone at home right now.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0137,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0072,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0186,"Burned my hand, red and blistered. Ring is stuck due to swelling. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0201,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0365,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0213,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0261,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0095,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0251,"My kid fell and hit his head. Cried, now calm but drowsy. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0053,"Cut my hand, still bleeding. Wrapped it but soaking through. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0066,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0202,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0077,"Cut my hand, still bleeding. Wrapped it but soaking through.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0381,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0364,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0155,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0024,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0301,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0307,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0003,I have vertigo and vomiting. Can barely stand. Should I take my son to the ER?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0034,"I feel an asthma attack coming, my inhaler is not with me. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0019,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0027,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0097,"Cut my hand, still bleeding. Wrapped it but soaking through. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0279,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0311,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0143,My child may have swallowed medication by accident. Awake but drowsy. Should I call an ambulance?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0300,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0010,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0227,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0215,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0177,"I feel an asthma attack coming, my inhaler is not with me. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0013,"My fever is 38.5C, I'm shivering. Headache too. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0390,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0222,"Burned my hand, red and blistered. Ring is stuck due to swelling. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0150,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0011,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0266,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0328,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0077,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0254,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0075,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0249,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0352,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0084,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0112,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0039,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0147,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0060,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0200,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0263,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0020,"Cut my hand, still bleeding. Wrapped it but soaking through. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0038,"Cut my hand, still bleeding. Wrapped it but soaking through. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0096,"Karnim cok agriyor, saga dogru. Birkac saattir. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0033,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0188,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0136,"A young man is lying on the ground, conscious but not talking clearly. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0149,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0419,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0272,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0412,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0062,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0269,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0256,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0069,"My fever is 38.5C, I'm shivering. Headache too. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0401,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0203,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0190,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0032,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0068,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0141,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0220,"High fever with shivering, I feel slightly confused.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0107,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0163,"My fever is 38.5C, I'm shivering. Headache too. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0101,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0164,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0119,"High fever with shivering, I feel slightly confused. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0107,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0297,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0142,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0058,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0276,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0387,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0116,"A young man is lying on the ground, conscious but not talking clearly. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0111,"Cut on my arm, bleeding is mild but looks deep. May need stitches. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0104,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0287,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0034,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0286,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0386,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0089,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0335,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0339,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0413,"Karnim cok agriyor, saga dogru. Birkac saattir. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0316,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0088,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0187,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0131,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0144,My child may have swallowed medication by accident. Awake but drowsy. Should I observe for a while?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0026,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0186,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0263,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0028,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0218,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0317,"Karnim cok agriyor, saga dogru. Birkac saattir. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0164,"A young man is lying on the ground, conscious but not talking clearly. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0103,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0294,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0168,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0026,"A young man is lying on the ground, conscious but not talking clearly. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0051,"Burned my hand, red and blistered. Ring is stuck due to swelling.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0179,My child may have swallowed medication by accident. Awake but drowsy. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0388,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0199,"My elderly mother fell, can't stand but can speak. Her hip hurts. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0244,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0170,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0353,"Astim krizim baslar gibi, inhalerim yok yaninda. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0240,"Minor car accident, my neck hurts but I can walk. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0241,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0321,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0000,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0324,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0371,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0012,My child may have swallowed medication by accident. Awake but drowsy. Will my medication work or should we not wait?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0320,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0189,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0094,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0192,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0379,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0070,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0237,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0061,I have vertigo and vomiting. Can barely stand.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0012,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0298,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0292,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0235,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0360,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0157,"Burned my hand, red and blistered. Ring is stuck due to swelling.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0156,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0106,"Cut my hand, still bleeding. Wrapped it but soaking through.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0166,"I saw blood in my stool, small amount. I'm anxious. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0008,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0178,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0331,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0122,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0032,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0052,Pressure in my chest radiating slightly to my left arm. I'm anxious. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0067,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0111,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0208,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0265,"Severe abdominal pain on the right side, for a few hours. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0046,Pressure in my chest radiating slightly to my left arm. I'm anxious. Should I call an ambulance?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0156,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0161,I have vertigo and vomiting. Can barely stand. Will my medication work or should we not wait?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0285,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0042,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0174,"My kid fell and hit his head. Cried, now calm but drowsy. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0253,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0231,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0081,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0135,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0245,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0201,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0271,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0217,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0017,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0258,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0254,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0375,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0095,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0020,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0022,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0123,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0002,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0293,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0076,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0014,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0113,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0260,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0222,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0167,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Hastaneye nasil gidecegimi bilmiyorum.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0171,"My kid fell and hit his head. Cried, now calm but drowsy. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0126,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0376,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0219,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0373,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0155,"Cut my hand, still bleeding. Wrapped it but soaking through.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0142,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0236,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0134,"Never felt pain like this, under the right chest. Worse on breathing. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0242,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0302,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0064,My child may have swallowed medication by accident. Awake but drowsy.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0250,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0267,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0018,I have vertigo and vomiting. Can barely stand. Should I call an ambulance?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0210,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0104,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0086,"My kid fell and hit his head. Cried, now calm but drowsy. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0017,I have vertigo and vomiting. Can barely stand.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0217,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0295,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0074,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0313,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0326,"Astim krizim baslar gibi, inhalerim yok yaninda. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0406,"Karnim cok agriyor, saga dogru. Birkac saattir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0404,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0080,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0309,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0151,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0277,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0175,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0389,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0087,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0109,I have vertigo and vomiting. Can barely stand. Should I observe for a while?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0056,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0214,"High fever with shivering, I feel slightly confused.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0188,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0084,My child may have swallowed medication by accident. Awake but drowsy.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0057,"My back locked up, can't move but circulation looks ok. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0267,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0030,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0110,I have vertigo and vomiting. Can barely stand. Should I call an ambulance?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0354,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0159,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0196,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0171,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0103,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0138,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0154,"My back locked up, can't move but circulation looks ok. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0323,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0200,"Cut my hand, still bleeding. Wrapped it but soaking through. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0368,"Karnim cok agriyor, saga dogru. Birkac saattir. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0234,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0069,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0191,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0120,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0153,My child may have swallowed medication by accident. Awake but drowsy. I don't want to be alone at home right now.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0232,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0312,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0124,"My fever is 38.5C, I'm shivering. Headache too. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0110,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0074,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0223,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0094,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0027,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0206,"Cut on my arm, bleeding is mild but looks deep. May need stitches. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0299,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0132,"A young man is lying on the ground, conscious but not talking clearly. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0212,"Burned my hand, red and blistered. Ring is stuck due to swelling.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0112,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0036,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0192,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0162,"Burned my hand, red and blistered. Ring is stuck due to swelling. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0108,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0148,I have vertigo and vomiting. Can barely stand. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0377,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0221,"Possible allergic reaction, my face is swelling a bit. I can still breathe. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0050,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0194,"Cut my hand, still bleeding. Wrapped it but soaking through.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0087,"Minor car accident, my neck hurts but I can walk. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0269,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0235,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0117,"Karnim cok agriyor, saga dogru. Birkac saattir. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0166,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0039,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0346,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0382,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0203,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0009,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0333,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0035,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0240,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0072,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0118,"Diskimda kan gordum, miktar az gibi. Panikliyorum. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0076,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0029,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0275,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0145,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0053,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0106,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0113,My child may have swallowed medication by accident. Awake but drowsy.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0044,"Possible allergic reaction, my face is swelling a bit. I can still breathe.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0342,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0257,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0025,"I saw blood in my stool, small amount. I'm anxious. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0214,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0291,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0372,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0055,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0044,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0163,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0257,"My back locked up, can't move but circulation looks ok. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0193,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0065,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0216,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0115,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0198,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0054,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0283,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0213,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0055,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0224,"Karnim cok agriyor, saga dogru. Birkac saattir. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0099,"Cut my hand, still bleeding. Wrapped it but soaking through. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0370,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0097,"Astim krizim baslar gibi, inhalerim yok yaninda. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0122,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0120,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0196,"Karnim cok agriyor, saga dogru. Birkac saattir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0241,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0004,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0008,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0356,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0308,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0090,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0231,"Minor car accident, my neck hurts but I can walk.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0184,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0038,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0178,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0237,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0001,"My kid fell and hit his head. Cried, now calm but drowsy. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0041,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0219,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0277,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0146,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0211,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0129,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0067,"Cut my hand, still bleeding. Wrapped it but soaking through.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0006,Pressure in my chest radiating slightly to my left arm. I'm anxious. Should I take my son to the ER?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0290,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0091,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0183,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0007,"Astim krizim baslar gibi, inhalerim yok yaninda. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0006,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0262,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0247,"I feel an asthma attack coming, my inhaler is not with me. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0228,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0161,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0385,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0102,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0136,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0041,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0249,"Astim krizim baslar gibi, inhalerim yok yaninda. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0029,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0168,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Bir sure gozlemlemeli miyim?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0146,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0378,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0172,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0005,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0211,"My kid fell and hit his head. Cried, now calm but drowsy.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0280,"Yasli annem dustu, ayaga kalkamiyor ama konusuyor. Kalcasi agriyor.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0184,"A young man is lying on the ground, conscious but not talking clearly. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0190,"Cut on my arm, bleeding is mild but looks deep. May need stitches.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0343,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Ambulans mi cagirayim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0177,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0207,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0218,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0329,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0140,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0138,"I saw blood in my stool, small amount. I'm anxious.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0169,"Burned my hand, red and blistered. Ring is stuck due to swelling.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0123,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0332,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0411,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0224,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0016,Pressure in my chest radiating slightly to my left arm. I'm anxious. I don't know how to get to the hospital.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0258,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0234,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0225,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0189,"Sudden dizziness, had to sit down. Better now but afraid it'll recur.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0089,"Severe abdominal pain on the right side, for a few hours.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0116,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0108,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0065,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0185,"A young man is lying on the ground, conscious but not talking clearly.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0174,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0047,My child may have swallowed medication by accident. Awake but drowsy.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0099,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0314,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0051,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0176,"Karnim cok agriyor, saga dogru. Birkac saattir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0014,"Astim krizim baslar gibi, inhalerim yok yaninda.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0133,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0248,"Alerjik reaksiyon olabilir, yuzum sisiyor biraz. Nefes alabiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0046,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0062,"Never felt pain like this, under the right chest. Worse on breathing. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0019,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0236,"Severe abdominal pain on the right side, for a few hours. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0144,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0245,"Burned my hand, red and blistered. Ring is stuck due to swelling. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0073,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0238,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0173,"My elderly mother fell, can't stand but can speak. Her hip hurts.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0152,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0129,"Severe abdominal pain on the right side, for a few hours. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0049,Pressure in my chest radiating slightly to my left arm. I'm anxious.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0115,"I saw blood in my stool, small amount. I'm anxious. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0216,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0121,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0415,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0043,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0345,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0057,"Boyle bir agri ilk kez, sag gogsum altinda. Nefes alirken artiyor. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0347,"Hamileyim, alt karnimda kramp var. Kanama yok ama endiseliyim.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0037,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0016,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0040,"I feel an asthma attack coming, my inhaler is not with me. I don't know how to get to the hospital.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0126,"Possible allergic reaction, my face is swelling a bit. I can still breathe. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0091,"My kid fell and hit his head. Cried, now calm but drowsy. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0315,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0133,"High fever with shivering, I feel slightly confused.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0064,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0398,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0080,"High fever with shivering, I feel slightly confused. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0244,"Genc bir adam, yerde yatiyor, bilincli ama konusamiyor gibi. Bir sure gozlemlemeli miyim?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0187,"Cut on my arm, bleeding is mild but looks deep. May need stitches. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0025,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0197,"Sirtim kitlendi, hareket edemiyorum ama kan akisi var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0036,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0143,"Elimi kestim, hala kanamakta. Bez saridim ama hala sizar.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0194,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Evde yalniz kalmayi istemiyorum simdi.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0028,"My back locked up, can't move but circulation looks ok. Should I observe for a while?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0268,"Sudden dizziness, had to sit down. Better now but afraid it'll recur. Should I call an ambulance?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0086,"Araba ile hafif bir kaza, boynum agriyor, yuruyebiliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0078,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0273,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0225,"Never felt pain like this, under the right chest. Worse on breathing.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0109,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0399,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse. Bir sure gozlemlemeli miyim?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0306,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0195,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0278,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0040,"Yuksek ateste titreme basladi, hafif unutkanlik hissediyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0147,"I'm pregnant, lower abdominal cramps. No bleeding but worried. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0180,Bas donmesi ve kusma var. Ayakta duramiyorum neredeyse.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0207,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu. Ilacim etkisini gosterir mi yoksa beklemeyelim mi?,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0243,"My fever is 38.5C, I'm shivering. Headache too. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0296,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0050,"My elderly mother fell, can't stand but can speak. Her hip hurts. Should I take my son to the ER?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0082,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum. Evde yalniz kalmayi istemiyorum simdi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0348,"Kolumda kesik var, kanama hafif ama derin gibi. Dikis gerekebilir.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0127,"I feel an asthma attack coming, my inhaler is not with me.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0374,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0092,"Karnim cok agriyor, saga dogru. Birkac saattir. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0242,"My fever is 38.5C, I'm shivering. Headache too.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0227,"I'm pregnant, lower abdominal cramps. No bleeding but worried.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0056,"Diskimda kan gordum, miktar az gibi. Panikliyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0410,"Gogusumde baski var, sol koluma vuruyor hafif. Panik yapiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0310,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu. Hastaneye nasil gidecegimi bilmiyorum.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0341,"Yandim, elim kizardi ve kabarik. Yuzuk cikmadi, sisik. Oglumu goturmeli miyim acile?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0367,"Bir anda bas donmesi oldu, yere oturdum. Simdi biraz iyiyim ama tekrar olabilir. Hastaneye nasil gidecegimi bilmiyorum.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0128,"Minor car accident, my neck hurts but I can walk. I don't want to be alone at home right now.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0160,"Cut my hand, still bleeding. Wrapped it but soaking through. Will my medication work or should we not wait?",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0124,"Cocugum dustu, kafasini carpti. Agladi, simdi sakin ama uyuklar gibi.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_en_0073,"My back locked up, can't move but circulation looks ok.",ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0393,Cocugum yanlislikla ilac yutmus olabilir. Uyanik ama uykulu.,ambiguous_symptoms_v1,medical,URGENT,0
+ambig_tr_0003,"Atesim 38.5 derece, titremeye basladim. Bas agrim da var.",ambiguous_symptoms_v1,medical,URGENT,0

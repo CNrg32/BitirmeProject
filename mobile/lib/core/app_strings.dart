@@ -93,8 +93,11 @@ class AppStrings {
   static const String nearbyFacilities = 'Yakin Kurumlar';
   static const String hospitalOption = 'Hastane';
   static const String policeOption = 'Karakol';
+  static const String allFacilitiesOption = 'Hepsi';
   static const String noNearbyHospitals = 'Yakinlarda uygun hastane bulunamadi. Aramayi tekrar denemek ister misiniz?';
   static const String noNearbyPolice = 'Yakinlarda kayitli karakol bulunamadi. Daha genis bir alan taranabilir, tekrar denemek ister misiniz?';
+  static const String noNearbyAny =
+      'Yakinlarda hastane veya karakol bulunamadi. Tekrar denemek ister misiniz?';
   static const String retrySearch = 'Tekrar Ara';
   static const String locationRequiredForNearby = 'Yakin kurumlari gostermek icin konum izni gerekli.';
   static const String getDirections = 'Yol Tarifi';

@@ -39,6 +39,19 @@ DEBUG_FALLBACK_MODE = os.environ.get("DEBUG_FALLBACK_MODE", "false").strip().low
 
 FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
     {
+        "user": "Başım çok ağrıyor.",
+        "assistant_json": {
+            "response_text": "Kaydettim. Ne zamandır sürüyor; ateş, bulantı, boyun tutulması veya ani şiddetli başlangıç gibi bir durum var mı?",
+            "triage_level": "NON_URGENT",
+            "category": "medical",
+            "confidence": 0.72,
+            "red_flags": [],
+            "is_complete": False,
+            "is_witness": False,
+            "extracted_slots": {},
+        },
+    },
+    {
         "user": "Evet, kalp krizi geçiriyor gibi. Göğsü sıkışıyor.",
         "assistant_json": {
             "response_text": "Anladım, kalp krizi şüphesi ciddi bir acil durum. Hemen 112'yi arayın. Kişiyi sakin tutun, oturur veya yarı oturur pozisyonda tutun. Aspirin varsa çiğnetin (alerji yoksa). Şimdi adınızı ve tam adresinizi söyler misiniz?",
@@ -154,14 +167,14 @@ def build_system_prompt_with_few_shot(
 
 def _get_triage_system_prompt() -> str:
     """
-    FAZ 4: Groq Turn-1 Triage Prompt
-    Rapid category + severity determination from first user message.
+    OpenAI fine-tuned triage: category + severity from the full conversation so far (every turn).
     """
     return """\
-You are a professional emergency triage system. Your role is to RAPIDLY assess \
-the emergency type and severity from the user's first message.
+You are a professional emergency triage system. Your role is to assess \
+the emergency type and severity using the ENTIRE conversation transcript you receive \
+(user and assistant messages so far). Re-evaluate each turn as new information appears.
 
-TASK: Determine category and severity in ONE response.
+TASK: Determine the current category and severity from the full context.
 
 Categories:
 - medical: Health crisis (heart attack, stroke, severe injury, breathing difficulty, etc.)
@@ -198,12 +211,18 @@ You MUST return ONLY a valid JSON object – no markdown, no prose.
   "extracted_slots": {}
 }
 
+INSUFFICIENT DETAIL (especially medical):
+- Short or vague complaints alone (e.g. headache, minor pain, "I feel bad") are NOT automatically serious.
+- If the user has not described life-threatening signs, prefer NON_URGENT until clearer danger signals appear in later turns.
+- CRITICAL requires explicit or strongly implied immediate life threat in the transcript — do not infer worst case from ambiguity alone.
+
 RULES:
-- Respond in user's language
-- Focus only on triage, NOT on follow-up questions
-- Red flags only for genuine life-threatening signs
-- Do NOT extract slots at this stage (leave empty)
-- When in doubt, escalate to URGENT
+- Use the latest user statements; if the situation worsens or clarifies, update severity and red_flags.
+- Respond in user's language (response_text is for logging only; the chat UI uses another model).
+- Focus only on triage classification, NOT on what question to ask next
+- Red flags only for genuine life-threatening signs actually stated or clearly implied
+- Do NOT extract slots at this stage (leave extracted_slots empty)
+- When information is insufficient, stay at NON_URGENT for isolated mild/vague symptoms; use URGENT only when the text clearly supports serious but not immediate lethal risk; reserve CRITICAL for clear life threats.
 - Set is_witness=true if caller is clearly an observer, false otherwise
 """
 
@@ -217,8 +236,9 @@ You are a professional emergency triage and dispatcher assistant. This is the us
 
 You MUST do BOTH in one response:
 (1) TRIAGE: Determine category, triage_level, red_flags, confidence, is_witness — same rigor as a dedicated triage model.
-(2) RESPOND: Give calm reassurance and ask exactly ONE next critical question OR give immediate first-aid if CRITICAL,
-    following dispatcher priority: chief_complaint → caller_name → age → category-specific critical detail.
+(2) RESPOND: Calm, non-alarming tone on the FIRST message unless the user already stated clear life-threatening signs.
+    Ask exactly ONE clarifying question OR give immediate first-aid only when triage is truly CRITICAL.
+    Priority: understand chief_complaint → caller_name → age → category-specific detail — do not imply dispatch/teams are en route unless dispatch_action is dispatch_now for a justified CRITICAL case.
 
 Categories: medical | fire | crime | other
 Severity: CRITICAL | URGENT | NON_URGENT
@@ -253,10 +273,16 @@ OUTPUT FORMAT — return ONLY a valid JSON object, no markdown:
   "legal_close": <true|false>
 }
 
+FIRST MESSAGE — NO ALARM FATIGUE:
+- Vague or under-specified health complaints (headache, mild pain, "rahatsızım") → triage_level NON_URGENT, dispatch_action "none",
+  red_flags [] unless the user already named a severe symptom (e.g. not breathing, severe bleeding, chest crush pain, unconscious).
+- Do NOT write that emergency services are already dispatched / "yönlendiriliyor" on turn 1 unless you set dispatch_action="dispatch_now" for a clearly justified CRITICAL case.
+- Prefer gathering one key missing clinical detail before escalating severity.
+
 RULES:
 - Ask only ONE question in response_text when collecting information.
-- For CRITICAL life threats, give short first-aid/safety steps and set dispatch_action="dispatch_now" when appropriate.
-- When in doubt on severity, prefer URGENT or CRITICAL over NON_URGENT.
+- For CRITICAL life threats already stated by the user, give short first-aid/safety steps and set dispatch_action="dispatch_now" when appropriate.
+- When severity is unclear, classify from what is actually said — do not default to URGENT/CRITICAL for ambiguity alone; mild isolated symptoms → NON_URGENT until new danger signs appear.
 - red_flags: short phrases in the SAME language as the user's message.
 """
 
@@ -269,7 +295,12 @@ def _get_dialog_system_prompt() -> str:
     """
     return """\
 You are a professional emergency dispatcher assistant. Your role is to collect \
-critical information, keep the caller calm, and provide immediate first-aid guidance.
+critical information, keep the caller calm, and provide first-aid guidance when truly needed.
+
+TONE AND EARLY TURNS:
+- Match urgency to what the user has actually reported. Avoid frightening or commanding language when symptoms are vague or mild.
+- If the session context shows LOCKED TRIAGE LEVEL: NON_URGENT or the case is still poorly specified, keep response_text supportive and ask one clear follow-up question; do not say teams are dispatched unless dispatch_action is "dispatch_now" for a confirmed serious situation.
+- Escalate language and dispatch_action only after the user supplies worsening or high-risk details — use their new details in later turns; do not assume the worst beforehand.
 
 Intent confirmation and strict emergency scope: you are not a general chatbot — keep answers \
 within emergency dispatch; if the user drifts off-topic, politely redirect with intent confirmation \
@@ -319,7 +350,8 @@ URGENT DISPATCH POLICY (strict):
     medical: breathing/consciousness/bleeding,
     fire: trapped/fire_size/smoke_inhalation,
     crime: assailant_present/weapon/number_injured.
-- If by turn 3 those minimum slots are still incomplete, set dispatch_action="dispatch_now".
+- If by turn 3 those minimum slots are still incomplete and triage_level is URGENT or CRITICAL, set dispatch_action="dispatch_now".
+- If triage_level remains NON_URGENT (vague or minor case), do NOT force dispatch at turn 3 — continue safe questioning or move toward legal_close when appropriate.
 - After dispatch, ask exactly one short micro-location follow-up question
     (building/floor/apartment/entrance/landmark), then finish.
 
@@ -409,6 +441,7 @@ SEVERITY: CRITICAL, URGENT, NON_URGENT
 
 RULES:
 - Ask ONLY ONE question.
+- On a vague first medical message without danger signs, use NON_URGENT, empty red_flags, dispatch_action "none", and a calm clarifying question — not immediate-dispatch wording.
 - Do NOT ask for location; it is obtained automatically from the phone.
 - If the caller is a witness/bystander, avoid age or medical history unless stated.
 - Keep response_text concise, max 3 sentences.

@@ -1,0 +1,401 @@
+case_id,text_en,source,label_category_gold,label_triage_gold,red_flags_gold,input_quality
+oos_tr_0249,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0094,Cocugumun dogum gununu nerde kutlayabilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0158,"Can't decide if this is police or ambulance, wrong caller probably.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0164,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0246,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0228,"My parcel didn't arrive, no tracking number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0190,"My watch stopped, can you tell me the correct time?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0122,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0007,ay ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0042,denendi bye bye,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0192,The courier company gave me this number.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0055,testing testing,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0038,"Can't decide if this is police or ambulance, wrong caller probably.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0088,uhh umm um,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0097,ay ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0114,lol lol prank prank bye,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0043,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0217,"Annemle tartistim ne yapayim, danisman mi var?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0099,Sinav sorulari hakkinda bilgi alabilir miyim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0053,Doviz kuru ne anda dolar?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0021,jkshak djs ak,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0169,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0001,ne dedin anlamadim konus iyice,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0077,"I argued with my mom, is there a counselor?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0009,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0068,"My parcel didn't arrive, no tracking number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0198,"Can't decide if this is police or ambulance, wrong caller probably.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0002,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0117,nothing really just checking,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0122,blabla blabla bip bip,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0009,ofof off off ne oldu,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0003,haha ses test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0244,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0209,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0055,"Telefonu test etmek icin aradim, affedersiniz.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0034,Where can I celebrate my kid's birthday?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0104,pupupu papapa,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0030,asdasd asdfg hjkl,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0059,Sinav sorulari hakkinda bilgi alabilir miyim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0243,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0136,what did you say repeat clearly,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0039,ofof off off ne oldu,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0230,"My watch stopped, can you tell me the correct time?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0130,mmm mmm mmm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0029,Where's the nearest ATM?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0081,jkshak djs ak,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0240,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0097,"Annemle tartistim ne yapayim, danisman mi var?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0072,denendi bye bye,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0143,What's the weather tomorrow in Istanbul?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0175,"Telefonu test etmek icin aradim, affedersiniz.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0066,Which pharmacy is on duty tonight?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0101,lollolol acil servis hahaha dalga,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0045,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0227,I'm calling the postal courier line I guess.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0144,Is this reservation service?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0213,Doviz kuru ne anda dolar?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0075,"Called to test my phone, sorry.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0124,alooo kim var burda,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0085,testing testing,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0088,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0135,asdf asdf qwerty,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0026,Which pharmacy is on duty tonight?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0072,The courier company gave me this number.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0180,"Hi, can I place a pizza order?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0031,Which bus goes downtown?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0076,what did you say repeat clearly,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0130,"Saatim durdu, dogru saati ogrenebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0127,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0123,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0248,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0083,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0010,"Saatim durdu, dogru saati ogrenebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0065,"Dialed the translator hotline I think, wrong number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0095,hmm ne,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0099,ofof off off ne oldu,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0034,alooo kim var burda,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0064,Is this reservation service?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0162,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0085,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0154,Where can I celebrate my kid's birthday?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0120,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0080,hmm what,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0225,"Dialed the translator hotline I think, wrong number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0220,"Hi, can I place a pizza order?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0074,Where can I celebrate my kid's birthday?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0106,Which pharmacy is on duty tonight?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0203,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0037,"I argued with my mom, is there a counselor?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0211,Hangi otobus gider merkez'e?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0018,haha sound test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0231,Which bus goes downtown?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0086,heheh prank call,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0167,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0165,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0093,Doviz kuru ne anda dolar?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0089,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0106,what did you say repeat clearly,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0068,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0170,"Saatim durdu, dogru saati ogrenebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0100,"Hi, can I place a pizza order?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0159,Can I get info about exam questions?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0123,haha ses test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0043,heheh prankprank,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0226,Which pharmacy is on duty tonight?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0188,"My parcel didn't arrive, no tracking number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0007,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0241,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0139,Sinav sorulari hakkinda bilgi alabilir miyim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0221,"I'd like to call a taxi, is this the right number?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0044,pupupu papapa,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0105,asdf asdf qwerty,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0218,"Acil servis mi polis mi karar veremedim, yanlis arayan biriyim.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0033,haha ses test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0133,Doviz kuru ne anda dolar?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0096,"Biraz dinleyebilir misiniz, yalniz konusmak istiyorum.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0011,Hangi otobus gider merkez'e?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0014,pupupu papapa,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0070,mmm mmm mmm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0069,Where's the nearest ATM?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0063,haha ses test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0006,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0147,nothing really just checking,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0031,ne dedin anlamadim konus iyice,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0109,Where's the nearest ATM?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0149,Where's the nearest ATM?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0178,"Acil servis mi polis mi karar veremedim, yanlis arayan biriyim.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0113,What's the current USD exchange rate?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0019,Sinav sorulari hakkinda bilgi alabilir miyim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0000,asdasd asdfg hjkl,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0118,"Can't decide if this is police or ambulance, wrong caller probably.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0247,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0028,uhh umm um,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0157,"I argued with my mom, is there a counselor?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0084,lol lol prank prank bye,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0143,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0152,The courier company gave me this number.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0102,denendi bye bye,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0184,Is this reservation service?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0120,asdasd asdfg hjkl,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0089,mm mm mm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0103,What's the weather tomorrow in Istanbul?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0191,Which bus goes downtown?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0025,"Dialed the translator hotline I think, wrong number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0126,ahkhsk sdjf akj,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0079,hello hello anyone there,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0105,"Dialed the translator hotline I think, wrong number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0201,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0090,"Saatim durdu, dogru saati ogrenebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0112,ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0151,Which bus goes downtown?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0027,nothing really just checking,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0048,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0104,Is this reservation service?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0156,"Can you just listen, I want to talk alone.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0062,How can I pay my internet bill?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0207,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0147,I'm calling the postal courier line I guess.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0146,Which pharmacy is on duty tonight?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0050,hmm what,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0238,"Can't decide if this is police or ambulance, wrong caller probably.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0200,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0065,hmm ne,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0048,haha sound test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0060,"Hi, can I place a pizza order?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0131,Hangi otobus gider merkez'e?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0173,Doviz kuru ne anda dolar?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0084,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0008,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0119,mm mm mm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0177,"Annemle tartistim ne yapayim, danisman mi var?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0132,denendi bye bye,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0047,bla bla beep beep,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0018,"Acil servis mi polis mi karar veremedim, yanlis arayan biriyim.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0128,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0026,heheh prank call,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0179,Sinav sorulari hakkinda bilgi alabilir miyim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0016,what did you say repeat clearly,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0141,"I'd like to call a taxi, is this the right number?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0012,denendi bye bye,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0017,bla bla beep beep,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0086,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0054,lol lol prank prank bye,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0013,heheh prankprank,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0094,alooo kim var burda,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0030,"My watch stopped, can you tell me the correct time?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0115,"Called to test my phone, sorry.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0132,Kargo firmasi sordugumda bana bu numarayi verdi.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0091,ne dedin anlamadim konus iyice,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0242,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0057,nothing really just checking,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0171,Hangi otobus gider merkez'e?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0102,How can I pay my internet bill?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0108,haha sound test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0182,How can I pay my internet bill?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0078,haha sound test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0100,mmm mmm mmm,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0074,pupupu papapa,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0093,haha ses test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0019,hello hello anyone there,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0054,Cocugumun dogum gununu nerde kutlayabilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0046,what did you say repeat clearly,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0245,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0237,"I argued with my mom, is there a counselor?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0067,I'm calling the postal courier line I guess.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0042,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0145,testing testing,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0121,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0168,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0210,"Saatim durdu, dogru saati ogrenebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0022,ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0196,"Can you just listen, I want to talk alone.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0015,asdf asdf qwerty,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0067,ay ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0017,"Annemle tartistim ne yapayim, danisman mi var?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0208,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0124,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0187,I'm calling the postal courier line I guess.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0021,"I'd like to call a taxi, is this the right number?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0020,"Hi, can I place a pizza order?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0145,"Dialed the translator hotline I think, wrong number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0223,What's the weather tomorrow in Istanbul?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0014,Cocugumun dogum gununu nerde kutlayabilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0061,"I'd like to call a taxi, is this the right number?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0038,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0206,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0212,Kargo firmasi sordugumda bana bu numarayi verdi.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0224,Is this reservation service?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0092,Kargo firmasi sordugumda bana bu numarayi verdi.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0056,heheh prank call,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0004,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0064,alooo kim var burda,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0082,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0153,What's the current USD exchange rate?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0000,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0139,hello hello anyone there,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0041,lollolol acil servis hahaha dalga,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0062,blabla blabla bip bip,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0199,Can I get info about exam questions?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0060,asdasd asdfg hjkl,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0041,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0020,hmm what,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0095,"Telefonu test etmek icin aradim, affedersiniz.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0039,Can I get info about exam questions?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0050,"Saatim durdu, dogru saati ogrenebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0155,"Called to test my phone, sorry.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0004,alooo kim var burda,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0163,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0215,"Telefonu test etmek icin aradim, affedersiniz.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0076,"Can you just listen, I want to talk alone.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0160,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0011,lollolol acil servis hahaha dalga,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0027,I'm calling the postal courier line I guess.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0233,What's the current USD exchange rate?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0129,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0091,Hangi otobus gider merkez'e?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0006,ahkhsk sdjf akj,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0036,ahkhsk sdjf akj,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0001,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0075,asdf asdf qwerty,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0080,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0222,How can I pay my internet bill?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0090,asdasd asdfg hjkl,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0148,uhh umm um,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0110,hmm what,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0069,ofof off off ne oldu,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0058,"Acil servis mi polis mi karar veremedim, yanlis arayan biriyim.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0005,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0128,"Kargom gelmemis, takip numarasi yok.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0239,Can I get info about exam questions?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0195,"Called to test my phone, sorry.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0197,"I argued with my mom, is there a counselor?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0032,The courier company gave me this number.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0111,jkshak djs ak,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0113,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0078,"Can't decide if this is police or ambulance, wrong caller probably.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0056,"Biraz dinleyebilir misiniz, yalniz konusmak istiyorum.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0024,Is this reservation service?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0046,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0002,blabla blabla bip bip,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0010,mmm mmm mmm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0070,"My watch stopped, can you tell me the correct time?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0141,jkshak djs ak,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0087,nothing really just checking,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0204,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0219,Sinav sorulari hakkinda bilgi alabilir miyim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0134,Cocugumun dogum gununu nerde kutlayabilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0025,testing testing,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0125,hmm ne,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0126,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0142,ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0098,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0073,What's the current USD exchange rate?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0234,Where can I celebrate my kid's birthday?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0202,Internet faturami nasil odeyebilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0005,hmm ne,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0049,hello hello anyone there,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0053,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0040,mmm mmm mmm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0108,"My parcel didn't arrive, no tracking number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0033,What's the current USD exchange rate?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0137,"Annemle tartistim ne yapayim, danisman mi var?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0205,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0161,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0133,heheh prankprank,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0117,"I argued with my mom, is there a counselor?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0028,"My parcel didn't arrive, no tracking number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0166,Eczane nobetcisi kim bu gece?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0118,uhh umm um,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0035,hmm ne,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0138,"Acil servis mi polis mi karar veremedim, yanlis arayan biriyim.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0149,mm mm mm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0236,"Can you just listen, I want to talk alone.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0073,heheh prankprank,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0144,lol lol prank prank bye,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0023,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0087,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0061,ne dedin anlamadim konus iyice,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0036,"Can you just listen, I want to talk alone.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0136,"Biraz dinleyebilir misiniz, yalniz konusmak istiyorum.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0107,I'm calling the postal courier line I guess.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0181,"I'd like to call a taxi, is this the right number?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0189,Where's the nearest ATM?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0083,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0186,Which pharmacy is on duty tonight?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0232,The courier company gave me this number.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0121,ne dedin anlamadim konus iyice,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0103,heheh prankprank,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0051,Hangi otobus gider merkez'e?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0138,haha sound test 1 2 3,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0092,blabla blabla bip bip,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0148,"My parcel didn't arrive, no tracking number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0116,"Can you just listen, I want to talk alone.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0023,What's the weather tomorrow in Istanbul?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0035,"Called to test my phone, sorry.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0098,"Acil servis mi polis mi karar veremedim, yanlis arayan biriyim.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0045,asdf asdf qwerty,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0185,"Dialed the translator hotline I think, wrong number.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0066,ahkhsk sdjf akj,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0071,lollolol acil servis hahaha dalga,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0150,"My watch stopped, can you tell me the correct time?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0032,blabla blabla bip bip,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0040,"Merhaba, pizza siparisi verebilir miyim?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0193,What's the current USD exchange rate?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0063,What's the weather tomorrow in Istanbul?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0024,lol lol prank prank bye,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0235,"Called to test my phone, sorry.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0022,How can I pay my internet bill?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0135,"Telefonu test etmek icin aradim, affedersiniz.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0059,mm mm mm,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0176,"Biraz dinleyebilir misiniz, yalniz konusmak istiyorum.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0183,What's the weather tomorrow in Istanbul?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0049,"Bankamatik nerde, en yakin sube?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0194,Where can I celebrate my kid's birthday?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0131,lollolol acil servis hahaha dalga,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0140,hmm what,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0172,Kargo firmasi sordugumda bana bu numarayi verdi.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0110,"My watch stopped, can you tell me the correct time?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0079,Can I get info about exam questions?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0115,testing testing,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0174,Cocugumun dogum gununu nerde kutlayabilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0134,pupupu papapa,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0107,bla bla beep beep,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0081,"Taksi cagirmak istiyorum, adres kaza mi?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0003,Yarin hava nasil olacak Istanbul'da?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0142,How can I pay my internet bill?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0051,jkshak djs ak,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0229,Where's the nearest ATM?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0112,The courier company gave me this number.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0214,Cocugumun dogum gununu nerde kutlayabilirim?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0137,bla bla beep beep,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0109,hello hello anyone there,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0082,ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0116,heheh prank call,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0101,"I'd like to call a taxi, is this the right number?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0037,ay ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0013,Doviz kuru ne anda dolar?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0058,uhh umm um,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0008,pwp pwp pwp,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0119,Can I get info about exam questions?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0111,Which bus goes downtown?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0047,Posta kurye hattini ariyorum sanirim.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0015,"Telefonu test etmek icin aradim, affedersiniz.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0016,"Biraz dinleyebilir misiniz, yalniz konusmak istiyorum.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0216,"Biraz dinleyebilir misiniz, yalniz konusmak istiyorum.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0052,ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0044,Otel rezervasyonu icin mi buradasiniz?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0029,mm mm mm,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_en_0146,heheh prank call,nonsense_v1,other,NON_URGENT,0,gibberish
+gib_tr_0096,ahkhsk sdjf akj,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0052,Kargo firmasi sordugumda bana bu numarayi verdi.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0127,ay ay ay hahaha,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_en_0071,Which bus goes downtown?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0114,Where can I celebrate my kid's birthday?,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0125,"Tercuman hattini mi aradim, yanlis numara galiba.",nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_en_0140,"Hi, can I place a pizza order?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_tr_0129,ofof off off ne oldu,nonsense_v1,other,NON_URGENT,0,gibberish
+oos_tr_0012,Kargo firmasi sordugumda bana bu numarayi verdi.,nonsense_v1,other,NON_URGENT,0,out_of_scope
+oos_tr_0057,"Annemle tartistim ne yapayim, danisman mi var?",nonsense_v1,other,NON_URGENT,0,out_of_scope
+gib_en_0077,bla bla beep beep,nonsense_v1,other,NON_URGENT,0,gibberish

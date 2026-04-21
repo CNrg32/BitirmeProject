@@ -74,6 +74,11 @@ class Session:
     # FAZ 5: Track which slot is currently being asked for (2-attempt rule)
     pending_question_key: Optional[str] = None
 
+    # Temporal consistency buffer — son N turdaki raw triage tahminleri
+    # (session.triage_result commit edilmeden once burdan gecer).
+    # Her eleman: {"triage_level","confidence","red_flag_present","turn_index","ts"}
+    triage_history: List[Dict[str, Any]] = field(default_factory=list)
+
     # Image-layer state: invalid/unclear image retry count and post-dispatch updates.
     image_attempt_count: int = 0
     image_updates: List[Dict[str, Any]] = field(default_factory=list)

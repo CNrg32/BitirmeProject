@@ -38,6 +38,55 @@ pip install -r requirements.txt   # edge-tts dahil (insanı TTS sesi için gerek
 uvicorn src.main:app --host 127.0.0.1 --port 8000
 ```
 
+## Local triage model (XLM-R)
+
+Triaj sınıflandırması artık OpenAI fine-tuned modeli yerine yerel XLM-RoBERTa multi-task modeli ile çalışabilir. Model dialog history'sini `[USER] ... [ASSISTANT] ... [USER] ...` formatında alır ve `triage_level` + `category` + `red_flag_present` tahmin eder. `src/services/triage_local_service.py` conservative karar kurallarını (güven eşiği, minimum turn sayısı) uygular.
+
+### Eğitim verisini hazırla
+
+```bash
+# 1) Yeni hafif/şüpheli şikayet sentetik veri setlerini üret
+python scripts/generate_minor_complaints.py
+
+# 2) Tüm veri kaynaklarını birleştirip train/val/test parquet'lerini yenile
+python scripts/merge_train_dataset.py
+
+# 3) History-aware prefix örneklerini + JSONL dialog örneklerini üret
+python scripts/prepare_triage_history_dataset.py
+# -> output/out_dataset/triage_history_{train,val,test}.parquet
+```
+
+### Modeli eğit
+
+```bash
+# Varsayılan: xlm-roberta-base, max_len=384, epochs=4, lr=2e-5
+python scripts/train_triage_xlmr.py
+# -> out_models/triage_xlmr/ (model.pt + config.json + tokenizer/)
+```
+
+Mac'te MPS otomatik seçilir; CUDA yoksa CPU'ya düşer. Küçük RAM için `--batch-size 4 --max-len 256`.
+
+### Modeli değerlendir
+
+```bash
+python scripts/eval_triage_local.py            # genel test + stress test
+python scripts/eval_triage_local.py --show-raw # conservative rule öncesi ham çıktı
+```
+
+### Backend'i yerel modelle çalıştır
+
+`.env` dosyasına ekle:
+
+```env
+TRIAGE_BACKEND=local                # local | openai (varsayılan: model varsa local)
+TRIAGE_CRITICAL_THRESHOLD=0.70      # ham prob eşiği, altında URGENT'a düşer
+TRIAGE_URGENT_THRESHOLD=0.55        # altında NON_URGENT'a düşer
+TRIAGE_MIN_TURNS_CRITICAL=2         # ilk user turlarında red flag yoksa CRITICAL engeli
+TRIAGE_REDFLAG_THRESHOLD=0.5        # binary red-flag head karar sınırı
+```
+
+`src/mvp_regex_dictionary.json` + `src/mvp_rules.py` safety-net'i aktif kalır; gerçek red-flag ifadeleri (örn. "nefes alamıyor") her durumda CRITICAL'a zorlar.
+
 **Not:** İnsanı/doğal ses (Edge TTS) için `edge-tts` paketi yüklü olmalı. Backend’i çalıştırdığınız aynı Python ortamında `pip install edge-tts` veya `pip install -r requirements.txt` çalıştırın.
 
 ### ASR / TTS / çeviri ortam değişkenleri (performans ve tutarlılık)
@@ -64,7 +113,7 @@ uvicorn src.main:app --host 127.0.0.1 --port 8000
 | `TTS_GOOGLE_VOICE_EN` / `TTS_GOOGLE_VOICE_TR` | Örn. `en-US-Neural2-F`, `tr-TR-Neural2-A` |
 | `TTS_GOOGLE_SPEAKING_RATE` / `TTS_GOOGLE_PITCH` | Google TTS konuşma hızı (1.0) ve perde (0.0) |
 | `USE_OPENAI_FINAL_REPORT` | `true` ise oturum **son raporunu** yalnızca bu adımda OpenAI (GPT) üretir; diyalog hâlâ `GROQ_API_KEY` ile Groq’ta kalır. `OPENAI_API_KEY` gerekir. |
-| `OPENAI_FINAL_REPORT_MODEL` | İsteğe bağlı; boşsa `OPENAI_MODEL` veya `gpt-4.1-mini-2025-04-14` kullanılır. |
+| `OPENAI_FINAL_REPORT_MODEL` | İsteğe bağlı; boşsa `gpt-4.1-mini-2025-04-14` kullanılır (diyalog modeli `OPENAI_MODEL` ile karıştırılmaz). |
 | `OPENAI_FINAL_REPORT_MAX_TOKENS` | Son rapor üst sınırı (varsayılan `1200`). |
 
 Daha doğal **TTS** için: `GOOGLE_TTS_API_KEY` ile `TTS_PROVIDER=auto` (veya `google`) kullanın; sadece Edge kullanacaksanız varsayılan sesler `en-US-AriaNeural` / `tr-TR-EmelNeural` ve hafif yavaşlatma (`TTS_EDGE_RATE=-6%`) uygulanır. **Çeviri** kalitesi için üretimde `TRANSLATION_BACKEND=deepl` veya `google` + resmi API anahtarı önerilir.
@@ -76,6 +125,12 @@ Daha doğal **TTS** için: `GOOGLE_TTS_API_KEY` ile `TTS_PROVIDER=auto` (veya `g
 ```bash
 cd mobile && flutter pub get && flutter run -d chrome
 ```
+
+## LLM (Groq diyalog + OpenAI fine-tune triage)
+
+Tam **LLM** modu için birlikte gerekir: **`GROQ_API_KEY`** (kullanıcıya gösterilen yanıtlar Groq’ta), **`OPENAI_API_KEY`** ve **`OPENAI_FINE_TUNED_MODEL`** (**triage**: her turda güncel konuşma ile kategori / `triage_level` / `red_flags`; rapor ve dispatch mantığı bu çıktıya dayanır). İkisi eksikse orchestrator kural tabanlı akışa geçer.
+
+İsteğe bağlı: `GROQ_MODEL`, `GROQ_FINE_TUNED_MODEL`, `OPENAI_TRIAGE_MAX_TOKENS`, `OPENAI_TRIAGE_MAX_HISTORY_TURNS`, `OPENAI_FINE_TUNED_FAST`.
 
 ## LLM davranışını özelleştirme (few-shot / fine-tuning)
 
@@ -143,7 +198,7 @@ PYTHONPATH=src python scripts/eval_groq_json_mode.py
 ```
 
 Not:
-- Bu repodaki backend varsayılan olarak Groq kullanır.
+- Bu repodaki backend diyalog için Groq, triage kararı için OpenAI fine-tune (`OPENAI_FINE_TUNED_MODEL`) kullanır.
 - Together'da fine-tune edilen modeli doğrudan backend'e bağlamak isterseniz ek provider entegrasyonu gerekir.
 - Eski AWS tabanlı yerel LoRA akışı için `scripts/train_lora_aws.py` scripti repoda tutulmuştur.
 
@@ -196,6 +251,4 @@ $env:LOCAL_CHATBOT_MODEL_DIR="out_models/chatbot_finetuned"
 uvicorn src.main:app --host 127.0.0.1 --port 8000
 ```
 
-Provider order is now:
-1. `LOCAL_CHATBOT_MODEL_DIR` (local fine-tuned model)
-2. `GROQ_API_KEY`
+Production LLM stack (when keys are set): Groq for dialog; OpenAI fine-tuned model for triage only. Legacy local provider notes may still refer to `LOCAL_CHATBOT_MODEL_DIR` in older scripts.

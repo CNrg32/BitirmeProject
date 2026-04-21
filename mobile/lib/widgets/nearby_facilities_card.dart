@@ -11,6 +11,7 @@ class NearbyFacilitiesCard extends StatelessWidget {
   final ValueChanged<NearbyFacilityType> onTypeChanged;
   final bool hasLocation;
   final VoidCallback? onRetry;
+  final ValueChanged<NearestFacility>? onFacilityTap;
 
   const NearbyFacilitiesCard({
     super.key,
@@ -19,14 +20,60 @@ class NearbyFacilitiesCard extends StatelessWidget {
     required this.onTypeChanged,
     required this.hasLocation,
     this.onRetry,
+    this.onFacilityTap,
   });
+
+  static List<NearestFacility> _visibleList(
+    List<NearestFacility> facilities,
+    NearbyFacilityType selectedType,
+  ) {
+    if (selectedType == NearbyFacilityType.all) {
+      final copy = List<NearestFacility>.from(facilities);
+      copy.sort((a, b) => a.distanceMeters.compareTo(b.distanceMeters));
+      return copy;
+    }
+    return facilities
+        .where((facility) => facility.type == selectedType)
+        .toList(growable: false);
+  }
+
+  IconData _headerIcon() {
+    switch (selectedType) {
+      case NearbyFacilityType.hospital:
+        return Icons.local_hospital;
+      case NearbyFacilityType.police:
+        return Icons.local_police;
+      case NearbyFacilityType.all:
+        return Icons.map;
+    }
+  }
+
+  Color _headerColor(ThemeData theme) {
+    switch (selectedType) {
+      case NearbyFacilityType.hospital:
+        return AppTheme.criticalRed;
+      case NearbyFacilityType.police:
+        return theme.colorScheme.primary;
+      case NearbyFacilityType.all:
+        return theme.colorScheme.secondary;
+    }
+  }
+
+  String _emptyMessage() {
+    switch (selectedType) {
+      case NearbyFacilityType.hospital:
+        return AppStrings.noNearbyHospitals;
+      case NearbyFacilityType.police:
+        return AppStrings.noNearbyPolice;
+      case NearbyFacilityType.all:
+        return AppStrings.noNearbyAny;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final visibleFacilities = facilities
-        .where((facility) => facility.type == selectedType)
-        .toList(growable: false);
+    final visibleFacilities = _visibleList(facilities, selectedType);
 
     return Container(
       width: double.infinity,
@@ -49,12 +96,8 @@ class NearbyFacilitiesCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                selectedType == NearbyFacilityType.hospital
-                    ? Icons.local_hospital
-                    : Icons.local_police,
-                color: selectedType == NearbyFacilityType.hospital
-                    ? AppTheme.criticalRed
-                    : theme.colorScheme.primary,
+                _headerIcon(),
+                color: _headerColor(theme),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -71,6 +114,13 @@ class NearbyFacilitiesCard extends StatelessWidget {
           Wrap(
             spacing: 8,
             children: [
+              FilterChip(
+                label: const Text(AppStrings.allFacilitiesOption),
+                selected: selectedType == NearbyFacilityType.all,
+                onSelected: (value) {
+                  if (value) onTypeChanged(NearbyFacilityType.all);
+                },
+              ),
               FilterChip(
                 label: const Text(AppStrings.hospitalOption),
                 selected: selectedType == NearbyFacilityType.hospital,
@@ -107,9 +157,7 @@ class NearbyFacilitiesCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        selectedType == NearbyFacilityType.hospital
-                            ? AppStrings.noNearbyHospitals
-                            : AppStrings.noNearbyPolice,
+                        _emptyMessage(),
                         style: theme.textTheme.bodyMedium,
                       ),
                     ),
@@ -127,7 +175,10 @@ class NearbyFacilitiesCard extends StatelessWidget {
           else
             ...visibleFacilities.map((facility) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _FacilityTile(facility: facility),
+                  child: _FacilityTile(
+                    facility: facility,
+                    onHighlight: onFacilityTap,
+                  ),
                 )),
         ],
       ),
@@ -137,14 +188,18 @@ class NearbyFacilitiesCard extends StatelessWidget {
 
 class _FacilityTile extends StatelessWidget {
   final NearestFacility facility;
+  final ValueChanged<NearestFacility>? onHighlight;
 
-  const _FacilityTile({required this.facility});
+  const _FacilityTile({
+    required this.facility,
+    this.onHighlight,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    final content = Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.45),
@@ -156,11 +211,28 @@ class _FacilityTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            facility.name,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                facility.type == NearbyFacilityType.police
+                    ? Icons.local_police
+                    : Icons.local_hospital,
+                size: 20,
+                color: facility.type == NearbyFacilityType.police
+                    ? theme.colorScheme.primary
+                    : AppTheme.criticalRed,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  facility.name,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
@@ -194,6 +266,19 @@ class _FacilityTile extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+
+    if (onHighlight == null) {
+      return content;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onHighlight!(facility),
+        borderRadius: BorderRadius.circular(14),
+        child: content,
       ),
     );
   }

@@ -1299,6 +1299,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 GestureDetector(
                   onTap: _isSending ? null : _toggleRecording,
@@ -1354,6 +1355,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: _textController,
                     enabled: !_isSending && !_isRecording,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
+                    minLines: 1,
+                    maxLines: 8,
                     decoration: InputDecoration(
                       hintText: AppStrings.orTypeHere,
                       border: OutlineInputBorder(
@@ -1368,8 +1373,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         vertical: 12,
                       ),
                     ),
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _sendText(),
                   ),
                 ),
                 const SizedBox(width: 8),

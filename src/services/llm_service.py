@@ -1,13 +1,16 @@
 """
 LLM service for emergency triage conversation.
 
-Provider selection:
-    1. OPENAI_API_KEY → OpenAI / fine-tuned OpenAI model
-    2. GROQ_API_KEY   → Groq (llama-3.3-70b)
+Architecture (no single-provider fallback):
+  - Groq: user-facing dialog (task=dialog, gibberish_check); triage fields from Groq are ignored by orchestrator.
+  - OpenAI fine-tuned (OPENAI_FINE_TUNED_MODEL): triage each turn with full conversation (task=triage).
 
-Set one of these keys in .env file:
-    OPENAI_API_KEY="<YOUR_OPENAI_API_KEY>"
-    GROQ_API_KEY="<YOUR_GROQ_API_KEY>"
+Requires in .env:
+  GROQ_API_KEY="<...>"
+  OPENAI_API_KEY="<...>"
+  OPENAI_FINE_TUNED_MODEL="ft:..."   # triage — required for LLM mode; no base-model fallback
+
+If any piece is missing, is_available is False and the orchestrator uses rule-based dialog.
 """
 from __future__ import annotations
 
@@ -18,6 +21,8 @@ import time
 from typing import Any, Dict, List, Optional
 
 from services.llm_prompt_config import build_system_prompt_with_few_shot
+from services.triage_local_service import LocalTriageService, get_local_triage_service
+from services.turn_trace import monotonic_start, trace_llm_response
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +106,6 @@ RULES:
 """
 
 
-
-
 # ---------------------------------------------------------------------------
 # JSON parser (shared)
 # ---------------------------------------------------------------------------
@@ -133,7 +136,7 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
             if line.startswith("```") and not in_block:
                 in_block = True
                 continue
-            if line.startswith("```") and in_block:
+            if in_block and line.strip().startswith("```"):
                 break
             if in_block:
                 inner.append(line)
@@ -141,15 +144,8 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
-        start, end = raw.find("{"), raw.rfind("}") + 1
-        if start != -1 and end > start:
-            try:
-                data = json.loads(raw[start:end])
-            except json.JSONDecodeError:
-                logger.warning("Could not parse LLM JSON")
-                return dict(_EMPTY_LLM_RESPONSE)
-        else:
-            return dict(_EMPTY_LLM_RESPONSE)
+        logger.warning("Could not parse LLM JSON")
+        return dict(_EMPTY_LLM_RESPONSE)
 
     result = dict(_EMPTY_LLM_RESPONSE)
     conf_raw = data.get("confidence")
@@ -183,37 +179,34 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# OpenAI provider
+# OpenAI — triage only (fine-tuned model required)
 # ---------------------------------------------------------------------------
 
-class _OpenAIProvider:
-    DEFAULT_MODEL = "gpt-4.1-mini-2025-04-14"
+class _OpenAITriageProvider:
+    """Triage classification only; model id must be OPENAI_FINE_TUNED_MODEL."""
 
-    def __init__(self, api_key: str) -> None:
+    def __init__(self, api_key: str, model_id: str) -> None:
         self._client = None
-        self.model = (
-            os.environ.get("OPENAI_FINE_TUNED_MODEL", "").strip()
-            or os.environ.get("OPENAI_MODEL", "").strip()
-            or self.DEFAULT_MODEL
-        )
+        self.model = model_id.strip()
         self.fast_finetune = (
             self.model.startswith("ft:")
             and os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower()
             not in ("0", "false", "no")
         )
-        self.max_tokens = int(os.environ.get("OPENAI_MAX_TOKENS", "360" if self.fast_finetune else "1024"))
+        default_mt = "360" if self.fast_finetune else "512"
+        self.max_tokens = int(os.environ.get("OPENAI_TRIAGE_MAX_TOKENS", os.environ.get("OPENAI_MAX_TOKENS", default_mt)))
         try:
             from openai import OpenAI  # type: ignore
             self._client = OpenAI(api_key=api_key)
-            logger.info("OpenAI LLM initialised (model=%s)", self.model)
+            logger.info("OpenAI triage model initialised (model=%s)", self.model)
         except ImportError:
             logger.error("openai package not installed. Run: pip install openai")
         except Exception as exc:
-            logger.error("OpenAI init failed: %s", exc)
+            logger.error("OpenAI triage init failed: %s", exc)
 
     @property
     def is_ready(self) -> bool:
-        return self._client is not None
+        return self._client is not None and bool(self.model)
 
     def chat(
         self,
@@ -226,44 +219,14 @@ class _OpenAIProvider:
             return dict(_EMPTY_LLM_RESPONSE)
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
-        prompt_task = task or "dialog"
         max_few_shot = 0 if self.fast_finetune else 5
         system = build_system_prompt_with_few_shot(
             SYSTEM_PROMPT,
             lang_name,
             max_few_shot=max_few_shot,
-            task=prompt_task,
+            task="triage",
         )
         messages = [{"role": "system", "content": system}]
-
-        if session_context and prompt_task == "dialog":
-            ctx_parts = []
-            if session_context.get("initial_category"):
-                ctx_parts.append(f"LOCKED CATEGORY: {session_context['initial_category']}")
-            if session_context.get("initial_triage_level"):
-                ctx_parts.append(f"LOCKED TRIAGE LEVEL: {session_context['initial_triage_level']}")
-            dispatch_status = session_context.get("dispatch_status", "")
-            if dispatch_status:
-                ctx_parts.append(f"DISPATCH STATUS: {dispatch_status}")
-            if dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
-                ctx_parts.append(
-                    "DISPATCH ACTIVE: Emergency services are already on the way. "
-                    "Do NOT set is_complete=true yet. Continue collecting micro-location details "
-                    "(building, floor, apartment, entrance, landmark, gate code) ONE question at a time. "
-                    "Only set is_complete=true when you have no more useful questions OR the caller "
-                    "says they cannot provide more info."
-                )
-            if session_context.get("witness_mode"):
-                ctx_parts.append("WITNESS MODE: true - caller is a bystander, NOT the victim. Apply witness question rules.")
-            exhausted = session_context.get("exhausted_slots") or []
-            if exhausted:
-                ctx_parts.append(f"EXHAUSTED SLOTS (do NOT ask again): {', '.join(exhausted)}")
-            if ctx_parts:
-                messages.append({
-                    "role": "system",
-                    "content": "SESSION CONTEXT (backend state - treat as authoritative):\n" + "\n".join(ctx_parts),
-                })
-
         for msg in history:
             role = "assistant" if msg.get("role") == "assistant" else "user"
             messages.append({"role": role, "content": msg.get("text", "")})
@@ -281,7 +244,7 @@ class _OpenAIProvider:
                     response_format={"type": "json_object"},
                 )
                 raw = response.choices[0].message.content or ""
-                logger.debug("OpenAI raw response: %s", raw[:500])
+                logger.debug("OpenAI triage raw response: %s", raw[:500])
                 return _parse_llm_json(raw)
             except Exception as exc:
                 exc_str = str(exc).lower()
@@ -294,17 +257,48 @@ class _OpenAIProvider:
                 if is_rate_limit and attempt < _MAX_RETRIES - 1:
                     wait = _RETRY_DELAYS[attempt]
                     logger.warning(
-                        "OpenAI rate limit hit (attempt %d/%d). Retrying in %ds. Error: %s",
+                        "OpenAI triage rate limit (attempt %d/%d). Retrying in %ds. Error: %s",
                         attempt + 1, _MAX_RETRIES, wait, exc,
                     )
                     time.sleep(wait)
                     continue
-                logger.error("OpenAI chat failed (attempt %d/%d): %s", attempt + 1, _MAX_RETRIES, exc)
+                logger.error("OpenAI triage failed (attempt %d/%d): %s", attempt + 1, _MAX_RETRIES, exc)
                 return dict(_EMPTY_LLM_RESPONSE)
 
 
 # ---------------------------------------------------------------------------
-# Groq provider
+# Local XLM-R triage provider — yerine gecen sinificandirici
+# ---------------------------------------------------------------------------
+
+class _LocalTriageProvider:
+    """Yerel XLM-RoBERTa multi-task modeli ile triage siniflandirma."""
+
+    def __init__(self) -> None:
+        self._service: LocalTriageService = get_local_triage_service()
+        self.model = "local/triage_xlmr"
+
+    @property
+    def is_ready(self) -> bool:
+        return self._service.is_available
+
+    def chat(
+        self,
+        history: List[Dict[str, str]],
+        language: str,
+        task: Optional[str] = None,
+        session_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if not self.is_ready:
+            return dict(_EMPTY_LLM_RESPONSE)
+        try:
+            return self._service.predict_from_history(history=history, language=language)
+        except Exception as exc:
+            logger.error("Local triage provider failed: %s", exc)
+            return dict(_EMPTY_LLM_RESPONSE)
+
+
+# ---------------------------------------------------------------------------
+# Groq provider (dialog + non-triage tasks)
 # ---------------------------------------------------------------------------
 
 class _GroqProvider:
@@ -312,8 +306,6 @@ class _GroqProvider:
 
     def __init__(self, api_key: str) -> None:
         self._client = None
-        # If you have a Groq fine-tuned/LoRA model id, set GROQ_FINE_TUNED_MODEL.
-        # Falls back to GROQ_MODEL and then project default.
         self.model = (
             os.environ.get("GROQ_FINE_TUNED_MODEL", "").strip()
             or os.environ.get("GROQ_MODEL", "").strip()
@@ -345,9 +337,9 @@ class _GroqProvider:
             return dict(_EMPTY_LLM_RESPONSE)
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
-        
-        # FAZ 4: Use task-specific prompt (triage vs dialog)
-        prompt_task = task or "dialog"  # Default to dialog if not specified
+        prompt_task = task or "dialog"
+        if prompt_task == "triage_dialog":
+            prompt_task = "dialog"
         max_few_shot = 0 if self.fast_path else 5
         system = build_system_prompt_with_few_shot(
             SYSTEM_PROMPT,
@@ -355,17 +347,9 @@ class _GroqProvider:
             max_few_shot=max_few_shot,
             task=prompt_task,
         )
-        
-        # FAZ 3: Inject session context for category locking (future: FAZ 4 will use this actively)
-        if session_context and session_context.get("initial_category"):
-            logger.debug("Session context injected: category=%s, dispatch_status=%s, task=%s",
-                        session_context.get("initial_category"), 
-                        session_context.get("dispatch_status"),
-                        prompt_task)
 
         messages = [{"role": "system", "content": system}]
 
-        # Inject session context as a system message so LLM can use it
         if session_context and prompt_task == "dialog":
             ctx_parts = []
             if session_context.get("initial_category"):
@@ -398,7 +382,7 @@ class _GroqProvider:
             messages.append({"role": role, "content": msg.get("text", "")})
 
         _MAX_RETRIES = 3
-        _RETRY_DELAYS = [2, 5, 10]  # seconds between retries
+        _RETRY_DELAYS = [2, 5, 10]
 
         for attempt in range(_MAX_RETRIES):
             try:
@@ -439,60 +423,82 @@ class _GroqProvider:
 # ---------------------------------------------------------------------------
 
 class LLMService:
-    """Uses Groq for runtime chat by default, with OpenAI as explicit override/fallback."""
+    """Groq for dialog; triage via local XLM-R veya OpenAI fine-tuned (TRIAGE_BACKEND)."""
 
     def __init__(self) -> None:
-        self._provider = None
-        self._provider_name = "none"
+        self._groq: Optional[_GroqProvider] = None
+        self._openai_triage: Optional[_OpenAITriageProvider] = None
+        self._local_triage: Optional[_LocalTriageProvider] = None
+        self._triage_backend: str = "local"
         self._init()
 
     def _init(self) -> None:
-        provider = os.environ.get("LLM_PROVIDER", "").strip().lower()
-        openai_key = os.environ.get("OPENAI_API_KEY")
-        groq_key = os.environ.get("GROQ_API_KEY")
+        groq_key = (os.environ.get("GROQ_API_KEY") or "").strip()
+        openai_key = (os.environ.get("OPENAI_API_KEY") or "").strip()
+        triage_model = (os.environ.get("OPENAI_FINE_TUNED_MODEL") or "").strip()
+        # Backend secimi: env > local-varsa > openai-varsa
+        requested_backend = (os.environ.get("TRIAGE_BACKEND") or "").strip().lower()
 
-        if provider and provider not in ("groq", "openai"):
-            logger.warning("Unknown LLM_PROVIDER=%s; falling back to Groq-first selection.", provider)
-
-        if provider == "openai" and openai_key:
-            p = _OpenAIProvider(api_key=openai_key)
-            if p.is_ready:
-                self._provider = p
-                self._provider_name = f"openai/{p.model}"
-                return
-
-        if provider != "openai" and groq_key:
+        if groq_key:
             p = _GroqProvider(api_key=groq_key)
             if p.is_ready:
-                self._provider = p
-                self._provider_name = f"groq/{p.model}"
-                return
+                self._groq = p
 
-        if openai_key and (
-            os.environ.get("OPENAI_FINE_TUNED_MODEL", "").strip()
-            or os.environ.get("OPENAI_MODEL", "").strip()
-        ):
-            p = _OpenAIProvider(api_key=openai_key)
+        local_candidate = _LocalTriageProvider()
+        if local_candidate.is_ready:
+            self._local_triage = local_candidate
+
+        if openai_key and triage_model:
+            p = _OpenAITriageProvider(api_key=openai_key, model_id=triage_model)
             if p.is_ready:
-                self._provider = p
-                self._provider_name = f"openai/{p.model}"
-                return
+                self._openai_triage = p
+        elif openai_key and not triage_model:
+            logger.warning(
+                "OPENAI_API_KEY is set but OPENAI_FINE_TUNED_MODEL is empty."
+            )
 
-        logger.warning(
-            "No LLM provider found (OPENAI_API_KEY or GROQ_API_KEY). "
-            "LLM disabled - falling back to rule-based dialog."
-        )
+        if requested_backend in ("local", "openai"):
+            self._triage_backend = requested_backend
+        else:
+            self._triage_backend = "local" if self._local_triage else "openai"
+
+        if self._triage_backend == "local" and not self._local_triage:
+            logger.warning(
+                "TRIAGE_BACKEND=local requested but model artefacts missing at out_models/triage_xlmr; falling back to openai."
+            )
+            self._triage_backend = "openai"
+        if self._triage_backend == "openai" and not self._openai_triage:
+            if self._local_triage:
+                logger.warning("OpenAI triage unavailable; falling back to local XLM-R.")
+                self._triage_backend = "local"
+
+        if not self._groq or not self._groq.is_ready:
+            logger.warning("Groq is not configured or failed to initialise (GROQ_API_KEY).")
+        logger.info("LLMService triage backend = %s", self._triage_backend)
 
     @property
     def is_available(self) -> bool:
-        return self._provider is not None
+        triage_ok = (
+            (self._triage_backend == "local" and self._local_triage and self._local_triage.is_ready)
+            or (self._triage_backend == "openai" and self._openai_triage and self._openai_triage.is_ready)
+        )
+        return bool(self._groq and self._groq.is_ready and triage_ok)
 
     @property
     def MODEL(self) -> str:
-        return self._provider_name
+        if not self._groq or not self._groq.is_ready:
+            return "none"
+        if self._triage_backend == "local" and self._local_triage:
+            return f"groq/{self._groq.model}(triage:local/xlmr)"
+        triage = self._openai_triage.model if self._openai_triage and self._openai_triage.is_ready else "none"
+        return f"groq/{self._groq.model}(triage:{triage})"
 
-    # 5. Token limiti: son 10 mesajı gönder (yaklaşık 3-4k token)
     _MAX_HISTORY_TURNS = 10
+    # Triage sees more context than Groq dialog (multi-turn reassessment).
+    _MAX_TRIAGE_HISTORY_TURNS = max(
+        10,
+        int(os.environ.get("OPENAI_TRIAGE_MAX_HISTORY_TURNS", "32").strip() or "32"),
+    )
 
     def chat(
         self,
@@ -501,18 +507,75 @@ class LLMService:
         task: Optional[str] = None,
         session_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        if self._provider is None:
-            return dict(_EMPTY_LLM_RESPONSE)
+        t = task or "dialog"
+        if t == "triage":
+            triage_hist = (
+                history[-self._MAX_TRIAGE_HISTORY_TURNS:]
+                if len(history) > self._MAX_TRIAGE_HISTORY_TURNS
+                else history
+            )
+            if len(history) != len(triage_hist):
+                logger.debug(
+                    "Triage history trimmed from %d to %d messages.",
+                    len(history),
+                    len(triage_hist),
+                )
+
+            if self._triage_backend == "local":
+                if not self._local_triage or not self._local_triage.is_ready:
+                    logger.error("Triage call but local model unavailable.")
+                    return dict(_EMPTY_LLM_RESPONSE)
+                t0 = monotonic_start()
+                out = self._local_triage.chat(triage_hist, language, task="triage", session_context=None)
+                trace_llm_response(
+                    provider="local_xlmr",
+                    model=self._local_triage.model,
+                    task="triage",
+                    elapsed_s=time.monotonic() - t0,
+                    parsed=out,
+                )
+                return out
+
+            if not self._openai_triage or not self._openai_triage.is_ready:
+                logger.error("Triage call but OpenAI fine-tuned triage model is not available.")
+                return dict(_EMPTY_LLM_RESPONSE)
+            t0 = monotonic_start()
+            out = self._openai_triage.chat(triage_hist, language, task="triage", session_context=None)
+            trace_llm_response(
+                provider="openai_finetune",
+                model=self._openai_triage.model,
+                task="triage",
+                elapsed_s=time.monotonic() - t0,
+                parsed=out,
+            )
+            return out
+
         trimmed = history[-self._MAX_HISTORY_TURNS:] if len(history) > self._MAX_HISTORY_TURNS else history
         if len(history) != len(trimmed):
-            logger.debug("History trimmed from %d to %d messages for token efficiency.",
-                         len(history), len(trimmed))
-        return self._provider.chat(
+            logger.debug(
+                "History trimmed from %d to %d messages for token efficiency.",
+                len(history),
+                len(trimmed),
+            )
+
+        if not self._groq or not self._groq.is_ready:
+            return dict(_EMPTY_LLM_RESPONSE)
+
+        t0 = monotonic_start()
+        out = self._groq.chat(
             history=trimmed,
             language=language,
-            task=task,
+            task=t,
             session_context=session_context,
         )
+        trace_llm_response(
+            provider="groq",
+            model=self._groq.model,
+            task=t,
+            elapsed_s=time.monotonic() - t0,
+            parsed=out,
+        )
+        return out
 
 
 # ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, TargetPlatform, defaultTar
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const Duration _requestTimeout = Duration(seconds: 12);
+  static const Duration _requestTimeout = Duration(seconds: 60);
 
   /// Override with: `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8001`
   static const String _apiBaseUrlOverride =

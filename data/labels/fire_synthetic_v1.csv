@@ -1,0 +1,601 @@
+case_id,text_en,source,label_category_gold,label_triage_gold,red_flags_gold
+fire_nu_tr_0099,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0262,"A bit of oil dripped on the stove, I put the lid on. All fine now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0161,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0181,"BBQ smoke from our balcony, I warned the neighbors. No flames.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0046,Big fire in the building! I can't breathe! Stairs are blocked!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0099,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0243,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0163,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba. Durum stabil.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0174,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0288,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0182,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0156,Neighbor's washing machine motor smells a bit. I didn't call.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0213,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0045,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0098,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0093,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0263,"Fire alarm went off on its own, nothing here. Probably dead battery.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0159,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0078,"AC made a zapping sound, electricity cut off on its own. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0009,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0061,"BBQ smoke from our balcony, I warned the neighbors. No flames. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0009,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0030,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0178,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0127,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0043,"Benzin istasyonunda yangin basladi, cevreye yayilabilir!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0055,Apartmanda buyuk yangin var! Dumanda nefes alamiyorum! Merdivenler kapali!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0144,"Kitchen fire downstairs, not sure if fire department was called.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0098,"Endustriyel tesiste patlama oldu, yaralilar var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0094,"Baca dumani cok yogun, evde panik var ama alev gormedik.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0042,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0204,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0132,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0265,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0137,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0054,Evimde yangin var! Alevler mutfaktan salona yayiliyor! Lutfen hemen gelin!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0134,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0004,"Dogalgaz sizintisi ve kivilcim gordum, patlama olabilir! Acele!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0022,"A bit of oil dripped on the stove, I put the lid on. All fine now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0063,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok. Panik etmiyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0100,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin. Panik etmiyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0253,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0091,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0078,"Trash can fire in the lobby, small but I don't have an extinguisher. Not urgent.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0234,"Kid was playing with a lighter toy, no real lighter, just caught a smell.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0083,"Car is burning, gas tank may explode! Keep away!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_en_0048,"My child is trapped in a room, flames at the door! Save them please!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0096,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0008,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0014,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0218,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0161,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0197,"I tried burning an old box in the garage but I put it out, under control. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0284,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0058,"Dogalgaz sizintisi ve kivilcim gordum, patlama olabilir! Acele! Durum stabil.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0077,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0093,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0013,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0088,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0145,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0291,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0172,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0128,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0175,"Left home and saw a spark at the outlet, can someone check?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0174,"Kitchen fire downstairs, not sure if fire department was called.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0005,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0104,"Small smoke from a trash can on the street, I poured water on it.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0103,"Fire alarm went off on its own, nothing here. Probably dead battery. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0223,"Fire alarm went off on its own, nothing here. Probably dead battery.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0036,Neighbor's washing machine motor smells a bit. I didn't call.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0144,"Small smoke from a trash can on the street, I poured water on it. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0033,"Fire in a weak-walled warehouse, chemicals inside! Not urgent.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0149,"Saw smoke at a gas station, warning others, could become big if it's a fire.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0178,"Heavy smoke from chimney, neighbors panicking. No visible flames yet.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0255,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0056,"Electric blanket started smelling, unplugged it. Bed is warm though.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0035,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0100,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0206,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0224,"Small smoke from a trash can on the street, I poured water on it. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0281,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok. Kontrol altinda sanirim.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0061,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi? Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0229,"My vacuum smells a bit when running, is that normal? Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0143,"Neighbor's alarm is going off, no one answers the door. Not urgent.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0205,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0137,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0126,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba. Acelem yok.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0216,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0000,Evimde yangin var! Alevler mutfaktan salona yayiliyor! Lutfen hemen gelin!,fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0080,"Endustriyel tesiste patlama oldu, yaralilar var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0002,"Araba yaniyor, benzin deposu patlayabilir! Yakindan uzaklasin!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0018,Evimde yangin var! Alevler mutfaktan salona yayiliyor! Lutfen hemen gelin! Durum stabil.,fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0008,"Endustriyel tesiste patlama oldu, yaralilar var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0041,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0049,"Gas leak and I saw a spark, it may explode! Hurry!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0219,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0047,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0207,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0268,"I burned some toast on the stove, smell lingers. Opened windows. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0177,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0053,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0048,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0192,"Tenant moving in set off some balloons, sounded like fire. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0122,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0228,"I burned some toast on the stove, smell lingers. Opened windows.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0118,"Heavy smoke from chimney, neighbors panicking. No visible flames yet.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0126,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0081,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0190,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0022,"Washing machine smoked while running, I unplugged it. Smoke still lingers. Just informing.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0008,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0035,"Explosion at an industrial facility, there are casualties!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0131,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0052,"Washing machine smoked while running, I unplugged it. Smoke still lingers.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0151,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0116,"Electric blanket started smelling, unplugged it. Bed is warm though. Not urgent.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0211,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0000,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0248,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0043,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba. Panik etmiyorum.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0170,"Car engine is smoking, not burning but strong smell. I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0138,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0194,"Kid was playing with a lighter toy, no real lighter, just caught a smell.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0242,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0034,"Kid was playing with a lighter toy, no real lighter, just caught a smell. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0160,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0003,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0068,"I burned some toast on the stove, smell lingers. Opened windows.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0006,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0169,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0136,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0086,"Huge flames on the building roof, units below affected! Not urgent.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0184,"Small smoke from a trash can on the street, I poured water on it. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0094,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0260,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0001,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0057,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0153,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0165,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0121,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi? Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0041,"Bina catisinda buyuk alev var, asagidaki daireler etkileniyor!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0026,"My neighbor uses a wood stove, smoke reaches my window. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0139,"Heavy chimney smoke, household is panicking. No flames.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0002,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0025,"Benzin istasyonunda yangin basladi, cevreye yayilabilir!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0114,"Kitchen fire downstairs, not sure if fire department was called. I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0130,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0090,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0133,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0075,"Cocugum odada mahsur, alev kapinin onunde! Kurtarin lutfen! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0186,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0042,"Zayif duvarli depoda yangin, icinde kimyasal var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0297,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0251,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0129,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0142,"A bit of oil dripped on the stove, I put the lid on. All fine now. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0033,"Friend lit a candle next to me, blew it out. No flame now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0123,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0171,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0290,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0092,"Araba yaniyor, benzin deposu patlayabilir! Yakindan uzaklasin! Durum stabil.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0021,"BBQ smoke from our balcony, I warned the neighbors. No flames. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0028,"Heavy smoke from chimney, neighbors panicking. No visible flames yet.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0076,"Grease fire on the stove, I'm using an extinguisher. Should I call for help?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0140,"Car engine is smoking, not burning but strong smell. Not urgent.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0039,"Fire alarm triggering by itself, seems oversensitive. Should I call?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0081,My house is on fire! Flames spreading from kitchen to living room! Please come!,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0065,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0096,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0004,"Baca dumani cok yogun, evde panik var ama alev gormedik.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0136,"Grease fire on the stove, I'm using an extinguisher. Should I call for help?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0024,"Small smoke from a trash can on the street, I poured water on it.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0270,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0215,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0240,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0086,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0272,"Tenant moving in set off some balloons, sounded like fire. No fire. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0181,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0231,"I don't smoke but someone in the building does, smell coming in.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0091,Apartmanda buyuk yangin var! Dumanda nefes alamiyorum! Merdivenler kapali! Panik etmiyorum.,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0032,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0264,"Small smoke from a trash can on the street, I poured water on it. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0176,"Electric blanket started smelling, unplugged it. Bed is warm though.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0034,"Baca dumani cok yogun, evde panik var ama alev gormedik.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0080,"Car engine is smoking, not burning but strong smell.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0179,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0052,"Fire started at a gas station, could spread to the area!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0269,"My vacuum smells a bit when running, is that normal? Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0101,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0029,"Car is burning, gas tank may explode! Keep away! Just informing.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0193,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0266,"My neighbor uses a wood stove, smoke reaches my window. No fire. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0042,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0050,"Huge flames on the building roof, units below affected!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0059,"Bina catisinda buyuk alev var, asagidaki daireler etkileniyor!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0083,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0044,"Endustriyel tesiste patlama oldu, yaralilar var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0109,"Heavy chimney smoke, household is panicking. No flames. I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0149,"My vacuum smells a bit when running, is that normal? I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0009,My house is on fire! Flames spreading from kitchen to living room! Please come!,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0159,"Fire alarm triggering by itself, seems oversensitive. Should I call?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0084,"Kitchen fire downstairs, not sure if fire department was called.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0088,"Fire started at a gas station, could spread to the area!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0054,"Kitchen fire downstairs, not sure if fire department was called.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0135,"Smoke smell spread in my building, I didn't see flames. Could be on my floor. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0015,"Smoke smell spread in my building, I didn't see flames. Could be on my floor.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0012,"My child is trapped in a room, flames at the door! Save them please! I'm not in a panic.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0079,"Heavy chimney smoke, household is panicking. No flames.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0051,"Fire in a weak-walled warehouse, chemicals inside! Just informing.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0187,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var. Panik etmiyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0182,"A bit of oil dripped on the stove, I put the lid on. All fine now. Under control I think.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0168,"Trash can fire in the lobby, small but I don't have an extinguisher.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0280,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0175,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0109,"My vacuum smells a bit when running, is that normal? Under control I think.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0031,"Gas leak and I saw a spark, it may explode! Hurry! Just informing.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0122,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0022,"Dogalgaz sizintisi ve kivilcim gordum, patlama olabilir! Acele!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0062,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim. Panik etmiyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0164,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0163,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0077,"I tried burning an old box in the garage but I put it out, under control.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0133,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0267,"My car exhaust made some smoke, wondering if I should see a mechanic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0221,"BBQ smoke from our balcony, I warned the neighbors. No flames. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0200,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0074,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0112,"Washing machine smoked while running, I unplugged it. Smoke still lingers.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0076,"Dogalgaz sizintisi ve kivilcim gordum, patlama olabilir! Acele!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0259,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim? Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0261,"BBQ smoke from our balcony, I warned the neighbors. No flames.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0106,"Grease fire on the stove, I'm using an extinguisher. Should I call for help?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0027,"My car exhaust made some smoke, wondering if I should see a mechanic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0057,"Fire alarm ringing, cause unclear, I smell light smoke in hallway. Just informing.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0059,"Saw smoke at a gas station, warning others, could become big if it's a fire. Under control I think.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0179,"Saw smoke at a gas station, warning others, could become big if it's a fire.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0199,"Fire alarm triggering by itself, seems oversensitive. Should I call?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0114,"Kid was playing with a lighter toy, no real lighter, just caught a smell.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0038,"Araba yaniyor, benzin deposu patlayabilir! Yakindan uzaklasin!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0075,"Smoke smell spread in my building, I didn't see flames. Could be on my floor. Under control I think.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0033,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok. Acelem yok.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0089,"Explosion at an industrial facility, there are casualties!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0005,"Bina catisinda buyuk alev var, asagidaki daireler etkileniyor! Durum stabil.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0107,"My car exhaust made some smoke, wondering if I should see a mechanic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0295,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0197,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0258,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0257,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0037,Apartmanda buyuk yangin var! Dumanda nefes alamiyorum! Merdivenler kapali! Panik etmiyorum.,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0108,"Trash can fire in the lobby, small but I don't have an extinguisher. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0013,"Gas leak and I saw a spark, it may explode! Hurry!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0173,"Neighbor's alarm is going off, no one answers the door.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0060,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0201,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok. Kontrol altinda sanirim.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0044,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0286,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0043,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0066,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0013,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0056,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0068,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0034,"Fire started at a gas station, could spread to the area!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0066,"My neighbor uses a wood stove, smoke reaches my window. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0169,"Heavy chimney smoke, household is panicking. No flames.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0283,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0001,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok. Panik etmiyorum.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0075,"Ironing slightly scorched my sheet, I can toss it. No danger.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0168,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0031,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0110,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0106,"My neighbor uses a wood stove, smoke reaches my window. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0199,"Heavy chimney smoke, household is panicking. No flames. I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0105,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0064,"Small smoke from a trash can on the street, I poured water on it.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0090,Evimde yangin var! Alevler mutfaktan salona yayiliyor! Lutfen hemen gelin!,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0170,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0103,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0010,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0108,"I burned some toast on the stove, smell lingers. Opened windows. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0006,"Zayif duvarli depoda yangin, icinde kimyasal var! Acelem yok.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0007,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0062,"A bit of oil dripped on the stove, I put the lid on. All fine now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0040,"Dogalgaz sizintisi ve kivilcim gordum, patlama olabilir! Acele!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0141,"BBQ smoke from our balcony, I warned the neighbors. No flames.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0085,"Left home and saw a spark at the outlet, can someone check? Just informing.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0031,"I don't smoke but someone in the building does, smell coming in.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0082,Big fire in the building! I can't breathe! Stairs are blocked!,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0278,"AC made a zapping sound, electricity cut off on its own. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0038,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0003,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0185,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0011,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0293,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0069,"Fire in a weak-walled warehouse, chemicals inside!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0111,"I don't smoke but someone in the building does, smell coming in. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0006,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0016,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0143,"Fire alarm went off on its own, nothing here. Probably dead battery.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0097,"Benzin istasyonunda yangin basladi, cevreye yayilabilir! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0250,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0189,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0087,"Fire alarm ringing, cause unclear, I smell light smoke in hallway. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0079,"Fire alarm triggering by itself, seems oversensitive. Should I call? Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0132,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0214,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0065,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0189,"My vacuum smells a bit when running, is that normal?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0027,My house is on fire! Flames spreading from kitchen to living room! Please come! I'm not in a panic.,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0198,"AC made a zapping sound, electricity cut off on its own. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0069,"My vacuum smells a bit when running, is that normal?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0275,"Ironing slightly scorched my sheet, I can toss it. No danger.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0198,"Trash can fire in the lobby, small but I don't have an extinguisher. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0192,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0019,"Heavy chimney smoke, household is panicking. No flames. Under control I think.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0252,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0032,"Huge flames on the building roof, units below affected!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0019,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim? Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0177,"Fire alarm ringing, cause unclear, I smell light smoke in hallway.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0060,"Zayif duvarli depoda yangin, icinde kimyasal var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0059,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim? Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0209,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0071,"Explosion at an industrial facility, there are casualties!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0237,"I tried burning an old box in the garage but I put it out, under control.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0032,"Tenant moving in set off some balloons, sounded like fire. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0113,"Friend lit a candle next to me, blew it out. No flame now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0158,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0070,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0287,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0091,"Mutfakta tavadaki yag alev aldi, sondurucu var kullaniyorum ama yardim cagrayim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0012,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0241,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok. Teskilata haber vermeliyim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0119,"Fire alarm triggering by itself, seems oversensitive. Should I call?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0055,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0190,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0147,"Fire alarm ringing, cause unclear, I smell light smoke in hallway.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0095,"Bina catisinda buyuk alev var, asagidaki daireler etkileniyor! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0299,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0094,"Dogalgaz sizintisi ve kivilcim gordum, patlama olabilir! Acele!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0188,"I burned some toast on the stove, smell lingers. Opened windows.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0232,"Tenant moving in set off some balloons, sounded like fire. No fire. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0063,"Fire alarm went off on its own, nothing here. Probably dead battery.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0274,"Kid was playing with a lighter toy, no real lighter, just caught a smell. Under control I think.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0135,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0007,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0110,"Car engine is smoking, not burning but strong smell.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0072,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0064,"Baca dumani cok yogun, evde panik var ama alev gormedik. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0285,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0203,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0045,"Smoke smell spread in my building, I didn't see flames. Could be on my floor.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0138,"Trash can fire in the lobby, small but I don't have an extinguisher. Under control I think.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0115,"Ironing slightly scorched my sheet, I can toss it. No danger. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0072,"Tenant moving in set off some balloons, sounded like fire. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0038,"AC made a zapping sound, electricity cut off on its own. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0039,"Cocugum odada mahsur, alev kapinin onunde! Kurtarin lutfen!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0058,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0173,"Arkadasim sonucta bir mum yakti yanimda, akladi ama temizledim. Alev yok. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0071,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0246,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0131,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0084,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0061,"Benzin istasyonunda yangin basladi, cevreye yayilabilir!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0256,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0023,"Bina catisinda buyuk alev var, asagidaki daireler etkileniyor!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0187,"My car exhaust made some smoke, wondering if I should see a mechanic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0276,Neighbor's washing machine motor smells a bit. I didn't call.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0073,"Bacadan cok duman cikiyor, komsularda panik. Alev henuz yok.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0024,"Zayif duvarli depoda yangin, icinde kimyasal var! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0160,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0212,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0167,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0113,"Neighbor's alarm is going off, no one answers the door.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0191,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0067,"My car exhaust made some smoke, wondering if I should see a mechanic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0186,"My neighbor uses a wood stove, smoke reaches my window. No fire. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0296,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0017,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda. Durum stabil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0225,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0056,"Araba yaniyor, benzin deposu patlayabilir! Yakindan uzaklasin!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0020,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0030,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir.,fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0083,"Neighbor's alarm is going off, no one answers the door.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0049,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0021,"Electrical panel humming with a burnt smell, something's heating up.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0070,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0057,"Cocugum odada mahsur, alev kapinin onunde! Kurtarin lutfen!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0141,"Electrical panel humming with a burnt smell, something's heating up.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0069,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0045,My house is on fire! Flames spreading from kitchen to living room! Please come!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0047,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0127,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0155,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0097,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0036,Evimde yangin var! Alevler mutfaktan salona yayiliyor! Lutfen hemen gelin! Teskilata haber vermeliyim mi?,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0112,"Tenant moving in set off some balloons, sounded like fire. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0180,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0102,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum. Panik etmiyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0117,"I tried burning an old box in the garage but I put it out, under control. Under control I think.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0097,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0146,"My neighbor uses a wood stove, smoke reaches my window. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0099,My house is on fire! Flames spreading from kitchen to living room! Please come!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0104,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0010,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0025,"Lots of smoke from the chimney, haven't cleaned it in a year. No danger now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0081,"Electrical panel humming with a burnt smell, something's heating up.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0098,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam. Durum stabil.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0051,"Electrical panel humming with a burnt smell, something's heating up.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0165,"Smoke smell spread in my building, I didn't see flames. Could be on my floor. Just informing.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0142,"Washing machine smoked while running, I unplugged it. Smoke still lingers. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0140,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0202,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0037,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0011,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0115,"Left home and saw a spark at the outlet, can someone check?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0058,"Heavy smoke from chimney, neighbors panicking. No visible flames yet.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0151,"I don't smoke but someone in the building does, smell coming in.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0093,"Cocugum odada mahsur, alev kapinin onunde! Kurtarin lutfen!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0078,"Zayif duvarli depoda yangin, icinde kimyasal var! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0292,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0156,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0121,Evimizin balkonunda mangal dumani var. Komsuyu haberdar ettim. Alev yok.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0054,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0247,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0196,Neighbor's washing machine motor smells a bit. I didn't call. Not urgent.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0101,"BBQ smoke from our balcony, I warned the neighbors. No flames.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0154,"Kid was playing with a lighter toy, no real lighter, just caught a smell. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0233,"Friend lit a candle next to me, blew it out. No flame now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0128,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0047,"Car is burning, gas tank may explode! Keep away!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0217,"Garajda eski kutu yakmaya calistim ama sondurdum, kontrol altinda.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0027,"Fire alarm ringing, cause unclear, I smell light smoke in hallway.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0017,"Explosion at an industrial facility, there are casualties! Just informing.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0000,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir. Panik etmiyorum.,fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0176,"Komsumun camasir kazani bozulmus, motor biraz kokulu. Ben aramadim zaten.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0226,"My neighbor uses a wood stove, smoke reaches my window. No fire. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0030,"My child is trapped in a room, flames at the door! Save them please! I'm not in a panic.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0080,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0072,Evimde yangin var! Alevler mutfaktan salona yayiliyor! Lutfen hemen gelin!,fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_en_0015,"Fire in a weak-walled warehouse, chemicals inside! Under control I think.",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_en_0070,"Fire started at a gas station, could spread to the area!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0238,"AC made a zapping sound, electricity cut off on its own. No fire. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0111,"Electrical panel humming with a burnt smell, something's heating up.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0004,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0041,"Elektrikli battaniyem kokmaya basladi, fisten cektim ama yatagim sicak.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0185,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0235,"Ironing slightly scorched my sheet, I can toss it. No danger. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0130,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0026,"Electric blanket started smelling, unplugged it. Bed is warm though.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0236,Neighbor's washing machine motor smells a bit. I didn't call.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0118,"AC made a zapping sound, electricity cut off on its own. No fire.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0073,"Friend lit a candle next to me, blew it out. No flame now. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0074,"Araba yaniyor, benzin deposu patlayabilir! Yakindan uzaklasin!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0254,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0123,Yangin detektoru kendi kendine calisti ama hicbir sey yok. Pil bitti galiba.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0164,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0017,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0063,My house is on fire! Flames spreading from kitchen to living room! Please come!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0145,"Left home and saw a spark at the outlet, can someone check? Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0012,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0040,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0089,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0087,"Arabamin egzozu biraz duman yapti, servise gitmeliyim mi diye soracaktim. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0092,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0105,"Smoke smell spread in my building, I didn't see flames. Could be on my floor. I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0049,"Heavy chimney smoke, household is panicking. No flames.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0053,"Explosion at an industrial facility, there are casualties!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0210,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0016,"Fire started at a gas station, could spread to the area!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0125,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0074,"Kid was playing with a lighter toy, no real lighter, just caught a smell. I'm not in a panic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0220,"There's light smoke from my neighbor's cigarette, can't see anything. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0191,"I don't smoke but someone in the building does, smell coming in.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0183,"Fire alarm went off on its own, nothing here. Probably dead battery. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0150,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0028,"I burned some toast on the stove, smell lingers. Opened windows.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0028,Big fire in the building! I can't breathe! Stairs are blocked!,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0166,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0023,"Fire alarm went off on its own, nothing here. Probably dead battery.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0084,"My child is trapped in a room, flames at the door! Save them please! I'm not in a panic.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0162,"Yangin alarmi calisiyor ama net sebep yok, koridorda hafif duman hissediyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0153,"Friend lit a candle next to me, blew it out. No flame now. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0055,"Left home and saw a spark at the outlet, can someone check?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0085,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0227,"My car exhaust made some smoke, wondering if I should see a mechanic. Not urgent.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0051,Sigara kullanmiyorum ama apartmanda birinden koku geliyor. Yonetim mi?,fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0003,"Cocugum odada mahsur, alev kapinin onunde! Kurtarin lutfen!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0060,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir.,fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0024,"Kitchen fire downstairs, not sure if fire department was called. Not urgent.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0011,"Car is burning, gas tank may explode! Keep away! Not urgent.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0050,"Mutfakta piyaz kizarttim yag siciradi, masa orortusu hafif simsekti. Temizliyorum simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0222,"A bit of oil dripped on the stove, I put the lid on. All fine now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0046,"Komsum odun sobasi kullaniyor, duman pencereme geliyor. Yangin yok. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0082,"Washing machine smoked while running, I unplugged it. Smoke still lingers.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0079,"Benzin istasyonunda yangin basladi, cevreye yayilabilir!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0073,Apartmanda buyuk yangin var! Dumanda nefes alamiyorum! Merdivenler kapali! Acelem yok.,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0171,"Electrical panel humming with a burnt smell, something's heating up.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0050,"Car engine is smoking, not burning but strong smell.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0023,"Neighbor's alarm is going off, no one answers the door. I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_tr_0077,"Bina catisinda buyuk alev var, asagidaki daireler etkileniyor!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0035,"Ironing slightly scorched my sheet, I can toss it. No danger.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0016,"Grease fire on the stove, I'm using an extinguisher. Should I call for help?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0018,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0277,"I tried burning an old box in the garage but I put it out, under control.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0146,"Electric blanket started smelling, unplugged it. Bed is warm though.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0068,"Huge flames on the building roof, units below affected!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0088,"Heavy smoke from chimney, neighbors panicking. No visible flames yet.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0154,"Baca dumani cok yogun, evde panik var ama alev gormedik.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0067,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0020,"Car engine is smoking, not burning but strong smell. Just informing.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0087,"Fire in a weak-walled warehouse, chemicals inside! Not urgent.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0188,"Komsumun evinden simdi alarm sesi geliyor, cevap vermedi kapiyi calisam. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0089,"Saw smoke at a gas station, warning others, could become big if it's a fire.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0036,"Elektrik panosu ugulduyor ve koku var, bir seyler yaniyor galiba.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0082,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0107,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0046,"Grease fire on the stove, I'm using an extinguisher. Should I call for help?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0271,"I don't smoke but someone in the building does, smell coming in.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0180,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir. Teskilata haber vermeliyim mi?,fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0076,Neighbor's washing machine motor smells a bit. I didn't call. Just informing.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0158,"AC made a zapping sound, electricity cut off on its own. No fire. Under control I think.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0119,"Saw smoke at a gas station, warning others, could become big if it's a fire. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0147,"My car exhaust made some smoke, wondering if I should see a mechanic.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0015,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0067,"Gas leak and I saw a spark, it may explode! Hurry!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0026,"Endustriyel tesiste patlama oldu, yaralilar var! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0150,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir.,fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0102,"A bit of oil dripped on the stove, I put the lid on. All fine now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0039,"Alt katta mutfak yangini oldu duyuyoruz, belediye arandi mi bilmem.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0014,"Huge flames on the building roof, units below affected! I'm not in a panic.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0129,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0037,"I tried burning an old box in the garage but I put it out, under control.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0007,"Benzin istasyonunda yangin basladi, cevreye yayilabilir!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0155,"Ironing slightly scorched my sheet, I can toss it. No danger. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0095,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0090,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir.,fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0184,"Baca dumani cok yogun, evde panik var ama alev gormedik.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0025,"Left home and saw a spark at the outlet, can someone check?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0044,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0120,Apartmanimda duman kokusu yayildi ama alev gormedim. Kat komsumda olabilir.,fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0239,"Fire alarm triggering by itself, seems oversensitive. Should I call?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0066,"My child is trapped in a room, flames at the door! Save them please! Just informing.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0244,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0193,"Friend lit a candle next to me, blew it out. No flame now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0029,"Saw smoke at a gas station, warning others, could become big if it's a fire.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0166,"Grease fire on the stove, I'm using an extinguisher. Should I call for help?",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0086,"Electric blanket started smelling, unplugged it. Bed is warm though. Not urgent.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0040,"Evimden cikarken pirizde kicramagi gordum, simdi uzaktayim, birine haber verin.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0053,"Neighbor's alarm is going off, no one answers the door.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0195,"Smoke smell spread in my building, I didn't see flames. Could be on my floor.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0157,"Camasir makinesi cigararken duman yapti, fisten cektim. Duman hala var. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0152,"Tenant moving in set off some balloons, sounded like fire. No fire. Just informing.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0001,Apartmanda buyuk yangin var! Dumanda nefes alamiyorum! Merdivenler kapali! Acelem yok.,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_tr_0005,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0289,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0002,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi. Teskilata haber vermeliyim mi?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0096,"Zayif duvarli depoda yangin, icinde kimyasal var!",fire_synthetic_v1,fire,CRITICAL,1
+fire_cr_tr_0019,Apartmanda buyuk yangin var! Dumanda nefes alamiyorum! Merdivenler kapali!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0048,"Trash can fire in the lobby, small but I don't have an extinguisher.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0124,"Baca dumani cok yogun, evde panik var ama alev gormedik.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0282,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0071,"I don't smoke but someone in the building does, smell coming in.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0139,"Yangin alarmi yanlislikla calisiyor, hassas galiba. Yanginciyi aramali miyim?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0020,"Araba yaniyor, benzin deposu patlayabilir! Yakindan uzaklasin!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0195,"Ironing slightly scorched my sheet, I can toss it. No danger. Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0092,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0148,"I burned some toast on the stove, smell lingers. Opened windows.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0085,"Gas leak and I saw a spark, it may explode! Hurry!",fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0167,"Sparks from an outlet, light smoke. Turned breaker off but I'm worried. Stable for now.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0249,"Elektrikli supurgem biraz kokulu calisiyor, normal mi diye sormak istedim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0183,"Cop kutusu yangini apartman holunde, kucuk ama yanimda sondurucu yok.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0194,"Benzin istasyonunda duman gordum digerlerine soyle diyorum, yangin varsa buyuk olur.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_tr_0125,"Araba motorundan duman cikiyor, yanmiyor ama koku yogun. Panik etmiyorum.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0279,"Fire alarm triggering by itself, seems oversensitive. Should I call? Stable for now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0021,"Cocugum odada mahsur, alev kapinin onunde! Kurtarin lutfen! Kontrol altinda sanirim.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0298,"Klimam biraz cizirdadi, elektrik kesildi hemen kapandi. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0010,Big fire in the building! I can't breathe! Stairs are blocked! I'm not in a panic.,fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0157,"I tried burning an old box in the garage but I put it out, under control. Under control I think.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0120,"Komsumdan sigara kokusu geliyor, hafif duman gibi ama gorunmuyor. Acil degil. Kontrol altinda sanirim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0172,"Washing machine smoked while running, I unplugged it. Smoke still lingers. Just informing.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_en_0116,Neighbor's washing machine motor smells a bit. I didn't call.,fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0230,"Cooked fried food, oil splattered, tablecloth singed a bit. Cleaning.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0095,"Carsafim utu yaparken az yandi biraz, atabilirim. Tehlike yok. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0117,"Fire alarm ringing, cause unclear, I smell light smoke in hallway.",fire_synthetic_v1,fire,URGENT,0
+fire_cr_en_0065,"Car is burning, gas tank may explode! Keep away!",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_tr_0014,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_en_0064,Big fire in the building! I can't breathe! Stairs are blocked!,fire_synthetic_v1,fire,CRITICAL,1
+fire_ur_en_0018,"Trash can fire in the lobby, small but I don't have an extinguisher.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0162,"Aksam ocakta tavaya az biraz yag dustu, hemen kapak kapattim. Simdi iyi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0245,"Soba dumani cok, bacayi bir yil oncesinden temizletmemistim. Tehlike yok simdi.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_en_0029,"My vacuum smells a bit when running, is that normal?",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0124,"Sokakta bir cop kutusunda hafif duman vardi, sondurdum su doktum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_en_0196,"Grease fire on the stove, I'm using an extinguisher. Should I call for help? I'm not in a panic.",fire_synthetic_v1,fire,URGENT,0
+fire_ur_en_0148,"Heavy smoke from chimney, neighbors panicking. No visible flames yet.",fire_synthetic_v1,fire,URGENT,0
+fire_nu_tr_0294,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi. Panik etmiyorum.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0134,"Cocugum cakmak oyuncagi ile oynamis, cakmak yok ama kokusu bir an geldi. Acelem yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_cr_tr_0062,"Endustriyel tesiste patlama oldu, yaralilar var! Acelem yok.",fire_synthetic_v1,fire,CRITICAL,1
+fire_nu_en_0273,"Friend lit a candle next to me, blew it out. No flame now.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0208,"Ocakta ekmek kizarttim biraz fazla yandi, kokusu kaldi. Kapi pencere actim.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_nu_tr_0052,"Kiraci tasinirken birkac balon patlatti, sesi yangin sandim. Yangin yok.",fire_synthetic_v1,fire,NON_URGENT,0
+fire_ur_tr_0152,"Prizden kivilcim cikti, duman var hafif. Sigortayi kapattim ama endiseliyim. Kontrol altinda sanirim.",fire_synthetic_v1,fire,URGENT,0

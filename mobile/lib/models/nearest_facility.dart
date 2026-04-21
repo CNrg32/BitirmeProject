@@ -1,4 +1,5 @@
-enum NearbyFacilityType { hospital, police }
+/// [all] only for list filters — API kurumları her zaman [hospital] veya [police].
+enum NearbyFacilityType { all, hospital, police }
 
 class NearestFacility {
   final String id;

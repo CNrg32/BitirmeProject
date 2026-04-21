@@ -6,7 +6,7 @@ Enable with:
   OPENAI_API_KEY=sk-...
 
 Optional:
-  OPENAI_FINAL_REPORT_MODEL=gpt-4.1-mini   (falls back to OPENAI_MODEL or project default)
+  OPENAI_FINAL_REPORT_MODEL=gpt-4.1-mini   (default: gpt-4.1-mini-2025-04-14)
   OPENAI_FINAL_REPORT_MAX_TOKENS=1200
 """
 from __future__ import annotations
@@ -27,11 +27,8 @@ def _use_openai_final_report() -> bool:
 
 
 def _model_id() -> str:
-    return (
-        os.environ.get("OPENAI_FINAL_REPORT_MODEL", "").strip()
-        or os.environ.get("OPENAI_MODEL", "").strip()
-        or _DEFAULT_MODEL
-    )
+    override = os.environ.get("OPENAI_FINAL_REPORT_MODEL", "").strip()
+    return override or _DEFAULT_MODEL
 
 
 def _max_tokens() -> int:

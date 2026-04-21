@@ -23,6 +23,11 @@ _OVERPASS_ENDPOINTS = [
 _OVERPASS_TIMEOUT_SECONDS = float(os.environ.get("OVERPASS_TIMEOUT_SECONDS", "12.0"))
 _OVERPASS_RETRIES = int(os.environ.get("OVERPASS_RETRIES", "2"))
 _OVERPASS_QUERY_TIMEOUT = int(os.environ.get("OVERPASS_QUERY_TIMEOUT", "10"))
+# overpass-api.de returns 406 for the default python-httpx/* User-Agent (Apache negotiation).
+_OVERPASS_USER_AGENT = os.environ.get(
+    "OVERPASS_USER_AGENT",
+    "BitirmeProject/1.0 (nearby-places; OpenStreetMap Overpass)",
+)
 _CACHE_TTL_SECONDS = int(os.environ.get("NEARBY_CACHE_TTL_SECONDS", "180"))
 _SEARCH_RADII_METERS = (5000, 10000)
 _POLICE_SEARCH_RADII_METERS = (5000, 10000, 20000)
@@ -126,6 +131,7 @@ def _fetch_overpass_elements(
                     response = httpx.post(
                         endpoint,
                         data={"data": query},
+                        headers={"User-Agent": _OVERPASS_USER_AGENT},
                         timeout=_OVERPASS_TIMEOUT_SECONDS,
                     )
                     response.raise_for_status()

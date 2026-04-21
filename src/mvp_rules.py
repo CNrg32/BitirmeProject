@@ -8,6 +8,10 @@ from typing import Any, Dict, List, Optional
 _RULES = None
 _DEFAULT_RULES_PATH = Path(__file__).resolve().parent / "mvp_regex_dictionary.json"
 
+_NONURGENT_RULES = None
+_NONURGENT_RULES_PATH = Path(__file__).resolve().parent / "mvp_nonurgent_dictionary.json"
+_NONURGENT_COMPILED_REGEXES: Optional[List[re.Pattern]] = None
+
 
 def load_rules(path: Optional[str] = None) -> Dict[str, Any]:
     global _RULES
@@ -15,6 +19,41 @@ def load_rules(path: Optional[str] = None) -> Dict[str, Any]:
         p = Path(path) if path else _DEFAULT_RULES_PATH
         _RULES = json.loads(p.read_text(encoding="utf-8"))
     return _RULES
+
+
+def load_nonurgent_rules(path: Optional[str] = None) -> Dict[str, Any]:
+    """NON_URGENT floor dictionary'sini yukler (lazy, cached)."""
+    global _NONURGENT_RULES, _NONURGENT_COMPILED_REGEXES
+    if _NONURGENT_RULES is None:
+        p = Path(path) if path else _NONURGENT_RULES_PATH
+        if p.exists():
+            _NONURGENT_RULES = json.loads(p.read_text(encoding="utf-8"))
+        else:
+            _NONURGENT_RULES = {"phrases": [], "regex": []}
+        _NONURGENT_COMPILED_REGEXES = [
+            re.compile(pat, re.IGNORECASE) for pat in _NONURGENT_RULES.get("regex", [])
+        ]
+    return _NONURGENT_RULES
+
+
+def is_nonurgent_floor_match(text: str) -> bool:
+    """Metin NON_URGENT floor'a eslesiyor mu?
+
+    Eslesirse triage en fazla NON_URGENT'a indirilir (CRITICAL red-flag
+    override haric).
+    """
+    load_nonurgent_rules()  # init compiled regexes
+    textn = _norm(text)
+    if not textn:
+        return True  # bos metin = mesguliyet
+    rules = _NONURGENT_RULES or {}
+    for phrase in rules.get("phrases", []):
+        if phrase and phrase in textn:
+            return True
+    for pat in _NONURGENT_COMPILED_REGEXES or []:
+        if pat.search(textn):
+            return True
+    return False
 
 def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").lower()).strip()

@@ -10,8 +10,8 @@ Turn flow (LLM-powered):
   6.  TTS the assistant reply
   7.  Return structured response
 
-If GROQ_API_KEY is not set the system falls back to the original rule-based
-dialog_manager + mvp_rules flow automatically.
+LLM mode requires GROQ_API_KEY (dialog) and OPENAI_API_KEY + OPENAI_FINE_TUNED_MODEL
+(triage). If either side is missing, rule-based dialog is used.
 """
 from __future__ import annotations
 
@@ -41,16 +41,22 @@ from services.tts_service import synthesize, get_tts_runtime_info_str
 from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
 from services.final_report_openai import generate_final_report_openai
+from services.turn_trace import (
+    is_turn_trace_enabled,
+    trace_banner,
+    trace_kv,
+    trace_orchestrator_outcome,
+    trace_step,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def _uses_single_call_first_turn(llm: Any) -> bool:
+    """Groq fast few-shot path (used for gibberish_check heuristics only)."""
     model = str(getattr(llm, "MODEL", ""))
     if model.startswith("groq/"):
         return os.environ.get("GROQ_FAST_PATH", "true").strip().lower() not in ("0", "false", "no")
-    if model.startswith("openai/ft:"):
-        return os.environ.get("OPENAI_FINE_TUNED_FAST", "true").strip().lower() not in ("0", "false", "no")
     return False
 
 
@@ -222,11 +228,9 @@ def _normalize_response_language(response_text: str, target_lang: str) -> str:
     if not text:
         return response_text
 
-    # 1. Token-based: if ANY foreign diacritic character detected → forcibly retranslate
+    # 1. Token-based: foreign script/diacritics → translate with auto-detected source
     if _has_foreign_characters(text):
-        detected = detect_language(text)
-        src = detected if detected and detected != target_lang else "vi"  # fallback to vi (most common drift)
-        translated = translate(text, source=src, target=target_lang)
+        translated = translate(text, source="auto", target=target_lang)
         return translated or text
 
     # 2. Full-text language mismatch detected by langdetect
@@ -308,6 +312,8 @@ def handle_message(
     store = get_session_store()
     session = store.get(session_id)
     if session is None:
+        if is_turn_trace_enabled():
+            trace_step("Hata", "Oturum bulunamadı veya süresi doldu")
         return {"error": "Session not found or expired."}
     
     # ------------------------------------------------------------------
@@ -344,6 +350,11 @@ def handle_message(
                         "en": "No response detected. Emergency services have been dispatched. Please stay safe.",
                     }.get(session.language or "en", "Emergency services dispatched.")
                     
+                    if is_turn_trace_enabled():
+                        trace_step(
+                            "Zaman aşımı",
+                            "3 dk sessizlik → CRITICAL/URGENT için SILENT_DISPATCHED + oturum kapanışı",
+                        )
                     return _reply(session, timeout_msg, triage_result=session.triage_result, 
                                 is_complete=True, report=None)
     
@@ -370,6 +381,8 @@ def handle_message(
             "en": "This session is already complete. Please start a new session for a new emergency.",
         }.get(session.language or "en",
               "This session is already complete. Please start a new session.")
+        if is_turn_trace_enabled():
+            trace_step("Oturum zaten tamamlandı", "Yeni mesaja kısa bilgi yanıtı")
         return _reply(session, done_msg, triage_result=session.triage_result,
                       report=None, is_complete=True)
 
@@ -489,17 +502,39 @@ def handle_message(
     # Add user message to history
     session.messages.append({"role": "user", "text": user_text})
 
+    if is_turn_trace_enabled():
+        trace_banner("Kullanıcı turu", session.session_id)
+        trace_step("Mesaj sayısı", f"session.messages={len(session.messages)}")
+        trace_kv(
+            "Girdi özeti",
+            {
+                "lang": lang,
+                "user_text": user_text,
+                "asr_transcript": asr_transcript or "",
+                "text_en_birikim": session.text_en_accumulated,
+                "gps": (latitude, longitude),
+            },
+        )
+
     # ------------------------------------------------------------------
     # 6. Sentiment analysis (needs audio for best results)
     # ------------------------------------------------------------------
     if audio_bytes:
         _run_sentiment_analysis(session, text_en, audio_bytes)
+        if is_turn_trace_enabled():
+            trace_kv("Ses / duygu (sentiment)", dict(session.sentiment_result or {}))
 
     # ------------------------------------------------------------------
     # 7. LLM turn (or fallback to rule-based)
     # ------------------------------------------------------------------
     from services.llm_service import get_llm_service
     llm = get_llm_service()
+
+    if is_turn_trace_enabled():
+        trace_step(
+            "Karar",
+            "LLM yolu (OpenAI triage + Groq diyalog)" if llm.is_available else "Kural tabanlı yol (LLM eksik)",
+        )
 
     if llm.is_available:
         return _handle_with_llm(session, lang, asr_transcript)
@@ -676,84 +711,76 @@ def _handle_with_llm(
                  len(session.message_history))
 
     # ------------------------------------------------------------------
-    # FAZ 3: Groq — turn 1 uses single "first_turn" call (triage + first reply);
-    # later turns use "dialog" with locked category (latency: avoids 2x Groq on turn 1).
+    # Every turn: OpenAI fine-tuned triage (full history) → authoritative category/level/red_flags.
+    # Then Groq dialog → user-facing response_text and slots only (triage fields from Groq ignored).
     # ------------------------------------------------------------------
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
     exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
-    fast_first_turn = user_turn_count == 1 and session.initial_triage is None and _uses_single_call_first_turn(llm)
 
-    if fast_first_turn:
-        logger.info("Turn 1: Running LLM triage+dialog fast path.")
-        t0 = time.monotonic()
-        llm_result = llm.chat(
-            history=session.messages,
-            language=lang,
-            task="triage_dialog",
-            session_context={
-                "dispatch_status": session.dispatch_status,
-                "witness_mode": session.witness_mode,
-                "exhausted_slots": exhausted_slots,
-            },
+    if is_turn_trace_enabled():
+        trace_step(
+            "_handle_with_llm",
+            f"user_turns={user_turn_count} | "
+            "akış: OpenAI triage → Groq dialog → orchestrator güvenlik kuralları",
         )
-        logger.info("  [TIMING] LLM First Turn Combined: %.2fs", time.monotonic() - t0)
-        session.initial_triage = {
-            "category": llm_result.get("category", "other"),
-            "triage_level": llm_result.get("triage_level", "URGENT"),
-            "confidence": llm_result.get("confidence", 1.00),
-            "red_flags": llm_result.get("red_flags", []),
-        }
-        logger.info(
-            "Initial triage saved from fast path: category=%s, level=%s",
-            session.initial_triage["category"],
-            session.initial_triage["triage_level"],
-        )
-    else:
-        if user_turn_count == 1 and session.initial_triage is None:
-            logger.info("Turn 1: Running LLM triage...")
-            t0 = time.monotonic()
-            triage_result = llm.chat(
-                history=session.messages,
-                language=lang,
-                task="triage",
-            )
-            logger.info("  [TIMING] LLM Triage: %.2fs", time.monotonic() - t0)
-            initial_triage = {
-                "category": triage_result.get("category", "other"),
-                "triage_level": triage_result.get("triage_level", "URGENT"),
-                "confidence": triage_result.get("confidence", 1.00),
-                "red_flags": triage_result.get("red_flags", []),
-            }
-            session.initial_triage = initial_triage
-            logger.info("Initial triage saved: category=%s, level=%s",
-                        initial_triage["category"], initial_triage["triage_level"])
 
-        locked_category = (session.initial_triage or {}).get("category", "other")
-
-        t0 = time.monotonic()
-        llm_result = llm.chat(
-            history=session.messages,
-            language=lang,
-            session_context={
-                "initial_category": locked_category,
-                "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
-                "dispatch_status": session.dispatch_status,
-                "witness_mode": session.witness_mode,
-                "exhausted_slots": exhausted_slots,
-            }
-        )
-        logger.info("  [TIMING] LLM Dialog: %.2fs", time.monotonic() - t0)
+    logger.info("OpenAI fine-tuned triage (full conversation)...")
+    t0 = time.monotonic()
+    triage_result = llm.chat(
+        history=session.messages,
+        language=lang,
+        task="triage",
+    )
+    logger.info("  [TIMING] OpenAI triage: %.2fs", time.monotonic() - t0)
+    session.initial_triage = {
+        "category": triage_result.get("category", "other"),
+        "triage_level": triage_result.get("triage_level", "URGENT"),
+        "confidence": triage_result.get("confidence", 1.00),
+        "red_flags": list(triage_result.get("red_flags") or []),
+    }
+    session.witness_mode = bool(triage_result.get("is_witness", False))
+    logger.info(
+        "Triage (OpenAI FT): category=%s, level=%s",
+        session.initial_triage["category"],
+        session.initial_triage["triage_level"],
+    )
 
     locked_category = (session.initial_triage or {}).get("category", "other")
 
+    t0 = time.monotonic()
+    llm_result = llm.chat(
+        history=session.messages,
+        language=lang,
+        task="dialog",
+        session_context={
+            "initial_category": locked_category,
+            "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
+            "dispatch_status": session.dispatch_status,
+            "witness_mode": session.witness_mode,
+            "exhausted_slots": exhausted_slots,
+        },
+    )
+    logger.info("  [TIMING] Groq dialog: %.2fs", time.monotonic() - t0)
+
+    if is_turn_trace_enabled():
+        trace_step(
+            "Groq diyalog (ham)",
+            f"is_complete={llm_result.get('is_complete')} | "
+            f"dispatch_action={llm_result.get('dispatch_action')} | "
+            f"legal_close={llm_result.get('legal_close')} | "
+            "not: Groq triage_level/category yanıtta kullanılmıyor; yetkili sınıf OpenAI triage",
+        )
+
     response_text: str = llm_result.get("response_text", "")
     extracted_slots: Dict[str, Any] = llm_result.get("extracted_slots", {})
-    triage_level: str = llm_result.get("triage_level", "URGENT")
-    category: str = llm_result.get("category", "other")
     is_complete: bool = llm_result.get("is_complete", False)
-    red_flags: List[str] = llm_result.get("red_flags", [])
     dispatch_action: str = str(llm_result.get("dispatch_action", "none") or "none").strip().lower()
     legal_close: bool = bool(llm_result.get("legal_close", False))
+
+    # Authoritative triage from OpenAI (not Groq)
+    triage_level = str((session.initial_triage or {}).get("triage_level", "URGENT"))
+    category = str((session.initial_triage or {}).get("category", "other"))
+    red_flags: List[str] = list((session.initial_triage or {}).get("red_flags") or [])
 
     if legal_close and triage_level == "NON_URGENT":
         is_complete = True
@@ -768,17 +795,6 @@ def _handle_with_llm(
         logger.debug("Slot %s not filled by LLM, incrementing attempt counter (current: %d)",
                      session.pending_question_key, session.slot_attempt_counts.get(session.pending_question_key, 0))
         session.pending_question_key = None  # Reset for next question
-
-    # ------------------------------------------------------------------
-    # Guard 1 — Category locking (Updated for Groq Primary)
-    # Once Groq's initial triage is set, never let the LLM flip it.
-    # LLM must respect the locked category from Turn 1.
-    # ------------------------------------------------------------------
-    if locked_category and locked_category != "other":
-        category = locked_category
-        triage_level = (session.initial_triage or {}).get("triage_level", triage_level)
-        logger.debug("Category & triage locked from initial Groq triage: category=%s, level=%s",
-                     locked_category, triage_level)
 
     # ------------------------------------------------------------------
     # Guard 2 — CRITICAL immediate dispatch (no confirmation wait)
@@ -933,11 +949,16 @@ def _handle_with_llm(
 
     response_text = _normalize_response_language(response_text, lang)
 
-    # Build triage result
+    # Build triage result (classification from OpenAI; slots from Groq merge above)
+    _conf = (session.initial_triage or {}).get("confidence")
+    try:
+        confidence_out = float(_conf) if _conf is not None else 1.00
+    except (TypeError, ValueError):
+        confidence_out = 1.00
     triage_result: Dict[str, Any] = {
         "triage_level": triage_level,
         "category": category,
-        "confidence": 1.00,
+        "confidence": confidence_out,
         "red_flags": red_flags,
         "slots": session.collected_slots,
         "llm_powered": True,
@@ -955,6 +976,17 @@ def _handle_with_llm(
             text_triage_level=triage_result["triage_level"],
         )
         triage_result["image_analysis"] = session.image_analysis
+
+    if is_turn_trace_enabled():
+        trace_kv(
+            "Triage (OpenAI + duygu birleşimi; görsel varsa bağlam güncellendi)",
+            {
+                "triage_level": (session.triage_result or {}).get("triage_level"),
+                "category": (session.triage_result or {}).get("category"),
+                "red_flags": (session.triage_result or {}).get("red_flags"),
+                "witness_mode": session.witness_mode,
+            },
+        )
 
     # ------------------------------------------------------------------
     # Conversation complete → compose structured report
@@ -977,6 +1009,16 @@ def _handle_with_llm(
         tts_only = ". ".join(tts_parts) if tts_parts else _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
         final_text = (response_text + "\n\n" + report_local) if response_text else report_local
 
+        if is_turn_trace_enabled():
+            trace_orchestrator_outcome(
+                triage_level=str((session.triage_result or {}).get("triage_level", "")),
+                category=str((session.triage_result or {}).get("category", "")),
+                dispatch_status=str(session.dispatch_status or ""),
+                dispatch_target=session.dispatch_target,
+                is_complete=True,
+                user_turn_count=sum(1 for m in session.messages if m.get("role") == "user"),
+            )
+
         return _reply(
             session,
             final_text,
@@ -989,6 +1031,16 @@ def _handle_with_llm(
         )
 
     # Conversation ongoing
+    if is_turn_trace_enabled():
+        trace_orchestrator_outcome(
+            triage_level=str((session.triage_result or {}).get("triage_level", "")),
+            category=str((session.triage_result or {}).get("category", "")),
+            dispatch_status=str(session.dispatch_status or ""),
+            dispatch_target=session.dispatch_target,
+            is_complete=False,
+            user_turn_count=sum(1 for m in session.messages if m.get("role") == "user"),
+        )
+
     return _reply(
         session,
         response_text,
@@ -1015,6 +1067,9 @@ def _handle_with_rules(
     action = decide_next_action(session)
     logger.info("Dialog action (rules): %s", action)
 
+    if is_turn_trace_enabled():
+        trace_step("Kural tabanlı dialog_manager", f"decide_next_action → {action}")
+
     if action["action"] == "ask_question":
         question_en = action["question_en"]
         session.asked_questions.add(action["question_key"])
@@ -1034,6 +1089,17 @@ def _handle_with_rules(
         triage = _run_triage(session)
         triage = _merge_sentiment_into_triage(session, triage)
         session.triage_result = triage
+
+        if is_turn_trace_enabled():
+            trace_kv(
+                "Kural tabanlı triage (ML + mvp_rules / yedek)",
+                {
+                    "triage_level": triage.get("triage_level"),
+                    "category": triage.get("category"),
+                    "confidence": triage.get("confidence"),
+                    "red_flags": triage.get("red_flags"),
+                },
+            )
 
         if session.image_bytes and session.image_analysis:
             _run_image_analysis(
@@ -1234,6 +1300,7 @@ def _merge_sentiment_into_triage(
 ) -> Dict[str, Any]:
     sent = session.sentiment_result
     if not sent or not sent.get("triage_level"):
+        triage = _apply_temporal_consistency(session, triage)
         return triage
     severity_order = {"CRITICAL": 3, "URGENT": 2, "NON_URGENT": 1}
     text_level = triage.get("triage_level") or "URGENT"
@@ -1248,6 +1315,61 @@ def _merge_sentiment_into_triage(
             "Triage upgraded from %s to %s by sentiment", text_level, sent_level
         )
     triage["sentiment_result"] = sent
+    triage = _apply_temporal_consistency(session, triage)
+    return triage
+
+
+# ---------------------------------------------------------------------------
+# Temporal consistency — son N turdaki triage tahminleri uzerinden smoothing.
+# Amac: tek-tur CRITICAL tahminini kucuk bir gecikme ile onaylamak; red_flag ve
+# yuksek confidence varsa anlik onaya izin verir.
+# ---------------------------------------------------------------------------
+
+_TEMPORAL_HISTORY_MAX = 8  # Maksimum tutulacak snapshot sayisi
+
+
+def _apply_temporal_consistency(
+    session: Session, triage: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Session.triage_history'ye yeni tahmini ekler, gecmisle uyum kurallari uygular."""
+    if not triage:
+        return triage
+
+    new_level = str(triage.get("triage_level") or "").upper()
+    new_conf = float(triage.get("confidence") or 0.0)
+    new_rf = 1 if (triage.get("red_flags") or []) else 0
+
+    session.triage_history.append({
+        "triage_level": new_level,
+        "confidence": new_conf,
+        "red_flag_present": new_rf,
+        "ts": time.time(),
+    })
+    if len(session.triage_history) > _TEMPORAL_HISTORY_MAX:
+        session.triage_history = session.triage_history[-_TEMPORAL_HISTORY_MAX:]
+
+    # sentiment_override veya red_flag varsa temporal downgrade YAPMA.
+    if triage.get("sentiment_override") or new_rf == 1:
+        return triage
+
+    recent = session.triage_history[-3:]
+    if len(recent) < 2:
+        return triage
+
+    # Yeni CRITICAL + gecmiste hic CRITICAL yok + confidence dusuk
+    # => gecici olarak URGENT'a dusur (bir sonraki turda tekrar CRITICAL
+    # gelirse sinyal tutarli demektir, o zaman commit).
+    if new_level == "CRITICAL":
+        prev_critical = sum(1 for r in recent[:-1] if r.get("triage_level") == "CRITICAL")
+        if prev_critical == 0 and new_conf < 0.80:
+            logger.info(
+                "Temporal smooth: first CRITICAL turn (conf=%.2f) -> URGENT until confirmed",
+                new_conf,
+            )
+            triage["triage_level"] = "URGENT"
+            triage["temporal_smoothed"] = True
+            return triage
+
     return triage
 
 

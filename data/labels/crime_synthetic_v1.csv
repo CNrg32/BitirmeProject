@@ -1,0 +1,601 @@
+case_id,text_en,source,label_category_gold,label_triage_gold,red_flags_gold
+crime_nu_tr_0099,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0262,"Graffiti on the building wall, should I file a report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0161,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0181,"A car is wrongly parked on my street, been there a few days.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0046,"Cinayete tanik oldum az once, adam kacti!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0099,"Suspicious car outside my shop, two people sitting and waiting. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0243,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0163,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0174,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0288,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0182,"Someone's knocking on my door persistently, I don't know them. They're waiting. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0156,"Someone being cruel to dogs in the park, should I call animal welfare?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0213,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0045,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0098,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0093,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0263,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0159,"Separated from my spouse, he's now waiting in a car outside, not moving. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0078,"Tenant didn't move out and not paying rent, I'll sue.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0009,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0061,"A car is wrongly parked on my street, been there a few days. I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0009,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0030,"Heavy water running sound from a window, should I check the water bill?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0178,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0127,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0043,"Cocuk kaciriliyor parkta, adam cekti aldi! Hemen!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0055,"Hostage situation at home, my family is here with me!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0144,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0098,"My 5-year-old son is missing, last seen 2 hours ago! Please search everywhere!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0094,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0042,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi? Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0204,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi? Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0132,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0265,"Neighbors had a loud argument, no physical fight.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0137,"Traffic accident, no injuries apparent but the other car fled.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0054,"I hear gunshots outside, someone dropped to the ground!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0134,"A man threatened me violently on the street, no blows landed.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0004,"Silah sesi duyuyorum sokakta, bir kisi yere yigildi gibi!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0022,"Graffiti on the building wall, should I file a report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0063,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0100,"Nothing is missing but my door was open when I got home, where should I check? Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0253,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0091,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0078,"A man threatened me violently on the street, no blows landed. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0234,"Neighbor gave belongings to wrong person, wants them back, legal advice?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0083,"Cocuk kaciriliyor parkta, adam cekti aldi! Hemen!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_tr_0048,"Oglum kayboldu, 5 yasinda, son 2 saat oldu! Lutfen her yeri arayin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0096,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0008,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi. Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0014,"Someone's knocking on my door persistently, I don't know them. They're waiting. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0218,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam. Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0161,"A man at the mall keeps watching a child, doesn't look like family.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0197,"Street dog hanging around our building, not threatening. Municipality? Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0284,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0058,"My 5-year-old son is missing, last seen 2 hours ago! Please search everywhere! I'm safe with others around.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0077,"A man at the mall keeps watching a child, doesn't look like family. Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0093,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0013,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0088,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0145,"Neighbors had a loud argument, no physical fight.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0291,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0172,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0128,"Nothing is missing but my door was open when I got home, where should I check?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0175,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0174,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0005,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0104,"Theft happened a week ago at my house, should I call now or go to a station?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0103,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone. Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0223,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0036,"Someone being cruel to dogs in the park, should I call animal welfare?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0144,"Theft happened a week ago at my house, should I call now or go to a station? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0033,"A child is being abducted in the park, a man grabbed them! I'm safe with others around.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0149,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0178,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0255,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis? Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0056,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0035,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0100,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0206,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0224,"Theft happened a week ago at my house, should I call now or go to a station? Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0281,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0061,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0229,"An unfamiliar person in the elevator, looked shady, should I report? Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0143,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0205,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0137,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0126,"Someone's knocking on my door persistently, I don't know them. They're waiting. Should we call police?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0216,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0000,"Evimde silahli bir adam var, kendimi kilitledim banyoya! Acil!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_tr_0080,"Evimde silahli bir adam var, kendimi kilitledim banyoya! Acil!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_tr_0002,"Bir arkadasim bicaklandi, kan var! Hemen gelin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0018,"My 5-year-old son is missing, last seen 2 hours ago! Please search everywhere! I'm safe with others around.",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_tr_0008,"Oglum kayboldu, 5 yasinda, son 2 saat oldu! Lutfen her yeri arayin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0041,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0049,Yetiskin bir adam cocuga cinsel saldiri yapiyor parkta!,crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0219,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0047,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0207,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0268,"Found my door slightly open when I got home, nothing missing but should I be cautious? I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0177,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0053,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0048,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0192,"Rooster noise every morning from a neighbor, might be against rules.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0122,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0228,"Found my door slightly open when I got home, nothing missing but should I be cautious?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0118,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0126,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0081,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0190,"A man threatened me violently on the street, no blows landed.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0022,"A man threatened me violently on the street, no blows landed. Which unit should I report to?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0008,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0035,"Hostage situation at home, my family is here with me!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0131,"Separated from my spouse, he's now waiting in a car outside, not moving.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0052,"Fight at a gas station, two people, separated but still yelling.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0151,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0116,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0211,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0000,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0248,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0043,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim? Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0170,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim? Polis arasak mi?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0138,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam. Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0194,"Neighbor gave belongings to wrong person, wants them back, legal advice?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0242,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi? Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0034,"Neighbor gave belongings to wrong person, wants them back, legal advice? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0160,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0003,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0068,"Found my door slightly open when I got home, nothing missing but should I be cautious?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0006,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0169,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0136,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim? Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0086,"Cinayete tanik oldum az once, adam kacti! Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0184,"Theft happened a week ago at my house, should I call now or go to a station? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0094,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0260,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0001,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0057,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0153,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0165,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0121,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim? Bilgi vermek istedim.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0041,"Esim beni dovmeye basladi, bicak aldi! Kacmam lazim!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0026,Teens outside being loud but not threatening.,crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0139,"Bag had my meds in it, I think stolen on the bus. Important meds.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0002,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0025,"Evde rehine aldilar, benimle birlikte ailem de burada!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0114,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim? Polis arasak mi?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0130,"No physical violence but a fight at home, a neighbor may have called me.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0090,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0133,"A man at the mall keeps watching a child, doesn't look like family.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0075,"Hostage situation at home, my family is here with me! Just sharing info.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0186,"No physical violence but a fight at home, a neighbor may have called me. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0042,"Bir arkadasim bicaklandi, kan var! Hemen gelin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0297,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi? Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0251,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0129,"Possible stalker, same man has been following me for three days.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0142,"Graffiti on the building wall, should I file a report? I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0033,"A car engine running for hours unattended on the street, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0123,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0171,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0290,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0092,"A friend got stabbed, there's blood! Come now! I'm safe with others around.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0021,"A car is wrongly parked on my street, been there a few days. Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0028,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0076,"My son isn't home from school yet, an hour late. I'm worried.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0140,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0039,"Lost youth in the neighborhood, allegedly ran away from home but not in danger.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0081,"Esim beni dovmeye basladi, bicak aldi! Kacmam lazim!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0065,"Neighbors had a loud argument, no physical fight. Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0096,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0004,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0136,"Fight at a gas station, two people, separated but still yelling.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0024,"Theft happened a week ago at my house, should I call now or go to a station?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0270,"Heavy water running sound from a window, should I check the water bill? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0215,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0240,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0086,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0272,"Rooster noise every morning from a neighbor, might be against rules. Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0181,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0231,"Homeless people on the street making me uncomfortable, no violence though.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0091,"My husband started beating me, he grabbed a knife! I need to run! Not urgent of course.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0032,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0264,"Theft happened a week ago at my house, should I call now or go to a station? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0176,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0034,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0080,"Fight at a gas station, two people, separated but still yelling.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0179,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0052,"A friend got stabbed, there's blood! Come now!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0269,"An unfamiliar person in the elevator, looked shady, should I report? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0101,"Possible stalker, same man has been following me for three days.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0029,Yetiskin bir adam cocuga cinsel saldiri yapiyor parkta! Hangi birime bildirmeli?,crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0193,"Traffic accident, no injuries apparent but the other car fled. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0266,Teens outside being loud but not threatening. Should we call police?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0042,"Someone's knocking on my door persistently, I don't know them. They're waiting. Which unit should I report to?",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0050,"Armed man in my house, I locked myself in the bathroom! Emergency!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0059,An adult man is sexually assaulting a child in the park!,crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0083,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0044,"Silah sesi duyuyorum sokakta, bir kisi yere yigildi gibi!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0109,"Traffic accident, no injuries apparent but the other car fled. Should we call police?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0149,"An unfamiliar person in the elevator, looked shady, should I report? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0009,Yetiskin bir adam cocuga cinsel saldiri yapiyor parkta!,crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0159,"Lost youth in the neighborhood, allegedly ran away from home but not in danger.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0084,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0088,"Oglum kayboldu, 5 yasinda, son 2 saat oldu! Lutfen her yeri arayin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0054,"Shoes stolen at the door, no forced entry, I don't remember what I wore though.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0135,"Saw what looked like a thief in my shop, they ran, should I follow? Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0015,"Suspicious car outside my shop, two people sitting and waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0012,"A friend got stabbed, there's blood! Come now! Should we call police?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0079,"Saw what looked like a thief in my shop, they ran, should I follow?",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0051,"My husband started beating me, he grabbed a knife! I need to run! Which unit should I report to?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0187,"Separated from my spouse, he's now waiting in a car outside, not moving. Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0182,"Graffiti on the building wall, should I file a report? Just sharing info.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0168,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0280,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0175,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0109,"An unfamiliar person in the elevator, looked shady, should I report? Just sharing info.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0031,"My husband started beating me, he grabbed a knife! I need to run! Which unit should I report to?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0122,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0022,"Bir arkadasim bicaklandi, kan var! Hemen gelin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0062,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0164,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0163,"Saw what looked like a thief in my shop, they ran, should I follow? I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0077,"Street dog hanging around our building, not threatening. Municipality?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0133,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim? Polis arasak mi?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0267,"Someone broke my parked car's mirror at night, I should report it.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0221,"A car is wrongly parked on my street, been there a few days. Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0200,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0074,"No physical violence but a fight at home, a neighbor may have called me.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0112,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0076,"I witnessed a murder just now, the man fled!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0259,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0261,"A car is wrongly parked on my street, been there a few days.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0106,"A man threatened me violently on the street, no blows landed.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0027,"Someone broke my parked car's mirror at night, I should report it.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0057,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler. Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0059,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur. Bilgi vermek istedim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0179,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0199,"Lost youth in the neighborhood, allegedly ran away from home but not in danger.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0114,"Neighbor gave belongings to wrong person, wants them back, legal advice?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0038,"My 5-year-old son is missing, last seen 2 hours ago! Please search everywhere!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0075,"Separated from my spouse, he's now waiting in a car outside, not moving. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0033,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor. Polis arasak mi?",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0089,Yetiskin bir adam cocuga cinsel saldiri yapiyor parkta!,crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_tr_0005,"Evde rehine aldilar, benimle birlikte ailem de burada! Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0107,"Someone broke my parked car's mirror at night, I should report it.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0295,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0197,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0258,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0257,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0037,"Active attack at a shopping center, people are running! Not urgent of course.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0108,"Fight at a gas station, two people, separated but still yelling. Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0013,"A child is being abducted in the park, a man grabbed them!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0173,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0060,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0201,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0044,"Nothing is missing but my door was open when I got home, where should I check?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0286,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0043,"Suspicious car outside my shop, two people sitting and waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0066,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor. Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0013,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0056,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0068,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0034,"I hear gunshots outside, someone dropped to the ground!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0066,Teens outside being loud but not threatening.,crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0169,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0283,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0001,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0075,"Small parking lot fender bender, no injuries, need police for documentation?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0168,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0031,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0110,"Heavy water running sound from a window, should I check the water bill?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0106,Teens outside being loud but not threatening.,crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0199,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur. Polis arasak mi?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0105,"Neighbors had a loud argument, no physical fight. Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0064,"Theft happened a week ago at my house, should I call now or go to a station?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0090,"Armed man in my house, I locked myself in the bathroom! Emergency!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0170,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0103,"Separated from my spouse, he's now waiting in a car outside, not moving. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0010,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0108,"Found my door slightly open when I got home, nothing missing but should I be cautious? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0006,"Cinayete tanik oldum az once, adam kacti! Polis arasak mi?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0007,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0062,"Graffiti on the building wall, should I file a report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0040,"Evimde silahli bir adam var, kendimi kilitledim banyoya! Acil!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0141,"A car is wrongly parked on my street, been there a few days.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0085,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler. Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0031,"Homeless people on the street making me uncomfortable, no violence though.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0082,"Bir arkadasim bicaklandi, kan var! Hemen gelin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0278,"Tenant didn't move out and not paying rent, I'll sue.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0038,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor. Bilgi vermek istedim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0003,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0185,"Neighbors had a loud argument, no physical fight.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0011,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0293,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim? Yanimdakilerle guvendeyim.,crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0069,Yetiskin bir adam cocuga cinsel saldiri yapiyor parkta!,crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0111,"Homeless people on the street making me uncomfortable, no violence though. I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0006,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim. Bilgi vermek istedim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0016,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0143,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0097,"Active attack at a shopping center, people are running! Just sharing info.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0250,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0189,"A man at the mall keeps watching a child, doesn't look like family. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0087,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0079,"Lost youth in the neighborhood, allegedly ran away from home but not in danger. I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0132,"My son isn't home from school yet, an hour late. I'm worried. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0214,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0065,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim? Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0189,"An unfamiliar person in the elevator, looked shady, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0027,"Aktif bir saldiri var alis veris merkezinde, insanlar kaciyor! Polis arasak mi?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0198,"Tenant didn't move out and not paying rent, I'll sue.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0069,"An unfamiliar person in the elevator, looked shady, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0275,"Small parking lot fender bender, no injuries, need police for documentation?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0198,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim? Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0192,"Fight at a gas station, two people, separated but still yelling. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0019,"Separated from my spouse, he's now waiting in a car outside, not moving. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0252,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0032,"A friend got stabbed, there's blood! Come now!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0019,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0177,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim?",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0060,"Evimde silahli bir adam var, kendimi kilitledim banyoya! Acil!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0059,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0209,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0071,"My husband started beating me, he grabbed a knife! I need to run!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0237,"Street dog hanging around our building, not threatening. Municipality?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0032,"Rooster noise every morning from a neighbor, might be against rules.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0113,"A car engine running for hours unattended on the street, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0158,"No physical violence but a fight at home, a neighbor may have called me.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0070,"Someone's knocking on my door persistently, I don't know them. They're waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0287,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim. Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0091,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0012,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0241,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor. Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0119,"Lost youth in the neighborhood, allegedly ran away from home but not in danger.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0055,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0190,"Heavy water running sound from a window, should I check the water bill? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0147,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0095,"Hostage situation at home, my family is here with me! Just sharing info.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0299,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0094,"I hear gunshots outside, someone dropped to the ground!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0188,"Found my door slightly open when I got home, nothing missing but should I be cautious?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0232,"Rooster noise every morning from a neighbor, might be against rules. I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0063,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0274,"Neighbor gave belongings to wrong person, wants them back, legal advice? Just sharing info.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0135,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0007,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim. Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0110,"Shoes stolen at the door, no forced entry, I don't remember what I wore though.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0072,"Nothing is missing but my door was open when I got home, where should I check?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0064,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi. Bilgi vermek istedim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0285,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0203,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0045,"Possible stalker, same man has been following me for three days.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0138,"Shoes stolen at the door, no forced entry, I don't remember what I wore though. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0115,"Small parking lot fender bender, no injuries, need police for documentation? I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0072,"Rooster noise every morning from a neighbor, might be against rules.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0038,"Tenant didn't move out and not paying rent, I'll sue.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0039,An adult man is sexually assaulting a child in the park!,crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0058,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0173,Caddede bir araba saatlerce motor calistiriyor bos. Ihbarlamali miyim? Hangi birime bildirmeli?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0071,"Suspicious car outside my shop, two people sitting and waiting. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0246,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0131,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0084,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0061,"Esim beni dovmeye basladi, bicak aldi! Kacmam lazim!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0256,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0023,"Cocuk kaciriliyor parkta, adam cekti aldi! Hemen!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0187,"Someone broke my parked car's mirror at night, I should report it.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0276,"Someone being cruel to dogs in the park, should I call animal welfare?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0073,"Possible stalker, same man has been following me for three days.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0024,"Silah sesi duyuyorum sokakta, bir kisi yere yigildi gibi! Bilgi vermek istedim.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0160,"My son isn't home from school yet, an hour late. I'm worried. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0212,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0167,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim. Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0113,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0191,"Saw what looked like a thief in my shop, they ran, should I follow?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0067,"Someone broke my parked car's mirror at night, I should report it.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0186,Teens outside being loud but not threatening. Should we call police?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0296,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0017,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0225,"Neighbors had a loud argument, no physical fight.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0056,"I witnessed a murder just now, the man fled!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0020,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning. I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0030,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0083,"Bag had my meds in it, I think stolen on the bus. Important meds.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0049,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0021,"A man at the mall keeps watching a child, doesn't look like family.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0070,"Heavy water running sound from a window, should I check the water bill?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0057,"Active attack at a shopping center, people are running!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0141,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0069,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar. Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0045,"Evde rehine aldilar, benimle birlikte ailem de burada!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0047,"Separated from my spouse, he's now waiting in a car outside, not moving.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0127,"Suspicious car outside my shop, two people sitting and waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0155,"Suspicious car outside my shop, two people sitting and waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0097,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0036,"I witnessed a murder just now, the man fled! Which unit should I report to?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0112,"Rooster noise every morning from a neighbor, might be against rules.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0180,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0102,"No physical violence but a fight at home, a neighbor may have called me. Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0117,"Street dog hanging around our building, not threatening. Municipality? Just sharing info.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0097,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0146,Teens outside being loud but not threatening.,crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0099,An adult man is sexually assaulting a child in the park!,crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0104,"My son isn't home from school yet, an hour late. I'm worried. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0010,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0025,"Neighbors had a loud argument, no physical fight.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0081,"Traffic accident, no injuries apparent but the other car fled.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0098,"Someone's knocking on my door persistently, I don't know them. They're waiting. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0051,"Saw what looked like a thief in my shop, they ran, should I follow?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0165,"Traffic accident, no injuries apparent but the other car fled. Which unit should I report to?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0142,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim? Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0140,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0202,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0037,"Dukkanda hirsiz gibi birisi gordum ama kacti, takip etmeye mi devam edeyim?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0011,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0115,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0058,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0151,"Homeless people on the street making me uncomfortable, no violence though.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0093,"A child is being abducted in the park, a man grabbed them!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0078,"My 5-year-old son is missing, last seen 2 hours ago! Please search everywhere! Just sharing info.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0292,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0156,"Nothing is missing but my door was open when I got home, where should I check?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0121,"Sokagima yanlis park etmis bir araba var, birkac gundur duruyor.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0054,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0247,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim. Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0196,"Someone being cruel to dogs in the park, should I call animal welfare? I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0101,"A car is wrongly parked on my street, been there a few days.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0154,"Neighbor gave belongings to wrong person, wants them back, legal advice? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0233,"A car engine running for hours unattended on the street, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0128,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0047,"Aktif bir saldiri var alis veris merkezinde, insanlar kaciyor!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0217,"Evimizin onunde sokak kopegi dolaniyor, tehditkar degil. Belediyeyi mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0027,"Bag had my meds in it, I think stolen on the bus. Important meds.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0017,"Active attack at a shopping center, people are running! Which unit should I report to?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0000,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0176,"Parkta birisi kopeklere kotu davraniyor, hayvan koruma mi arayayim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0226,Teens outside being loud but not threatening. Should we call police?,crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0030,"Armed man in my house, I locked myself in the bathroom! Emergency! Should we call police?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0080,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0072,"A friend got stabbed, there's blood! Come now!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0015,"Hostage situation at home, my family is here with me! Just sharing info.",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0070,"Armed man in my house, I locked myself in the bathroom! Emergency!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0238,"Tenant didn't move out and not paying rent, I'll sue. Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0111,"Bag had my meds in it, I think stolen on the bus. Important meds.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0004,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0041,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0185,"Possible stalker, same man has been following me for three days. Just sharing info.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0235,"Small parking lot fender bender, no injuries, need police for documentation? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0130,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0026,"Shoes stolen at the door, no forced entry, I don't remember what I wore though.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0236,"Someone being cruel to dogs in the park, should I call animal welfare?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0118,"Tenant didn't move out and not paying rent, I'll sue.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0073,"A car engine running for hours unattended on the street, should I report? I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0074,"I hear gunshots outside, someone dropped to the ground!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0254,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0123,"Kayip bir kopek buldum mahallede, kimsenin degil gibi. Ne yapmaliyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0164,"Fight at a gas station, two people, separated but still yelling.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0017,"Possible stalker, same man has been following me for three days.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0063,"Cocuk kaciriliyor parkta, adam cekti aldi! Hemen!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0145,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0012,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0040,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0089,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0087,"Arabamin aynasini kirmisler park halindeyken, gece. Bildirmem lazim. Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0092,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0105,"A man at the mall keeps watching a child, doesn't look like family. Should we call police?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0049,"A man at the mall keeps watching a child, doesn't look like family.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0053,"A child is being abducted in the park, a man grabbed them!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0210,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0016,"I witnessed a murder just now, the man fled!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0125,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0074,"Neighbor gave belongings to wrong person, wants them back, legal advice? Should we call police?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0220,"Noise complaint about my neighbor, past 10pm. Not saying come out, just a warning.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0191,"Homeless people on the street making me uncomfortable, no violence though.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0183,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone. Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0150,"Heavy water running sound from a window, should I check the water bill? Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0028,"Found my door slightly open when I got home, nothing missing but should I be cautious?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0028,"Oglum kayboldu, 5 yasinda, son 2 saat oldu! Lutfen her yeri arayin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0166,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0023,"Found a lost dog in the neighborhood, doesn't seem to belong to anyone.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0084,"Silah sesi duyuyorum sokakta, bir kisi yere yigildi gibi! Polis arasak mi?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0162,"A man threatened me violently on the street, no blows landed.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0153,"A car engine running for hours unattended on the street, should I report? I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0055,"Bag had my meds in it, I think stolen on the bus. Important meds.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0085,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0227,"Someone broke my parked car's mirror at night, I should report it. I'm safe with others around.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0051,"Sokakta dilenciler var surekli, rahatsiz ediyor ama siddet yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0003,"Cocuk kaciriliyor parkta, adam cekti aldi! Hemen!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0060,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0024,"Fight at a gas station, two people, separated but still yelling. I'm safe with others around.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0011,"My husband started beating me, he grabbed a knife! I need to run! I'm safe with others around.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0050,"Kendi evimin penceresinden yogun musluk sesi duyuyorum, su faturasini kontrol etmeli miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0222,"Graffiti on the building wall, should I file a report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0046,"Disarda birkac genc aglaniyor ama tehditkar gibi degil, sadece gurultulu. Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0082,"Shoes stolen at the door, no forced entry, I don't remember what I wore though.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0079,An adult man is sexually assaulting a child in the park!,crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0073,"A child is being abducted in the park, a man grabbed them! Should we call police?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0171,"Stalking suphesi var, ayni adam beni takip ediyor son uc gundur.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0050,"A man threatened me violently on the street, no blows landed.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0023,"Saw what looked like a thief in my shop, they ran, should I follow? Should we call police?",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0077,"Active attack at a shopping center, people are running!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0035,"Small parking lot fender bender, no injuries, need police for documentation?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0016,"Nothing is missing but my door was open when I got home, where should I check?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0018,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam. Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0277,"Street dog hanging around our building, not threatening. Municipality?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0146,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0068,"Oglum kayboldu, 5 yasinda, son 2 saat oldu! Lutfen her yeri arayin!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0088,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0154,"Someone's knocking on my door persistently, I don't know them. They're waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0067,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0020,"My son isn't home from school yet, an hour late. I'm worried. Which unit should I report to?",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0087,"Aktif bir saldiri var alis veris merkezinde, insanlar kaciyor! Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0188,"My son isn't home from school yet, an hour late. I'm worried. Which unit should I report to?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0089,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0036,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0082,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0107,"Saw what looked like a thief in my shop, they ran, should I follow?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0046,"No physical violence but a fight at home, a neighbor may have called me.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0271,"Homeless people on the street making me uncomfortable, no violence though.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0180,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim. Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0076,"Someone being cruel to dogs in the park, should I call animal welfare? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0158,"Tenant didn't move out and not paying rent, I'll sue. Just sharing info.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0119,"Alis veris merkezinde bir adam cocugu izlemeye devam ediyor, aile degil gibi. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0147,"Someone broke my parked car's mirror at night, I should report it.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0015,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0067,"Aktif bir saldiri var alis veris merkezinde, insanlar kaciyor!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_tr_0026,"Cinayete tanik oldum az once, adam kacti! Bilgi vermek istedim.",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0150,"Benzin istasyonunda kavga var iki kisi, ayrisirmis ama taraflar hala bagirisiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0102,"Graffiti on the building wall, should I file a report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0039,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_en_0014,"I hear gunshots outside, someone dropped to the ground! Should we call police?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0129,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0037,"Street dog hanging around our building, not threatening. Municipality?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0007,"Aktif bir saldiri var alis veris merkezinde, insanlar kaciyor!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0155,"Small parking lot fender bender, no injuries, need police for documentation? Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0095,"Trafik kazasi oldu, yarali yok gibi ama araba kacti.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0090,"Oglum okuldan henuz donmedi, zamanindan bir saat gec. Endiseliyim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0184,"Nothing is missing but my door was open when I got home, where should I check?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0025,"Traffic accident, no injuries apparent but the other car fled.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0044,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0120,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0239,"Lost youth in the neighborhood, allegedly ran away from home but not in danger.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0066,"Cinayete tanik oldum az once, adam kacti! Hangi birime bildirmeli?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0244,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0193,"A car engine running for hours unattended on the street, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0029,"Dukkanimin onunde supheli bir araba duruyor, iki kisi beklemekteler.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0166,"Shoes stolen at the door, no forced entry, I don't remember what I wore though.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0086,"Bir sey kaybetmedim ama eve donunce kapi acikti, simdi nereye bakayim? Yanimdakilerle guvendeyim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0040,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0053,"Traffic accident, no injuries apparent but the other car fled.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0195,"Bag had my meds in it, I think stolen on the bus. Important meds.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0157,"Possible stalker, same man has been following me for three days. Which unit should I report to?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0152,"Rooster noise every morning from a neighbor, might be against rules. Which unit should I report to?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0001,"Esim beni dovmeye basladi, bicak aldi! Kacmam lazim! Polis arasak mi?",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_tr_0005,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0289,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi? Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0002,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi? Hangi birime bildirmeli?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0096,"I witnessed a murder just now, the man fled!",crime_synthetic_v1,crime,CRITICAL,1
+crime_cr_en_0019,An adult man is sexually assaulting a child in the park!,crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0048,"My son isn't home from school yet, an hour late. I'm worried.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0124,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0282,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0071,"Homeless people on the street making me uncomfortable, no violence though.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0139,"Kayip cocuk mahallede, genclerden biri ama tehlikede degil, evinden kactim diye duyuyorum.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0020,"Evimde silahli bir adam var, kendimi kilitledim banyoya! Acil!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0195,"Small parking lot fender bender, no injuries, need police for documentation? Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0092,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0148,"Found my door slightly open when I got home, nothing missing but should I be cautious?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0085,"Evde rehine aldilar, benimle birlikte ailem de burada!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0167,"Bag had my meds in it, I think stolen on the bus. Important meds. Not urgent of course.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0249,"Apartmanda asansorde bilinmeyen biri vardi, cekiciydi. Ihbar edeyim mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_en_0183,"Suspicious car outside my shop, two people sitting and waiting.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_en_0194,"Shoes stolen at the door, no forced entry, I don't remember what I wore though.",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0125,"Cantasi icinde ilaclari vardi, calindi sanirim otobuste. Onemli ilaclar. Acil degil tabii.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0279,"Lost youth in the neighborhood, allegedly ran away from home but not in danger. Not urgent of course.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0021,"Esim beni dovmeye basladi, bicak aldi! Kacmam lazim! Bilgi vermek istedim.",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0298,"Kirlicam var, kiraci tasinmadi ve odeme yapmiyor. Dava acacam.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_en_0010,"Armed man in my house, I locked myself in the bathroom! Emergency! Should we call police?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0157,"Street dog hanging around our building, not threatening. Municipality? Just sharing info.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0120,"Komsumda yine gurultu var, saat 22'yi gecti. Gelin demiyorum ama uyari olsun. Bilgi vermek istedim.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0172,"Maddi siddet olmadi ama evde kavga cikti, komsum ben arandim galiba. Hangi birime bildirmeli?",crime_synthetic_v1,crime,URGENT,0
+crime_nu_en_0116,"Someone being cruel to dogs in the park, should I call animal welfare?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0230,"Heavy water running sound from a window, should I check the water bill?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0095,"Park ucuz carpisma olmus, kimse yaralanmamis, belgelemek icin gerek var mi polis? Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0117,"Esimden ayri yasiyorum, simdi evin onunde arabada bekliyor, hareket etmiyor.",crime_synthetic_v1,crime,URGENT,0
+crime_cr_tr_0065,"Evde rehine aldilar, benimle birlikte ailem de burada!",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_tr_0014,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0064,"Silah sesi duyuyorum sokakta, bir kisi yere yigildi gibi!",crime_synthetic_v1,crime,CRITICAL,1
+crime_ur_en_0018,"No physical violence but a fight at home, a neighbor may have called me.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0162,"Binanin duvarina grafiti yapmislar, tutanak tutulmali mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0245,"Komsularim konustular biraz, sesli oldu ama fiziksel kavga yok.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_en_0029,"An unfamiliar person in the elevator, looked shady, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0124,"Esya hirsizligi oldu evden, bir hafta oncesinden. Simdi belediyeye mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0196,"Kapimda israrla birisi kapi caliyor, tanimiyorum. Bekliyor gidemiyorum. Polis arasak mi?",crime_synthetic_v1,crime,URGENT,0
+crime_ur_tr_0148,"Bir kisi kavga etti benimle sokakta, siddetle tehdit etti ama darpe olmadi.",crime_synthetic_v1,crime,URGENT,0
+crime_nu_tr_0294,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi? Acil degil tabii.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0134,"Esya bilmeyen birine vermis komsum, geri almak istiyor ama zor durumda. Hukuki danismanlik mi? Polis arasak mi?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_cr_tr_0062,"Bir arkadasim bicaklandi, kan var! Hemen gelin! Polis arasak mi?",crime_synthetic_v1,crime,CRITICAL,1
+crime_nu_en_0273,"A car engine running for hours unattended on the street, should I report?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0208,"Eve gelince kapi aralik buldum, icerde bir sey eksik degil ama tutunmali miyim?",crime_synthetic_v1,crime,NON_URGENT,0
+crime_nu_tr_0052,"Komsumdan horoz sesi geliyor her sabah, kurallara aykiri galiba.",crime_synthetic_v1,crime,NON_URGENT,0
+crime_ur_tr_0152,"Kapida ayakkabilar calinmis galiba, zorlama izi yok ama hatirlamiyorum ne giydigim. Bilgi vermek istedim.",crime_synthetic_v1,crime,URGENT,0

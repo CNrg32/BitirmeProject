@@ -326,7 +326,18 @@ class TestHandleMessage:
         mock_llm = MagicMock()
         mock_llm.is_available = True
         mock_llm.MODEL = "groq/llama-3.3-70b-versatile"
+        # Each turn: OpenAI triage, then Groq dialog (3 turns → 6 chat calls)
         mock_llm.chat.side_effect = [
+            {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.9,
+                "red_flags": [],
+                "response_text": "",
+                "extracted_slots": {},
+                "is_complete": False,
+                "dispatch_action": "none",
+            },
             {
                 "category": "medical",
                 "triage_level": "URGENT",
@@ -338,12 +349,32 @@ class TestHandleMessage:
                 "dispatch_action": "none",
             },
             {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.9,
+                "red_flags": [],
+                "response_text": "",
+                "extracted_slots": {},
+                "is_complete": False,
+                "dispatch_action": "none",
+            },
+            {
                 "response_text": "Any update?",
                 "extracted_slots": {},
                 "triage_level": "URGENT",
                 "category": "medical",
                 "is_complete": False,
                 "red_flags": [],
+                "dispatch_action": "none",
+            },
+            {
+                "category": "medical",
+                "triage_level": "URGENT",
+                "confidence": 0.9,
+                "red_flags": [],
+                "response_text": "",
+                "extracted_slots": {},
+                "is_complete": False,
                 "dispatch_action": "none",
             },
             {
