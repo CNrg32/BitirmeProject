@@ -29,8 +29,15 @@ _SRC = Path(__file__).resolve().parent.parent
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from services.translation_service import translate_to_english, translate_from_english, detect_language, translate
-from services.tts_service import synthesize
+from services.asr_service import get_asr_runtime_info_str
+from services.translation_service import (
+    translate_to_english,
+    translate_from_english,
+    detect_language,
+    translate,
+    get_translation_backend_name,
+)
+from services.tts_service import synthesize, get_tts_runtime_info_str
 from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
 
@@ -387,7 +394,12 @@ def handle_message(
             transcript, detected_lang, _conf = transcribe_audio(
                 audio_bytes=audio_bytes, language=asr_lang_hint,
             )
-            logger.info("  [TIMING] ASR: %.2fs", time.monotonic() - t0)
+            logger.info(
+                "  [TIMING] ASR: %.2fs %s translation_backend=%s",
+                time.monotonic() - t0,
+                get_asr_runtime_info_str(),
+                get_translation_backend_name(),
+            )
             user_text = transcript
             asr_transcript = transcript
             if detected_lang and not session.language_locked:
@@ -422,8 +434,7 @@ def handle_message(
     # 4. Language detection from text (if not already locked)
     # ------------------------------------------------------------------
     hard_noise = _is_gibberish(user_text)
-    llm_noise = None if hard_noise else _is_gibberish_with_llm(user_text, lang)
-    is_noise = hard_noise if hard_noise else bool(llm_noise)
+    is_noise = hard_noise
 
     if is_noise:
         session.troll_count += 1
@@ -638,9 +649,8 @@ def _handle_with_llm(
                  len(session.message_history))
 
     # ------------------------------------------------------------------
-    # FAZ 3: Groq Triage (Turn 1 only)
-    # On first user message: run triage (category + severity)
-    # Lock the category so LLM doesn't change it across turns
+    # FAZ 3: Groq — turn 1 uses single "first_turn" call (triage + first reply);
+    # later turns use "dialog" with locked category (latency: avoids 2x Groq on turn 1).
     # ------------------------------------------------------------------
     user_turn_count = sum(1 for m in session.messages if m.get("role") == "user")
     exhausted_slots = [k for k, v in session.slot_attempt_counts.items() if v >= 2]
@@ -1075,7 +1085,11 @@ def _reply(
     audio_bytes = synthesize(audio_source, lang=session.language or "en")
     audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
     audio_url = _audio_to_data_url(audio_bytes)
-    logger.info("  [TIMING] TTS: %.2fs", time.monotonic() - t0)
+    logger.info(
+        "  [TIMING] TTS: %.2fs %s",
+        time.monotonic() - t0,
+        get_tts_runtime_info_str(),
+    )
 
     # FAZ 8-9: Build response with dispatch + resume info
     

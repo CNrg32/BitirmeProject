@@ -56,5 +56,9 @@
 	<string>Your location helps dispatchers find you in an emergency.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Your location helps dispatchers find you in an emergency.</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>

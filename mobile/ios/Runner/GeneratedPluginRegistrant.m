@@ -36,10 +36,10 @@
 @import permission_handler_apple;
 #endif
 
-#if __has_include(<record_darwin/RecordPlugin.h>)
-#import <record_darwin/RecordPlugin.h>
+#if __has_include(<record_ios/RecordIosPlugin.h>)
+#import <record_ios/RecordIosPlugin.h>
 #else
-@import record_darwin;
+@import record_ios;
 #endif
 
 #if __has_include(<url_launcher_ios/URLLauncherPlugin.h>)
@@ -56,7 +56,7 @@
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [PathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PathProviderPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
-  [RecordPlugin registerWithRegistrar:[registry registrarForPlugin:@"RecordPlugin"]];
+  [RecordIosPlugin registerWithRegistrar:[registry registrarForPlugin:@"RecordIosPlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
 }
 

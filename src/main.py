@@ -523,10 +523,15 @@ def translate_endpoint(
     source: str = Form("auto"),
     target: str = Form("en"),
 ):
-    from services.translation_service import translate
+    from services.translation_service import translate, get_translation_backend_name
 
     result = translate(text, source=source, target=target)
-    return {"translated": result, "source": source, "target": target}
+    return {
+        "translated": result,
+        "source": source,
+        "target": target,
+        "translation_backend": get_translation_backend_name(),
+    }
 
 
 @app.post("/tts")
