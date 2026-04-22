@@ -260,6 +260,34 @@ def _is_gibberish(text: str) -> bool:
     return False
 
 
+_NON_EMERGENCY_KEYWORDS = (
+    "otel", "hotel", "konaklama", "rezervasyon", "booking", "oda fiyat",
+    "fiyat", "price", "ucuz", "cheap", "tatil", "travel", "uçak", "ucak",
+    "bilet", "restaurant", "restoran", "yemek", "tarif", "hava durumu",
+    "weather", "youtube", "video", "oyun", "game", "film", "dizi",
+    "müzik", "music", "alışveriş", "alisveris", "shopping", "borsa",
+    "kripto", "crypto", "bitcoin", "ödev", "odev", "essay",
+)
+
+_EMERGENCY_HINT_KEYWORDS = (
+    "acil", "112", "ambulans", "polis", "itfaiye", "yangın", "yangin",
+    "kaza", "yaralı", "yarali", "kan", "kanama", "nefes", "kalp",
+    "bayıldı", "bayildi", "bilinç", "bilinc", "silah", "saldırı",
+    "saldiri", "bıçak", "bicak", "tehdit", "mahsur", "duman", "alev",
+    "patlama", "ölüyor", "oluyor", "help", "emergency", "fire",
+    "accident", "bleeding", "breathing", "heart", "police",
+)
+
+
+def _is_non_emergency_request(text: str) -> bool:
+    normalized = re.sub(r"\s+", " ", (text or "").strip().lower())
+    if not normalized:
+        return False
+    if any(keyword in normalized for keyword in _EMERGENCY_HINT_KEYWORDS):
+        return False
+    return any(keyword in normalized for keyword in _NON_EMERGENCY_KEYWORDS)
+
+
 def _is_gibberish_with_llm(text: str, lang: str) -> Optional[bool]:
     """Ask LLM whether input is gibberish. Returns None if decision unavailable."""
     try:
@@ -443,6 +471,26 @@ def handle_message(
 
     # Reset noise counter once meaningful text is received.
     session.troll_count = 0
+
+    if _is_non_emergency_request(user_text):
+        session.non_emergency_count += 1
+        session.messages.append({"role": "user", "text": user_text})
+        if session.non_emergency_count >= 2:
+            session.is_complete = True
+            session.dispatch_status = "CANCELLED"
+            close_msg = {
+                "tr": "Bu hat yalnizca acil durumlar icindir. Ikinci kez acil durum disi istek aldigim icin oturumu sonlandiriyorum. Gercek bir acil durumda yeni oturum baslatin veya 112'yi arayin.",
+                "en": "This line is only for emergencies. I received a second non-emergency request, so I am closing this session. In a real emergency, start a new session or call emergency services.",
+            }.get(lang, "This line is only for emergencies. Session closed.")
+            return _reply(session, close_msg, is_complete=True, user_transcript=asr_transcript)
+
+        warn_msg = {
+            "tr": "Bu hat yalnizca acil durumlar icindir. Otel, fiyat, seyahat veya benzeri konularda yardimci olamam. Acil bir durum varsa lutfen kisa ve net sekilde yazin; acil durum disi bir mesaj daha gelirse oturumu kapatacagim.",
+            "en": "This line is only for emergencies. I cannot help with hotels, prices, travel, or similar requests. If this is an emergency, describe it briefly and clearly; another non-emergency message will close the session.",
+        }.get(lang, "This line is only for emergencies. Please describe the emergency clearly.")
+        return _reply(session, warn_msg, user_transcript=asr_transcript)
+
+    session.non_emergency_count = 0
 
     # Always re-detect language from each text message — supports mid-session language switching.
     detected_text_lang = detect_language(user_text)

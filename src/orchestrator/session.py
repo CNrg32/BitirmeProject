@@ -37,6 +37,9 @@ class Session:
     
     # Troll/noise detection counter
     troll_count: int = 0
+
+    # Non-emergency request counter: first warning, second closes the session.
+    non_emergency_count: int = 0
     
     # Slot filling tracking: {slot_name: attempt_count}
     slot_attempt_counts: Dict[str, int] = field(default_factory=dict)
