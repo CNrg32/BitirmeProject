@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../core/app_strings.dart';
 import '../models/nearest_facility.dart';
 import '../services/api_service.dart';
+import '../services/location_service.dart';
 import '../widgets/nearby_facilities_card.dart';
 import '../widgets/nearby_osm_map.dart';
 
@@ -19,6 +20,12 @@ class NearbyPlacesScreen extends StatefulWidget {
 
 class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
   final MapController _mapController = MapController();
+
+  // Harita hiç konum alınamasa bile yüklensin diye kullanılan
+  // başlangıç merkezi (yaklaşık Türkiye merkezi).
+  static const LatLng _fallbackCenter = LatLng(39.9255, 32.8663);
+  // Kullanıcıyı kendi piniyle birlikte rahat gösteren orta seviye zoom.
+  static const double _userFocusZoom = 15;
 
   bool _loading = false;
   Position? _position;
@@ -37,33 +44,17 @@ class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
     super.dispose();
   }
 
-  void _scheduleFitMap() {
+  void _scheduleCenterOnUser() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _fitMapBounds();
+      _centerOnUser();
     });
   }
 
-  void _fitMapBounds() {
+  void _centerOnUser() {
     if (_position == null) return;
     final user = LatLng(_position!.latitude, _position!.longitude);
-    if (_facilities.isEmpty) {
-      _mapController.move(user, 14);
-      return;
-    }
-    final points = <LatLng>[
-      user,
-      ..._facilities.map((f) => LatLng(f.latitude, f.longitude)),
-    ];
-    final bounds = LatLngBounds.fromPoints(points);
-    _mapController.fitCamera(
-      CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.fromLTRB(40, 40, 40, 56),
-        maxZoom: 16,
-        minZoom: 3,
-      ),
-    );
+    _mapController.move(user, _userFocusZoom);
   }
 
   void _focusOnFacility(NearestFacility facility) {
@@ -76,23 +67,18 @@ class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
   Future<void> _fetchNearby() async {
     setState(() => _loading = true);
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (!mounted) return;
+      final fix = await LocationService.getCurrentPosition();
+      if (!mounted) return;
+
+      if (!fix.hasPosition) {
+        final msg = _locationErrorMessage(fix.reason);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.locationRequiredForNearby)),
+          SnackBar(content: Text(msg)),
         );
         return;
       }
 
-      final current = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      if (!mounted) return;
+      final current = fix.position!;
       final api = context.read<ApiService>();
       final rawItems = await api.fetchNearbyPlaces(
         latitude: current.latitude,
@@ -108,7 +94,7 @@ class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
         _position = current;
         _facilities = facilities;
       });
-      _scheduleFitMap();
+      _scheduleCenterOnUser();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -116,6 +102,22 @@ class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
       );
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _locationErrorMessage(LocationFailureReason reason) {
+    switch (reason) {
+      case LocationFailureReason.serviceDisabled:
+        return AppStrings.locationServiceDisabled;
+      case LocationFailureReason.permissionDeniedForever:
+        return AppStrings.locationPermissionDeniedForever;
+      case LocationFailureReason.permissionDenied:
+        return AppStrings.locationPermissionDenied;
+      case LocationFailureReason.timeout:
+        return AppStrings.locationTimeout;
+      case LocationFailureReason.unknown:
+      case LocationFailureReason.none:
+        return AppStrings.locationRequiredForNearby;
     }
   }
 
@@ -147,31 +149,35 @@ class _NearbyPlacesScreenState extends State<NearbyPlacesScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (_position != null)
-                      NearbyOsmMap(
-                        mapController: _mapController,
-                        userPoint:
-                            LatLng(_position!.latitude, _position!.longitude),
-                        facilities: _facilities,
-                      )
-                    else
-                      ColoredBox(
-                        color: theme.colorScheme.surfaceContainerHighest
-                            .withOpacity(0.85),
-                        child: Center(
-                          child: _loading
-                              ? const CircularProgressIndicator()
-                              : Padding(
-                                  padding: const EdgeInsets.all(24),
-                                  child: Text(
-                                    AppStrings.locationRequiredForNearby,
-                                    textAlign: TextAlign.center,
-                                    style: theme.textTheme.bodyLarge,
-                                  ),
+                    NearbyOsmMap(
+                      mapController: _mapController,
+                      userPoint: _position != null
+                          ? LatLng(
+                              _position!.latitude, _position!.longitude)
+                          : null,
+                      fallbackCenter: _fallbackCenter,
+                      initialZoom: _userFocusZoom,
+                      facilities: _facilities,
+                    ),
+                    if (_position == null && !_loading)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: ColoredBox(
+                            color: theme.colorScheme.surface.withOpacity(0.55),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Text(
+                                  AppStrings.locationRequiredForNearby,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodyLarge,
                                 ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    if (_loading && _position != null)
+                    if (_loading)
                       Positioned(
                         top: 0,
                         left: 0,

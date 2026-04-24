@@ -53,7 +53,9 @@ class ChatBubble extends StatelessWidget {
                 children: [
                   if (message.imageBytes != null)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: EdgeInsets.only(
+                        bottom: message.text.isNotEmpty ? 8 : 0,
+                      ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.memory(
@@ -64,15 +66,16 @@ class ChatBubble extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Text(
-                    message.text,
-                    style: TextStyle(
-                      color: isUser
-                          ? Colors.white
-                          : theme.colorScheme.onSurface,
-                      fontSize: 15,
+                  if (message.text.isNotEmpty)
+                    Text(
+                      message.text,
+                      style: TextStyle(
+                        color: isUser
+                            ? Colors.white
+                            : theme.colorScheme.onSurface,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

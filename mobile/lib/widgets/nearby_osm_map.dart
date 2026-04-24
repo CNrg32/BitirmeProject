@@ -6,16 +6,23 @@ import '../core/app_theme.dart';
 import '../models/nearest_facility.dart';
 
 /// Ücretsiz OSM karoları ([flutter_map]) — Google Maps anahtarı gerekmez.
+///
+/// Not: [userPoint] henüz yoksa harita yine yüklenir ve [fallbackCenter]
+/// etrafında gösterilir. Böylece "harita yüklenmiyor" yanılgısı oluşmaz.
 class NearbyOsmMap extends StatelessWidget {
   final MapController mapController;
-  final LatLng userPoint;
+  final LatLng? userPoint;
+  final LatLng fallbackCenter;
+  final double initialZoom;
   final List<NearestFacility> facilities;
 
   const NearbyOsmMap({
     super.key,
     required this.mapController,
     required this.userPoint,
+    required this.fallbackCenter,
     required this.facilities,
+    this.initialZoom = 15,
   });
 
   static const String _tileUserAgent = 'emergency_assistant';
@@ -23,35 +30,36 @@ class NearbyOsmMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final markers = <Marker>[
-      Marker(
-        point: userPoint,
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        child: Tooltip(
-          message: 'Konumunuz',
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            padding: const EdgeInsets.all(6),
-            child: const Icon(
-              Icons.person_pin_circle,
-              color: Colors.white,
-              size: 22,
+      if (userPoint != null)
+        Marker(
+          point: userPoint!,
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          child: Tooltip(
+            message: 'Konumunuz',
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              padding: const EdgeInsets.all(6),
+              child: const Icon(
+                Icons.person_pin_circle,
+                color: Colors.white,
+                size: 22,
+              ),
             ),
           ),
         ),
-      ),
       ...facilities.map(
         (f) => Marker(
           point: LatLng(f.latitude, f.longitude),
@@ -69,8 +77,8 @@ class NearbyOsmMap extends StatelessWidget {
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(
-        initialCenter: userPoint,
-        initialZoom: 14,
+        initialCenter: userPoint ?? fallbackCenter,
+        initialZoom: initialZoom,
         maxZoom: 18,
         minZoom: 3,
       ),

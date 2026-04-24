@@ -173,11 +173,53 @@ class ImageAnalysisListResponse(BaseModel):
     image_analyses: List[ImageAnalysisRecordResponse] = Field(default_factory=list)
 
 
+class CaseRecordResponse(BaseModel):
+    session_id: str
+    created_at: Optional[str] = None
+    completed_at: Optional[str] = None
+    language: Optional[str] = None
+    is_complete: Optional[bool] = None
+    user_turn_count: Optional[int] = None
+    dispatch_status: Optional[str] = None
+    dispatch_target: Optional[str] = None
+    dispatch_timestamp: Optional[str] = None
+    triage_level: Optional[str] = None
+    category: Optional[str] = None
+    confidence: Optional[float] = None
+    red_flags: List[str] = Field(default_factory=list)
+    triage_result: Optional[Dict[str, Any]] = None
+    collected_slots: Dict[str, Any] = Field(default_factory=dict)
+    messages: List[Dict[str, Any]] = Field(default_factory=list)
+    final_report: Optional[str] = None
+    image_analysis: Optional[Dict[str, Any]] = None
+    witness_mode: Optional[bool] = None
+    resumed_after_timeout: Optional[bool] = None
+    meta: Dict[str, Any] = Field(default_factory=dict)
+
+
+class CaseListResponse(BaseModel):
+    cases: List[CaseRecordResponse] = Field(default_factory=list)
+
+
 class SessionMessageResponse(BaseModel):
     session_id: str
     assistant_text: str
     assistant_audio_url: Optional[str] = None
     assistant_audio_b64: Optional[str] = Field(None, description="TTS audio as base64 for playback")
+    assistant_tts_text: Optional[str] = Field(
+        None,
+        description=(
+            "Text intended for TTS playback. When tts_deferred=true, the client "
+            "should POST this to /tts to obtain audio bytes."
+        ),
+    )
+    tts_deferred: bool = Field(
+        False,
+        description=(
+            "True when the backend skipped inline TTS synthesis (controlled by "
+            "TTS_INLINE env flag). Clients must call /tts to fetch audio."
+        ),
+    )
     user_transcript: Optional[str] = Field(None, description="ASR transcript of user voice input")
     triage_result: Optional[PredictResponse] = None
     image_analysis: Optional[ImageAnalysisResult] = None

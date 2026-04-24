@@ -27,7 +27,6 @@ class TriageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final level = result['triage_level'] as String? ?? 'URGENT';
     final category = result['category'] as String? ?? 'other';
-    final confidence = result['confidence'] as num?;
     final redFlags = (result['red_flags'] as List?)?.cast<String>() ?? [];
 
     final (bgColor, fgColor, icon) = _triageStyle(level);
@@ -63,11 +62,6 @@ class TriageCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (confidence != null)
-                Text(
-                  '${(confidence * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(color: fgColor.withOpacity(0.9)),
-                ),
               if (onCallEmergency != null) ...[
                 const SizedBox(width: 10),
                 SizedBox(

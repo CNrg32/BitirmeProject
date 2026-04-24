@@ -67,6 +67,12 @@ class Session:
     
     # Whether waiting for post-dispatch update from user
     pending_update_after_dispatch: bool = False
+
+    # Number of user turns that have passed since responders were dispatched.
+    # Incremented on each turn AFTER the dispatch turn itself. Used by the
+    # orchestrator to decide when to close the dialog: we keep the conversation
+    # open while the LLM is still asking questions, up to POST_DISPATCH_MAX_TURNS.
+    post_dispatch_turn_count: int = 0
     
     # Last N messages for context (managed: keep only last 8-10 turns)
     message_history: List[Dict[str, str]] = field(default_factory=list)
@@ -79,9 +85,25 @@ class Session:
     # Her eleman: {"triage_level","confidence","red_flag_present","turn_index","ts"}
     triage_history: List[Dict[str, Any]] = field(default_factory=list)
 
+    # Monotonic CRITICAL lock: CRITICAL'a bir kere karar verildikten sonra
+    # (veya CRITICAL olarak sevk başlatıldıktan sonra) sonraki turlardaki nötr
+    # onay mesajları (ör. "tamam bekliyorum") seviyeyi URGENT/NON_URGENT'a
+    # düşüremez. Red-flag'li veya sevk edilmiş bir vaka, kalan turlarda CRITICAL
+    # kalmalıdır. Yalnızca yukarı yönde override (sentiment) veya yeniden
+    # değerlendirme ile kırılabilir.
+    critical_locked: bool = False
+
     # Image-layer state: invalid/unclear image retry count and post-dispatch updates.
     image_attempt_count: int = 0
     image_updates: List[Dict[str, Any]] = field(default_factory=list)
+
+    # Cache key for the last image analysis run (image id + category + level).
+    # Used to skip redundant re-analysis when nothing meaningful has changed.
+    last_image_analysis_key: Optional[str] = None
+
+    # Whether the completed case snapshot has already been persisted to DynamoDB.
+    # Guards against duplicate writes when is_complete is re-triggered across turns.
+    case_persisted: bool = False
 
 
 def can_redispatch(session: Session, redispatch_ttl_seconds: int = 48 * 3600) -> bool:

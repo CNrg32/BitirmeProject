@@ -30,6 +30,8 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from api.schemas import (
+    CaseListResponse,
+    CaseRecordResponse,
     ImageAnalysisListResponse,
     ImageAnalysisRecordResponse,
     ImageAnalysisResult,
@@ -382,6 +384,8 @@ def session_message(req: SessionMessageRequest):
         assistant_text=out["assistant_text"],
         assistant_audio_url=out.get("assistant_audio_url"),
         assistant_audio_b64=out.get("assistant_audio_b64"),
+        assistant_tts_text=out.get("assistant_tts_text"),
+        tts_deferred=bool(out.get("tts_deferred", False)),
         user_transcript=out.get("user_transcript"),
         triage_result=triage,
         image_analysis=image_analysis,
@@ -472,6 +476,34 @@ def list_image_analyses(limit: int = 50):
         )
     except RuntimeError as exc:
         raise HTTPException(503, str(exc))
+
+
+@app.get("/cases", response_model=CaseListResponse)
+def list_cases(limit: int = 50):
+    try:
+        from services.case_store import get_case_store
+
+        safe_limit = min(max(limit, 1), 200)
+        items = get_case_store().list(limit=safe_limit)
+        return CaseListResponse(
+            cases=[CaseRecordResponse(**item) for item in items]
+        )
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+
+@app.get("/cases/{session_id}", response_model=CaseRecordResponse)
+def get_case(session_id: str):
+    try:
+        from services.case_store import get_case_store
+
+        item = get_case_store().get(session_id)
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+    if item is None:
+        raise HTTPException(404, "Case not found.")
+    return CaseRecordResponse(**item)
 
 
 @app.post("/test/simulate-fallback")

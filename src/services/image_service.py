@@ -12,6 +12,25 @@ logger = logging.getLogger(__name__)
 
 _USE_HALF = os.environ.get("IMAGE_USE_HALF", "").strip().lower() in ("1", "true", "yes")
 
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        logger.warning("Invalid float for %s=%r, using default %s", name, raw, default)
+        return default
+
+
+# Confidence gates that prevent over-eager "TEXT_REQUIRED" / "POSSIBLY FAKE"
+# stamping when the backbone is merely uncertain. The UCF-Crime-trained model
+# collapses almost every off-domain phone photo into `NormalVideos`, so a
+# low-confidence NormalVideos prediction should NOT override the text triage.
+_NORMAL_CONFIDENCE_MIN = _env_float("IMAGE_NORMAL_CONFIDENCE_MIN", 0.75)
+_FAKE_CONFIDENCE_MIN = _env_float("IMAGE_FAKE_CONFIDENCE_MIN", 0.80)
+
 _BASE = Path(__file__).resolve().parent.parent.parent
 
 # Optional overrides (absolute path, or relative to project root):
@@ -314,14 +333,26 @@ def analyze_consistency(
 
     if img_class == "NormalVideos":
         if text_triage_level in ("CRITICAL", "URGENT"):
-            possible_fake = True
-            is_consistent = False
-            consistency_score = 0.1
-            risk_notes.append(
-                "Image appears normal/non-emergency, but the verbal report "
-                "describes a serious emergency. Possible fabrication or the "
-                "image does not reflect the actual scene."
-            )
+            if img_confidence >= _FAKE_CONFIDENCE_MIN:
+                possible_fake = True
+                is_consistent = False
+                consistency_score = 0.1
+                risk_notes.append(
+                    "Image appears normal/non-emergency, but the verbal report "
+                    "describes a serious emergency. Possible fabrication or the "
+                    "image does not reflect the actual scene."
+                )
+            else:
+                # Model is not confident enough about "NormalVideos"; the scene
+                # is probably off-domain (phone photo of a real emergency that
+                # does not match the 14 CCTV classes). Trust the text.
+                is_consistent = True
+                consistency_score = 0.5
+                risk_notes.append(
+                    "Image is visually inconclusive "
+                    f"(NormalVideos confidence {img_confidence:.0%} below "
+                    f"{_FAKE_CONFIDENCE_MIN:.0%}). Text triage takes precedence."
+                )
         else:
             is_consistent = True
             consistency_score = 0.9
@@ -370,6 +401,12 @@ def analyze_consistency(
     detail = "CONSISTENT" if is_consistent else "INCONSISTENT"
     if possible_fake:
         detail = "POSSIBLY FAKE / UNRELATED IMAGE"
+    elif (
+        img_class == "NormalVideos"
+        and text_triage_level in ("CRITICAL", "URGENT")
+        and img_confidence < _FAKE_CONFIDENCE_MIN
+    ):
+        detail = "INCONCLUSIVE_IMAGE"
 
     return {
         "is_consistent": is_consistent,
@@ -431,6 +468,12 @@ def derive_visual_triage(classification: Dict[str, Any]) -> Dict[str, Any]:
         triage_level = "URGENT"
         action = "VERIFY_THEN_DISPATCH"
         reason = "urgent_visual_signal"
+    elif cls_name == "NormalVideos" and confidence < _NORMAL_CONFIDENCE_MIN:
+        # Uncertain "normal" prediction → image is inconclusive, fall back to
+        # text triage instead of silently closing the session as non-urgent.
+        triage_level = "URGENT"
+        action = "MANUAL_FALLBACK"
+        reason = "inconclusive_normal_prediction"
     elif cls_name in NON_CRITICAL_IMAGE_CLASSES:
         triage_level = "NON_URGENT"
         action = "TEXT_REQUIRED"

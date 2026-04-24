@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import time
 from typing import Any, Dict, List, Optional
 
@@ -107,6 +108,52 @@ RULES:
 
 
 # ---------------------------------------------------------------------------
+# CJK / non-Latin leakage sanitizer
+# ---------------------------------------------------------------------------
+# Llama-3.x and similar byte-level BPE models occasionally leak single CJK /
+# Hangul / Thai / Hebrew / Devanagari tokens into Turkish (or other Latin-script)
+# output. We strip those ranges post-hoc as a hard safety net — the system
+# prompt already forbids them, but that is not a 100% guarantee.
+
+_NON_LATIN_LEAK_PATTERN = re.compile(
+    "["
+    "\u3040-\u30FF"     # Hiragana + Katakana
+    "\u3400-\u4DBF"     # CJK Unified Ideographs Extension A
+    "\u4E00-\u9FFF"     # CJK Unified Ideographs
+    "\uF900-\uFAFF"     # CJK Compatibility Ideographs
+    "\uAC00-\uD7AF"     # Hangul Syllables
+    "\u0E00-\u0E7F"     # Thai
+    "\u0590-\u05FF"     # Hebrew
+    "\u0900-\u097F"     # Devanagari
+    "]",
+    flags=re.UNICODE,
+)
+
+# Languages where the above scripts are legitimate — do not strip in those cases.
+_NATIVE_SCRIPT_LANGS = {"zh", "ja", "ko", "th", "he", "hi"}
+
+
+def _strip_non_latin_leak(text: Any, language: Optional[str] = None) -> Any:
+    """Remove stray CJK / Hangul / Thai / Hebrew / Devanagari characters
+    leaked into Latin-script output. No-op when the session language natively
+    uses one of those scripts.
+    """
+    if not isinstance(text, str) or not text:
+        return text
+    if language and language in _NATIVE_SCRIPT_LANGS:
+        return text
+    cleaned = _NON_LATIN_LEAK_PATTERN.sub("", text)
+    # Collapse double spaces the strip may have created.
+    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned).strip()
+    if cleaned != text:
+        logger.warning(
+            "Stripped non-Latin leakage from LLM output (lang=%s): %r -> %r",
+            language, text[:80], cleaned[:80],
+        )
+    return cleaned
+
+
+# ---------------------------------------------------------------------------
 # JSON parser (shared)
 # ---------------------------------------------------------------------------
 
@@ -126,8 +173,13 @@ _EMPTY_LLM_RESPONSE: Dict[str, Any] = {
 }
 
 
-def _parse_llm_json(raw: str) -> Dict[str, Any]:
-    """Parse LLM JSON output, tolerating minor formatting issues."""
+def _parse_llm_json(raw: str, language: Optional[str] = None) -> Dict[str, Any]:
+    """Parse LLM JSON output, tolerating minor formatting issues.
+
+    When ``language`` is provided and points to a Latin-script language, any
+    leaked CJK / Hangul / Thai / Hebrew / Devanagari characters in
+    ``response_text`` and ``red_flags`` are stripped as a safety net.
+    """
     raw = raw.strip()
     if raw.startswith("```"):
         lines = raw.splitlines()
@@ -158,8 +210,17 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
     iq = str(data.get("input_quality") or "meaningful").strip().lower()
     if iq not in ("meaningful", "gibberish", "out_of_scope"):
         iq = "meaningful"
+    response_text = data.get("response_text", "")
+    red_flags = list(data.get("red_flags") or [])
+    response_text = _strip_non_latin_leak(response_text, language)
+    red_flags = [
+        cleaned
+        for cleaned in (_strip_non_latin_leak(rf, language) for rf in red_flags)
+        if isinstance(cleaned, str) and cleaned.strip()
+    ]
+
     result.update({
-        "response_text": data.get("response_text", ""),
+        "response_text": response_text,
         "extracted_slots": {
             k: v for k, v in (data.get("extracted_slots") or {}).items()
             if v not in (None, "", "unknown", "N/A")
@@ -167,7 +228,7 @@ def _parse_llm_json(raw: str) -> Dict[str, Any]:
         "triage_level": data.get("triage_level", "URGENT"),
         "category": data.get("category", "other"),
         "is_complete": bool(data.get("is_complete", False)),
-        "red_flags": list(data.get("red_flags") or []),
+        "red_flags": red_flags,
         "dispatch_action": str(data.get("dispatch_action", "none") or "none").strip().lower(),
         "post_dispatch_collect": bool(data.get("post_dispatch_collect", False)),
         "legal_close": bool(data.get("legal_close", False)),
@@ -219,7 +280,7 @@ class _OpenAITriageProvider:
             return dict(_EMPTY_LLM_RESPONSE)
 
         lang_name = LANGUAGE_NAMES.get(language, "English")
-        max_few_shot = 0 if self.fast_finetune else 5
+        max_few_shot = 0 if self.fast_finetune else 8
         system = build_system_prompt_with_few_shot(
             SYSTEM_PROMPT,
             lang_name,
@@ -239,13 +300,14 @@ class _OpenAITriageProvider:
                 response = self._client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=0.3,
+                    temperature=0.2,
+                    top_p=0.9,
                     max_tokens=self.max_tokens,
                     response_format={"type": "json_object"},
                 )
                 raw = response.choices[0].message.content or ""
                 logger.debug("OpenAI triage raw response: %s", raw[:500])
-                return _parse_llm_json(raw)
+                return _parse_llm_json(raw, language=language)
             except Exception as exc:
                 exc_str = str(exc).lower()
                 is_rate_limit = (
@@ -340,7 +402,7 @@ class _GroqProvider:
         prompt_task = task or "dialog"
         if prompt_task == "triage_dialog":
             prompt_task = "dialog"
-        max_few_shot = 0 if self.fast_path else 5
+        max_few_shot = 0 if self.fast_path else 8
         system = build_system_prompt_with_few_shot(
             SYSTEM_PROMPT,
             lang_name,
@@ -389,13 +451,14 @@ class _GroqProvider:
                 response = self._client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=0.3,
+                    temperature=0.2,
+                    top_p=0.9,
                     max_tokens=self.max_tokens,
                     response_format={"type": "json_object"},
                 )
                 raw = response.choices[0].message.content or ""
                 logger.debug("Groq raw response: %s", raw[:500])
-                return _parse_llm_json(raw)
+                return _parse_llm_json(raw, language=language)
             except Exception as exc:
                 exc_str = str(exc).lower()
                 is_rate_limit = (

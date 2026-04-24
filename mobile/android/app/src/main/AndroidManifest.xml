@@ -5,6 +5,7 @@
 
     <!-- Microphone (voice recording) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
     <!-- Camera (take photos) -->
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -52,4 +53,7 @@
     <!-- Camera hardware feature (optional – app still works without camera) -->
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+
+    <!-- Microphone hardware feature (optional – app still works without mic) -->
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
 </manifest>

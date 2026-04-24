@@ -84,6 +84,54 @@ FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
             "red_flags": ["ciddi kanama"]
         },
     },
+    {
+        "user": "Bomba patladı! Her yer duman, insanlar yerde yatıyor.",
+        "assistant_json": {
+            "response_text": "Anladım, patlama olayı kritik. İtfaiye, ambulans ve polis hemen yönlendiriliyor. LÜTFEN bölgeden uzaklaşın, ikinci patlama riski olabilir, asansör kullanmayın ve şüpheli paketlere dokunmayın. Yaralı var mı, kaç kişi ve patlama kapalı bir binada mı, açık alanda mı?",
+            "extracted_slots": {"chief_complaint": "bomba patlaması", "category": "fire"},
+            "triage_level": "CRITICAL",
+            "category": "fire",
+            "confidence": 0.95,
+            "is_complete": False,
+            "is_witness": False,
+            "red_flags": ["patlama", "duman", "olası toplu yaralanma"],
+            "dispatch_action": "dispatch_now",
+            "post_dispatch_collect": True,
+            "legal_close": False
+        },
+    },
+    {
+        "user": "Alışveriş merkezinde bir patlama oldu, duman var, bina çöküyor gibi.",
+        "assistant_json": {
+            "response_text": "Bölgeden hemen uzaklaşın, bina çökme riski var. İtfaiye, AFAD, ambulans ve polis yönlendiriliyor. Tozlu dumandan uzak durun, ağzınızı ıslak bezle kapatın, asansör kullanmayın. Siz güvende bir yerde misiniz, içeride mahsur kalan veya ağır yaralı var mı?",
+            "extracted_slots": {"chief_complaint": "AVM'de patlama", "category": "fire", "fire_size": "large", "trapped": "possible"},
+            "triage_level": "CRITICAL",
+            "category": "fire",
+            "confidence": 0.95,
+            "is_complete": False,
+            "is_witness": True,
+            "red_flags": ["patlama", "bina çökme riski", "toplu yaralanma"],
+            "dispatch_action": "dispatch_now",
+            "post_dispatch_collect": True,
+            "legal_close": False
+        },
+    },
+    {
+        "user": "A bomb just exploded near me, there is smoke and people are hurt.",
+        "assistant_json": {
+            "response_text": "Understood, this is a critical explosion event. Fire, ambulance and police are being dispatched now. Please MOVE AWAY from the area — there may be a secondary blast risk, do not use elevators, and do not touch any suspicious packages. How many people are injured, and is anyone trapped or is the building unstable?",
+            "extracted_slots": {"chief_complaint": "bomb explosion", "category": "fire"},
+            "triage_level": "CRITICAL",
+            "category": "fire",
+            "confidence": 0.95,
+            "is_complete": False,
+            "is_witness": False,
+            "red_flags": ["explosion", "smoke", "multiple injuries"],
+            "dispatch_action": "dispatch_now",
+            "post_dispatch_collect": True,
+            "legal_close": False
+        },
+    },
 ]
 
 
@@ -105,18 +153,38 @@ def _load_examples_from_file() -> List[Dict[str, Any]]:
 
 
 def get_few_shot_examples(max_examples: int = 5) -> List[Dict[str, Any]]:
-    """Önce dosyadan, yoksa FEW_SHOT_EXAMPLES'tan en fazla max_examples döndür."""
+    """En fazla max_examples döndür.
+
+    Önce el-yapımı ``FEW_SHOT_EXAMPLES`` (özel vaka örnekleri: bomba patlaması,
+    kalp krizi, yangın, kaza vb.) garanti konur; ardından
+    ``data/llm_fine_tune_examples.json`` varsa kalan slotlar oradan tamamlanır.
+    Bu sayede dosya büyüse de kritik senaryolar her zaman prompta girer.
+    """
     if max_examples <= 0:
         return []
+    curated = list(FEW_SHOT_EXAMPLES)
+    if len(curated) >= max_examples:
+        return curated[:max_examples]
     file_examples = _load_examples_from_file()
-    source = file_examples if file_examples else FEW_SHOT_EXAMPLES
-    return source[:max_examples]
+    if not file_examples:
+        return curated
+    seen = {ex.get("user", "") for ex in curated}
+    extras: List[Dict[str, Any]] = []
+    for ex in file_examples:
+        user = ex.get("user", "")
+        if user in seen:
+            continue
+        extras.append(ex)
+        seen.add(user)
+        if len(curated) + len(extras) >= max_examples:
+            break
+    return (curated + extras)[:max_examples]
 
 
 def build_system_prompt_with_few_shot(
     base_system_prompt: str,
     language_hint: str,
-    max_few_shot: int = 5,
+    max_few_shot: int = 8,
     task: str = "dialog",
 ) -> str:
     """
@@ -155,12 +223,36 @@ def build_system_prompt_with_few_shot(
                 continue
             parts.append("\nUser: " + user)
             parts.append("\nAssistant (JSON only): " + json.dumps(ast, ensure_ascii=False))
+    lang_lower = (language_hint or "").strip().lower()
+    extra_rules = ""
+    if lang_lower in ("turkish", "tr"):
+        extra_rules = (
+            "\n- Write EVERY word of response_text in natural, fluent Turkish. "
+            "Do NOT mix in English, German, French, Spanish, Arabic, Russian, or any other language. "
+            "Do NOT use English loanwords like 'okay', 'ok', 'sorry', 'please', 'help', 'emergency', "
+            "'ambulance', 'fire', 'police', 'bleeding', 'breathing' — use the Turkish equivalents "
+            "('tamam', 'özür dilerim', 'lütfen', 'yardım', 'acil durum', 'ambulans', 'yangın', 'polis', "
+            "'kanama', 'nefes alma')."
+            "\n- Use proper Turkish characters (ç, ğ, ı, ö, ş, ü) where appropriate."
+            "\n- red_flags entries must be short Turkish noun phrases."
+        )
+    elif lang_lower in ("english", "en"):
+        extra_rules = (
+            "\n- Write EVERY word of response_text in clear, natural English. "
+            "Do NOT mix in Turkish, German, French, Spanish, Arabic, Russian, or any other language. "
+            "Do NOT use Turkish loanwords or diacritics (no ç, ğ, ı, ö, ş, ü)."
+            "\n- red_flags entries must be short English noun phrases."
+        )
+
     parts.append(
         f"\n\nIMPORTANT LANGUAGE RULE: The session language is '{language_hint}' for the entire conversation. "
-        "You MUST write the 'response_text' field ONLY in this language — no mixing, no other language words, no diacritics from unrelated scripts. "
+        "You MUST write the 'response_text' field ONLY in this language — no mixing, no other-language words, "
+        "no loanwords, no code-switching, no diacritics from unrelated scripts. "
         "Do not change language mid-session even if the user writes in another language. "
-        "NEVER produce Vietnamese, Thai, Arabic, or CJK characters unless this session language is one of those. "
-        f"Session language (fixed): {language_hint}. Violating this rule is a critical error."
+        "NEVER produce Chinese, Japanese, Korean, Vietnamese, Thai, Arabic, Hebrew, Devanagari, or Cyrillic "
+        "characters unless this session language is one of those."
+        + extra_rules
+        + f"\nSession language (fixed): {language_hint}. Violating this rule is a CRITICAL error."
     )
     return "\n".join(parts)
 
@@ -178,9 +270,14 @@ TASK: Determine the current category and severity from the full context.
 
 Categories:
 - medical: Health crisis (heart attack, stroke, severe injury, breathing difficulty, etc.)
-- fire: Fire, explosion, or building hazard
+- fire: Fire, explosion, bomb/blast, suspicious package, or building hazard
 - crime: Violence, assault, robbery, shooting, stabbing
 - other: All other emergencies not above
+
+BOMB / EXPLOSION RULE:
+- Any mention of an actual bomb going off, explosion, blast, IED, infilak, patlama,
+  şüpheli paket, suspicious package → category="fire", triage_level="CRITICAL",
+  red_flags must include "patlama"/"explosion" (plus duman/smoke, çökme/collapse, yaralı/injured if mentioned).
 
 Severity levels:
 - CRITICAL: Life-threatening, immediate risk of death (cardiac arrest, severe bleeding,
@@ -279,6 +376,23 @@ FIRST MESSAGE — NO ALARM FATIGUE:
 - Do NOT write that emergency services are already dispatched / "yönlendiriliyor" on turn 1 unless you set dispatch_action="dispatch_now" for a clearly justified CRITICAL case.
 - Prefer gathering one key missing clinical detail before escalating severity.
 
+BOMB / EXPLOSION SPECIAL CASE (HIGHEST PRIORITY):
+- Trigger phrases (TR): "bomba", "bomba patladı", "patlama oldu", "infilak", "şüpheli paket",
+  "sahipsiz paket", "el yapımı patlayıcı", "canlı bomba". Trigger phrases (EN): "bomb", "bomb exploded",
+  "explosion", "blast", "IED", "suspicious package", "suicide bomber".
+- On trigger: category="fire", triage_level="CRITICAL", dispatch_action="dispatch_now",
+  post_dispatch_collect=true, red_flags must include "patlama"/"explosion" plus any observed danger
+  (duman/smoke, bina çökmesi/collapse, yaralı/injured).
+- response_text MUST (within 3 short sentences) do ALL of the following, in user's language:
+    1) Kısaca sakinleştir ve ekipleri (itfaiye + ambulans + polis, büyük patlamada AFAD) yönlendirdiğini bildir.
+    2) Güvenlik talimatları: bölgeden uzaklaş, ikinci patlama riski var, asansör kullanma,
+       şüpheli paket/çanta/araçlara dokunma, dumandan uzak dur, ağzını ıslak bezle kapat,
+       binadan güvenli çıkış yolundan ayrıl — bina çökme riski varsa içeri asla geri dönme.
+    3) Tek bir öncelikli soru: yaralı sayısı, mahsur kalan var mı, veya ikinci bir şüpheli cisim/aracın olup olmadığı.
+- Never ask for age or caller medical history first in an active bomb scene; location/scene details
+  and injury count come before personal slots.
+- If caller sounds like a witness reporting others' injuries → is_witness=true, but still dispatch_now.
+
 RULES:
 - Ask only ONE question in response_text when collecting information.
 - For CRITICAL life threats already stated by the user, give short first-aid/safety steps and set dispatch_action="dispatch_now" when appropriate.
@@ -342,6 +456,24 @@ MID-DIALOG ESCALATION:
 - Re-evaluate severity every turn.
 - If the user introduces worsening indicators such as losing consciousness, weapon drawn, fire spreading, cannot breathe anymore, severe bleeding, trapped people, choose triage_level="CRITICAL" immediately.
 - In that case dispatch_action must be "dispatch_now" unless the session context says dispatch already happened.
+
+BOMB / EXPLOSION SPECIAL CASE (overrides normal fire flow):
+- Trigger phrases (TR): "bomba", "bomba patladı", "patlama", "infilak", "şüpheli paket",
+  "sahipsiz paket", "el yapımı patlayıcı", "canlı bomba". Trigger (EN): "bomb", "explosion",
+  "blast", "IED", "suspicious package".
+- Lock category="fire" and triage_level="CRITICAL". Set dispatch_action="dispatch_now"
+  (or "already_dispatched" if the session context already shows dispatch), and
+  post_dispatch_collect=true. red_flags must include "patlama"/"explosion".
+- Every response_text MUST keep reinforcing safety: bölgeden uzaklaş, ikinci patlama riski,
+  asansör yasak, şüpheli paket/araç/çantaya dokunma, dumandan uzak dur, ağzı ıslak bezle kapat,
+  bina çökme riski varsa içeri geri dönme, mümkünse açık ve yüksek noktada toplan.
+- Slot priority after dispatch: (a) ikinci şüpheli cisim/tehdit var mı,
+  (b) mahsur/ağır yaralı sayısı, (c) patlama kapalı mekânda mı (AVM, metro, bina) yoksa açık alanda mı,
+  (d) yangın veya duman yayılıyor mu, (e) micro-location (bina/kat/giriş/landmark).
+- Do NOT ask medical history, allergies, age of victims while the scene is active; those are
+  irrelevant for dispatch and waste time. Accept "bilmiyorum" and move on immediately.
+- Close with legal_close ONLY if the caller later clarifies it was a false alarm / fireworks /
+  car backfire and explicitly withdraws the report.
 
 URGENT DISPATCH POLICY (strict):
 - Before requesting completion/dispatch in URGENT, ensure minimum mandatory slots:

@@ -100,6 +100,14 @@ class AppStrings {
       'Yakinlarda hastane veya karakol bulunamadi. Tekrar denemek ister misiniz?';
   static const String retrySearch = 'Tekrar Ara';
   static const String locationRequiredForNearby = 'Yakin kurumlari gostermek icin konum izni gerekli.';
+  static const String locationServiceDisabled =
+      'Konum servisleri kapali. Lutfen iPhone Ayarlar > Gizlilik > Konum Servisleri bolumunden acin.';
+  static const String locationPermissionDeniedForever =
+      'Konum izni kalici olarak reddedildi. Ayarlar > Acil Yardim > Konum bolumunden izin verin.';
+  static const String locationPermissionDenied =
+      'Konum izni verilmedi. Acil ekiplere konum gonderilemiyor.';
+  static const String locationTimeout =
+      'Konum alinamadi (GPS zaman asimi). Acik alana cikip tekrar deneyin.';
   static const String getDirections = 'Yol Tarifi';
   static const String callFacility = 'Ara';
   static const String estimatedArrival = 'Tahmini ulasim';

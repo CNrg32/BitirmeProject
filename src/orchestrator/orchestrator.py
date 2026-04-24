@@ -20,6 +20,7 @@ import logging
 import os
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -41,6 +42,7 @@ from services.tts_service import synthesize, get_tts_runtime_info_str
 from orchestrator.session import Session, get_session_store
 from orchestrator.report_composer import compose_report
 from services.final_report_openai import generate_final_report_openai
+from services.case_store import persist_case_if_configured
 from services.turn_trace import (
     is_turn_trace_enabled,
     trace_banner,
@@ -50,6 +52,19 @@ from services.turn_trace import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _tts_inline_enabled() -> bool:
+    """TTS_INLINE controls whether /session/message synthesises audio inline.
+
+    Defaults to true so audio playback keeps working out of the box. Set
+    TTS_INLINE=false in the environment to skip synthesis in the hot path and
+    let the client fetch audio via /tts (saves 0.8–2 s per turn).
+    """
+    raw = (os.environ.get("TTS_INLINE") or "").strip().lower()
+    if not raw:
+        return True
+    return raw in ("1", "true", "yes", "on")
 
 
 def _uses_single_call_first_turn(llm: Any) -> bool:
@@ -85,19 +100,116 @@ def _audio_to_data_url(audio_bytes: Optional[bytes]) -> Optional[str]:
 # Public API
 # ---------------------------------------------------------------------------
 
+_SUPPORTED_LANGS = ("tr", "en")
+_DEFAULT_LANG = "tr"
+
+# Characters that only appear in Turkish (plus common Turkish digraphs that
+# disambiguate from English). One occurrence is a strong signal for TR.
+_TURKISH_ONLY_CHARS = set("çğıöşüÇĞİÖŞÜ")
+
+# High-signal English stopwords / function words that almost never appear in a
+# Turkish emergency utterance. Used as a fallback when langdetect fails or is
+# overconfident on a short string.
+_ENGLISH_SIGNAL_WORDS = {
+    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+    "i", "you", "he", "she", "it", "we", "they",
+    "my", "your", "his", "her", "our", "their",
+    "me", "him", "us", "them",
+    "and", "or", "but", "not", "no", "yes",
+    "what", "where", "when", "why", "how", "who", "which",
+    "have", "has", "had", "do", "does", "did",
+    "can", "could", "will", "would", "should", "may", "might",
+    "help", "please", "there", "here", "now", "just", "only",
+    "this", "that", "these", "those",
+    "of", "in", "on", "at", "to", "from", "with", "for", "about", "as", "by",
+    "dont", "wont", "cant", "im", "ive", "youre", "hes", "shes", "its",
+    "bleeding", "breathing", "hurt", "hurts", "pain", "fire", "help", "unconscious",
+    "someone", "somebody", "father", "mother", "brother", "sister", "son", "daughter",
+    "husband", "wife", "child", "children",
+}
+
+# High-signal Turkish words that will appear in almost any Turkish emergency
+# message — used to outvote langdetect noise.
+_TURKISH_SIGNAL_WORDS = {
+    "ve", "bir", "bu", "şu", "için", "ile", "ama", "ancak", "fakat",
+    "çok", "daha", "en", "var", "yok", "değil",
+    "ben", "sen", "biz", "siz", "onlar",
+    "ne", "nerede", "nasıl", "neden", "niçin", "kim", "hangi", "kaç",
+    "lütfen", "yardım", "imdat", "acil",
+    "hasta", "ağrı", "ateş", "kanama", "nefes", "baygın", "bayıldı",
+    "baba", "anne", "kardeş", "kızım", "oğlum", "kocam", "eşim", "çocuk",
+    "evde", "burada", "orada", "şurada",
+    "yanıyor", "yangın", "saldırı", "hırsız", "kaza",
+}
+
+
+def _detect_tr_or_en(text: str) -> str:
+    """Robust Turkish-vs-English classifier.
+
+    Priority order:
+      1. Turkish-only characters (ç, ğ, ı, ş, ö, ü) → ``tr``.
+      2. Stopword vote between English and Turkish signal words.
+      3. ``detect_language`` (langdetect) if it returns exactly ``tr`` or ``en``.
+      4. Fallback: ``_DEFAULT_LANG`` (``tr``).
+
+    Robust against short strings where langdetect is unreliable.
+    """
+    if not text or not text.strip():
+        return _DEFAULT_LANG
+
+    # Turkish-specific characters are a near-perfect signal.
+    if any(c in text for c in _TURKISH_ONLY_CHARS):
+        return "tr"
+
+    import re as _re
+    tokens = set(_re.findall(r"[a-z']+", text.lower()))
+    en_hits = len(tokens & _ENGLISH_SIGNAL_WORDS)
+    tr_hits = len(tokens & _TURKISH_SIGNAL_WORDS)
+
+    if en_hits > tr_hits and en_hits >= 1:
+        return "en"
+    if tr_hits > en_hits and tr_hits >= 1:
+        return "tr"
+
+    detected = detect_language(text)
+    if detected in _SUPPORTED_LANGS:
+        return detected
+
+    return _DEFAULT_LANG
+
+
+def _clamp_supported_lang(lang: Optional[str]) -> str:
+    """Collapse any detected/requested language down to the supported set."""
+    if not lang:
+        return _DEFAULT_LANG
+    lang = lang.strip().lower()
+    return lang if lang in _SUPPORTED_LANGS else _DEFAULT_LANG
+
+
 def start_session(language: Optional[str] = None) -> Dict[str, Any]:
+    """Create a new session.
+
+    The UI-supplied ``language`` argument is IGNORED for locking purposes —
+    the session language is always determined from the user's first message
+    (audio or text) and is restricted to Turkish or English. The greeting is
+    rendered in Turkish by default; it switches once the first user input
+    arrives.
+    """
     store = get_session_store()
-    session = store.create(language=language)
-    if language:
-        session.language_locked = True
-    lang = session.language or "en"
+    session = store.create(language=_DEFAULT_LANG)
+    session.language_locked = False
+    lang = _DEFAULT_LANG
 
     greeting = _GREETINGS.get(lang, _GREETINGS["en"])
     session.messages.append({"role": "assistant", "text": greeting})
 
-    audio_bytes = synthesize(greeting, lang=lang)
-    audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
-    audio_url = _audio_to_data_url(audio_bytes)
+    if _tts_inline_enabled():
+        audio_bytes = synthesize(greeting, lang=lang)
+        audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
+        audio_url = _audio_to_data_url(audio_bytes)
+    else:
+        audio_b64 = None
+        audio_url = None
 
     return {
         "session_id": session.session_id,
@@ -139,6 +251,44 @@ _COMPLETE_MSG: Dict[str, str] = {
     "ar": "شكراً. لدي معلومات كافية. المساعدة في الطريق.",
     "ru": "Спасибо. У меня достаточно информации. Помощь уже едет.",
 }
+
+# Final-turn closing messages used when the session ends after a dispatch.
+# These are strictly informational ("teams are on the way / case recorded") and
+# NEVER contain a question — the last response shown to the user must not leave
+# them expecting another turn.
+_FINAL_DISPATCHED_MSG: Dict[str, str] = {
+    "tr": "Acil yardım ekipleri yönlendirildi ve yardım yolda. Tüm bilgileri aldık, aşağıdaki vaka özetini inceleyebilirsiniz. Gerekirse hatta kalın.",
+    "en": "Emergency responders have been dispatched and help is on the way. All information has been received; please review the case summary below and stay on the line if needed.",
+    "de": "Notfallkräfte wurden entsandt und Hilfe ist unterwegs. Alle Informationen wurden erfasst. Bitte sehen Sie sich die Fallzusammenfassung unten an.",
+    "fr": "Les secours ont été envoyés et l'aide est en route. Toutes les informations ont été enregistrées. Veuillez consulter le résumé du cas ci-dessous.",
+    "es": "Los servicios de emergencia han sido enviados y la ayuda está en camino. Toda la información ha sido registrada. Consulte el resumen del caso a continuación.",
+    "ar": "تم إرسال فرق الطوارئ والمساعدة في طريقها إليك. تم استلام جميع المعلومات؛ يرجى مراجعة ملخص الحالة أدناه.",
+    "ru": "Экстренные службы направлены, помощь уже в пути. Вся информация получена. Пожалуйста, ознакомьтесь с кратким описанием случая ниже.",
+}
+
+# Final-turn closing when the case did NOT lead to a dispatch (clearly
+# non-emergency). Still informational, no questions.
+_FINAL_NON_DISPATCHED_MSG: Dict[str, str] = {
+    "tr": "Teşekkürler, gerekli bilgiyi aldık ve durumunuz kayıt altına alındı. Aşağıdaki özeti inceleyebilirsiniz; acil bir değişiklik olursa hemen tekrar arayın.",
+    "en": "Thank you. The necessary information has been recorded and your case is saved. Please review the summary below; call again immediately if the situation changes.",
+    "de": "Danke. Die erforderlichen Informationen wurden erfasst und Ihr Fall gespeichert. Bitte sehen Sie sich die Zusammenfassung unten an.",
+    "fr": "Merci. Les informations nécessaires ont été enregistrées et votre cas est sauvegardé. Veuillez consulter le résumé ci-dessous.",
+    "es": "Gracias. La información necesaria ha sido registrada y su caso está guardado. Consulte el resumen a continuación.",
+    "ar": "شكراً. تم تسجيل المعلومات اللازمة وحفظ حالتك. يرجى مراجعة الملخص أدناه.",
+    "ru": "Спасибо. Необходимая информация получена и ваш случай сохранён. Пожалуйста, ознакомьтесь с резюме ниже.",
+}
+
+
+def _final_closing_text(session: "Session", lang: str) -> str:
+    """Return the closing sentence to show on the very last turn.
+
+    Always a statement (never a question). If responders were dispatched the
+    message confirms that help is on the way; otherwise it acknowledges the
+    case has been recorded. Report card is appended by the caller.
+    """
+    if session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED"):
+        return _FINAL_DISPATCHED_MSG.get(lang, _FINAL_DISPATCHED_MSG["en"])
+    return _FINAL_NON_DISPATCHED_MSG.get(lang, _FINAL_NON_DISPATCHED_MSG["en"])
 
 _URGENT_CRITICAL_SLOT_KEYS: Dict[str, List[str]] = {
     "medical": ["breathing", "consciousness", "bleeding", "duration", "duration_minutes"],
@@ -199,6 +349,89 @@ def _urgent_micro_location_question(lang: str) -> str:
     }.get(lang, "For precise routing, please share building, floor, apartment, and entrance details.")
 
 
+# ---------------------------------------------------------------------------
+# Slot validation helpers
+# ---------------------------------------------------------------------------
+# Groq may "extract" slots that the user never actually stated in the current
+# turn (age/name/yes-no hallucinations). The helpers below keep the merge side
+# honest: they drop values that have no textual evidence in the latest user
+# message unless the slot already holds the same value from an earlier turn.
+
+_DIGIT_RE = re.compile(r"\d")
+_ALPHA_TOKEN_RE = re.compile(r"[A-Za-zÇĞİıÖŞÜçğıöşü]{2,}")
+_NUMERIC_SLOT_KEYS = {
+    "age",
+    "number_injured",
+    "victim_count",
+    "duration_minutes",
+    "floor",
+    "apartment",
+}
+_NAME_LIKE_SLOT_KEYS = {"caller_name"}
+
+
+def _latest_user_text(session: "Session") -> str:
+    """Return the most recent user message text in the session (or empty string)."""
+    for msg in reversed(getattr(session, "messages", []) or []):
+        if msg.get("role") == "user":
+            return str(msg.get("text") or "")
+    return ""
+
+
+def _validate_extracted_slots(
+    extracted: Dict[str, Any],
+    user_text: str,
+    session: "Session",
+) -> Dict[str, Any]:
+    """Drop slot values Groq likely hallucinated for the current turn.
+
+    Rules:
+      * empty / None values are always dropped;
+      * a numeric slot (age, counts, durations) is kept only when the current
+        user turn contains digits OR the value matches what we already stored;
+      * a name-like slot (caller_name) is kept only when the current user turn
+        contains an alphabetic token OR the value matches what we already
+        stored.
+    Everything else is passed through unchanged.
+    """
+    if not isinstance(extracted, dict) or not extracted:
+        return {}
+    text = (user_text or "").strip()
+    has_digit = bool(_DIGIT_RE.search(text))
+    has_alpha = bool(_ALPHA_TOKEN_RE.search(text))
+    cleaned: Dict[str, Any] = {}
+    for key, value in extracted.items():
+        if key == "_asking_slot":
+            continue
+        if value is None:
+            continue
+        v_str = str(value).strip() if not isinstance(value, (list, dict)) else str(value)
+        if not v_str:
+            continue
+
+        existing = session.collected_slots.get(key) if hasattr(session, "collected_slots") else None
+        if existing is not None and str(existing).strip() == v_str:
+            cleaned[key] = value
+            continue
+
+        if key in _NUMERIC_SLOT_KEYS and not has_digit:
+            logger.info(
+                "Slot validation: dropping %s=%r — no digits in user turn ('%s').",
+                key, v_str, text[:60],
+            )
+            continue
+
+        if key in _NAME_LIKE_SLOT_KEYS and not has_alpha:
+            logger.info(
+                "Slot validation: dropping %s=%r — no name-like tokens in user turn ('%s').",
+                key, v_str, text[:60],
+            )
+            continue
+
+        cleaned[key] = value
+    return cleaned
+
+
 # Unicode ranges for diacritics that never appear in Turkish/English/common languages
 # but are present in Vietnamese, Thai, Arabic, etc.
 _FOREIGN_DIACRITIC_RE = re.compile(
@@ -222,6 +455,25 @@ def _has_foreign_characters(text: str) -> bool:
     return False
 
 
+def _count_foreign_signal_words(text: str, target_lang: str) -> int:
+    """Return how many high-signal tokens belong to the *wrong* language.
+
+    Used to detect code-switching (e.g. the LLM answering in Turkish but
+    mixing in English loanwords like 'okay', 'bleeding', 'emergency').
+    """
+    tokens = set(re.findall(r"[a-zçğıöşüA-ZÇĞİÖŞÜ']+", text.lower()))
+    if not tokens:
+        return 0
+    if target_lang == "tr":
+        return len(tokens & _ENGLISH_SIGNAL_WORDS)
+    if target_lang == "en":
+        wrong = tokens & _TURKISH_SIGNAL_WORDS
+        # Also treat any token containing Turkish-only characters as wrong.
+        wrong |= {t for t in tokens if any(c in t for c in _TURKISH_ONLY_CHARS)}
+        return len(wrong)
+    return 0
+
+
 def _normalize_response_language(response_text: str, target_lang: str) -> str:
     """Force assistant text into the fixed session language when the LLM drifts or mixes languages."""
     text = (response_text or "").strip()
@@ -235,11 +487,178 @@ def _normalize_response_language(response_text: str, target_lang: str) -> str:
 
     # 2. Full-text language mismatch detected by langdetect
     detected = detect_language(text)
-    if detected and detected != target_lang:
+    if detected and detected != target_lang and detected in _SUPPORTED_LANGS:
         translated = translate(text, source=detected, target=target_lang)
         return translated or text
 
+    # 3. Code-switching heuristic: response is nominally in target_lang but
+    #    contains noticeable foreign-signal words (e.g. Turkish text mixed
+    #    with English loanwords). Force a round-trip translation to clean it.
+    foreign_hits = _count_foreign_signal_words(text, target_lang)
+    if foreign_hits >= 2:
+        source_lang = "en" if target_lang == "tr" else "tr"
+        logger.warning(
+            "Code-switching detected in LLM response (target=%s, foreign_hits=%d): %r",
+            target_lang, foreign_hits, text[:120],
+        )
+        translated = translate(text, source=source_lang, target=target_lang)
+        if translated and translated.strip() and translated != text:
+            return translated
+
     return text
+
+
+# ---------------------------------------------------------------------------
+# User bail / session-end intent (fast path, regex-based)
+# ---------------------------------------------------------------------------
+# Kullanıcı net biçimde "sorun yok / bitir / iptal / false alarm" derse
+# orchestrator LLM'e gitmeden oturumu NON_URGENT olarak kapatır. Aksi hâlde
+# LLM ısrarla acil durum sorusu sormaya devam ediyor.
+
+_BAIL_PATTERNS: Dict[str, List[str]] = {
+    "tr": [
+        r"\bsorun\s+yok\b",
+        r"\bproblem\s+yok\b",
+        r"\bbir\s+şey\s+yok\b",
+        r"\bbi\s*şey\s+yok\b",
+        r"\bönemli\s+değil\b",
+        r"\bacil\s+değil\b",
+        r"\bgerek\s+yok\b",
+        r"\biyiyim\b",
+        r"\biyidir\b",
+        r"\biyiyiz\b",
+        r"\bboş\s*ver\b",
+        r"\byanlış(lık(la)?| oldu| arama| alarm)?\b",
+        r"\b(oturumu|görüşmeyi|konuşmayı|aramayı|sohbeti)\s+(bitir|kapat|sonlandır|iptal\s+et)\w*\b",
+        r"\b(bitir|kapat|sonlandır|iptal)\s*(elim|alım|sin|abilir\s*misin)?\b",
+        r"\bhayır\s*,?\s*(sorun|problem|bir\s*şey)\s+yok\b",
+        r"\bdur(duralım)?\b\s*,?\s*(gerek|lazım)?\s*yok\b",
+        r"\bsadece\s+(test|deneme)\b",
+    ],
+    "en": [
+        r"\bno\s+problem\b",
+        r"\bnothing\s+wrong\b",
+        r"\bnothing\s+is\s+wrong\b",
+        r"\bnever\s*mind\b",
+        r"\bi\s*'?\s*m\s+fine\b",
+        r"\bi\s+am\s+fine\b",
+        r"\bi\s*'?\s*m\s+ok(ay)?\b",
+        r"\bi\s+am\s+ok(ay)?\b",
+        r"\bwe\s*'?\s*re\s+fine\b",
+        r"\bwe\s+are\s+fine\b",
+        r"\bfalse\s+alarm\b",
+        r"\b(end|terminate|cancel|close|stop)\s+(the\s+)?(session|call|chat|conversation)\b",
+        r"\bjust\s+(a\s+)?(test|trial|kidding|joking)\b",
+        r"\bno\s+emergency\b",
+        r"\bnot\s+an\s+emergency\b",
+        r"\bno\s+need\b",
+        r"\bnot\s+needed\b",
+    ],
+}
+
+
+def _is_user_bail_intent(text: str, lang: str) -> bool:
+    """Return True when the user clearly signals they want to end the session."""
+    if not text:
+        return False
+    t = text.strip().lower()
+    if not t:
+        return False
+    patterns = _BAIL_PATTERNS.get(lang) or _BAIL_PATTERNS["en"]
+    for pattern in patterns:
+        if re.search(pattern, t, re.IGNORECASE):
+            return True
+    # Very short single-word closure intents, independent of session language.
+    compact = re.sub(r"[^a-zçğıöşü\s]", "", t)
+    compact = re.sub(r"\s+", " ", compact).strip()
+    closure_single_tokens = {
+        "bitir", "sonlandır", "sonlandir", "kapat", "iptal", "dur", "tamam bitti",
+        "stop", "end", "cancel", "quit", "exit", "close", "done",
+    }
+    if compact in closure_single_tokens:
+        return True
+    return False
+
+
+def _handle_user_bail(
+    session: Session,
+    lang: str,
+    asr_transcript: Optional[str],
+) -> Dict[str, Any]:
+    """Close the session politely as NON_URGENT when the user bails out."""
+    already_dispatched = session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED")
+
+    if already_dispatched:
+        triage = dict(session.triage_result or {})
+        triage.setdefault("category", session.dispatch_target or "other")
+        triage.setdefault("triage_level", "URGENT")
+    else:
+        base_category = (session.triage_result or {}).get("category") or (
+            session.initial_triage or {}
+        ).get("category", "other")
+        triage = {
+            "category": base_category,
+            "triage_level": "NON_URGENT",
+            "confidence": 1.00,
+            "red_flags": [],
+            "slots": session.collected_slots,
+            "user_bailed": True,
+        }
+        session.dispatch_status = "CANCELLED"
+
+    triage["slots"] = session.collected_slots
+    session.triage_result = triage
+    session.is_complete = True
+    session.pending_update_after_dispatch = False
+
+    if already_dispatched:
+        close_msg = {
+            "tr": "Anladım, oturumu burada kapatıyorum. Ekipler yoldadır; durum kötüleşirse 112'yi arayın.",
+            "en": "Understood, I'm closing this session. Responders are on the way; call 112 if anything changes.",
+        }.get(lang, "Understood, closing the session. Call 112 if the situation changes.")
+    else:
+        close_msg = {
+            "tr": "Anladım, şu anda acil bir durum olmadığını belirttiniz. Oturumu kapatıyorum. Gerçek bir acil durumda 112'yi arayın ya da sohbeti yeniden başlatın. İyi günler.",
+            "en": "Understood, you've indicated there is no emergency right now. I'm closing this session. In a real emergency, please call 112 or start a new chat. Take care.",
+        }.get(lang, "Understood, closing the session. Call 112 in a real emergency.")
+
+    # Bail durumlarında kısa kapanış yeterli; ek GPT/şablon raporu üretmiyoruz.
+    # Ancak halihazırda dispatch gerçekleşmişse (ekipler yoldaysa) özet raporu
+    # koruyarak kullanıcıya gönderelim.
+    report_local: Optional[str] = None
+    if already_dispatched:
+        report_local = _compose_session_report(
+            triage_result=triage,
+            slots=session.collected_slots,
+            image_analysis=session.image_analysis,
+            lang=lang,
+        )
+    final_text = f"{close_msg}\n\n{report_local}" if report_local else close_msg
+
+    if is_turn_trace_enabled():
+        trace_step(
+            "Kullanıcı bail intent",
+            "Kullanıcı oturumu kapatmak istedi → NON_URGENT ile kapanış",
+        )
+        trace_orchestrator_outcome(
+            triage_level=str(triage.get("triage_level", "")),
+            category=str(triage.get("category", "")),
+            dispatch_status=str(session.dispatch_status or ""),
+            dispatch_target=session.dispatch_target,
+            is_complete=True,
+            user_turn_count=sum(1 for m in session.messages if m.get("role") == "user"),
+        )
+
+    return _reply(
+        session,
+        final_text,
+        triage_result=triage,
+        image_analysis=session.image_analysis,
+        report=report_local,
+        is_complete=True,
+        user_transcript=asr_transcript,
+        tts_text=close_msg,
+    )
 
 
 def _is_gibberish(text: str) -> bool:
@@ -323,16 +742,21 @@ def handle_message(
     # User returning after timeout → resume mode
     # ------------------------------------------------------------------
     current_time = time.time()
-    
-    # Set timeout deadline on first message if not set (3 minutes = 180 seconds)
-    if not session.timeout_deadline:
-        session.timeout_deadline = session.last_user_activity_at + (3 * 60)
-        logger.debug("Timeout deadline set: %.0f (current: %.0f)", 
-                     session.timeout_deadline, current_time)
-    
+    TIMEOUT_SECONDS = 3 * 60
+
+    # Sliding inactivity window: deadline is always relative to the last user activity,
+    # not to the first message of the session. Recompute every turn so that ongoing
+    # conversations don't trip the 3-minute rule just because total session age > 180s.
+    session.timeout_deadline = session.last_user_activity_at + TIMEOUT_SECONDS
+    inactivity_elapsed = current_time - session.last_user_activity_at
+    logger.debug(
+        "Timeout check: inactivity=%.0fs, deadline=%.0f, current=%.0f",
+        inactivity_elapsed, session.timeout_deadline, current_time,
+    )
+
     # Check if timeout has been triggered
     if session.dispatch_status in ("PENDING", "FALLBACK_PENDING") and not session.resumed_after_timeout:
-        if current_time > session.timeout_deadline:
+        if inactivity_elapsed > TIMEOUT_SECONDS:
             # Timeout triggered
             if session.triage_result:
                 triage_level = session.triage_result.get("triage_level", "NON_URGENT")
@@ -341,8 +765,11 @@ def handle_message(
                     session.dispatch_status = "SILENT_DISPATCHED"
                     session.dispatch_target = session.triage_result.get("category", "other")
                     session.dispatch_timestamp = current_time
-                    logger.warning("Silent dispatch triggered: timeout after 3 min. vaka_id=%s, category=%s",
-                                   session.session_id, session.dispatch_target)
+                    logger.warning(
+                        "Silent dispatch triggered: inactivity %.0fs (> %ds). vaka_id=%s, category=%s",
+                        inactivity_elapsed, TIMEOUT_SECONDS,
+                        session.session_id, session.dispatch_target,
+                    )
                     
                     # Prepare timeout message
                     timeout_msg = {
@@ -359,9 +786,12 @@ def handle_message(
                                 is_complete=True, report=None)
     
     # User returning after timeout → resume mode
-    if current_time > session.timeout_deadline and not session.resumed_after_timeout:
+    if inactivity_elapsed > TIMEOUT_SECONDS and not session.resumed_after_timeout:
         session.resumed_after_timeout = True
-        logger.info("Session resumed after timeout: vaka_id=%s", session.session_id)
+        logger.info(
+            "Session resumed after timeout: vaka_id=%s, inactivity=%.0fs",
+            session.session_id, inactivity_elapsed,
+        )
 
     # Guard: zaten tamamlanmış session'a yeni mesaj gelirse raporla cevap ver
     if session.is_complete:
@@ -416,11 +846,18 @@ def handle_message(
             )
             user_text = transcript
             asr_transcript = transcript
-            if detected_lang and not session.language_locked:
-                session.language = detected_lang
+            # Only lock from audio if we actually got a detected language AND
+            # a non-empty transcript — otherwise fall through so the text path
+            # (or the next turn) can do the detection.
+            if detected_lang and transcript and transcript.strip() and not session.language_locked:
+                resolved = _clamp_supported_lang(detected_lang)
+                session.language = resolved
                 session.language_locked = True
-                lang = detected_lang
-                logger.info("Language locked from first audio: %s", detected_lang)
+                lang = resolved
+                logger.info(
+                    "Language locked from first audio: raw=%s -> %s",
+                    detected_lang, resolved,
+                )
         except Exception as exc:
             logger.error("ASR failed: %s", exc)
             asr_err = {
@@ -473,14 +910,21 @@ def handle_message(
     # Reset noise counter once meaningful text is received.
     session.troll_count = 0
 
-    # Session language is fixed after: explicit preference at start_session, first ASR lock, or first text detection.
+    # Session language is always derived from the user's first input (audio or
+    # text), restricted to Turkish/English, and then fixed for the rest of the
+    # conversation. We prefer our hybrid TR/EN classifier here because
+    # ``langdetect`` alone is unreliable on short emergency utterances like
+    # "my dad is bleeding" or "help fire".
     if not session.language_locked:
-        detected_text_lang = detect_language(user_text)
-        if detected_text_lang:
-            session.language = detected_text_lang
-            session.language_locked = True
-            lang = detected_text_lang
-            logger.info("Language locked from text: %s", detected_text_lang)
+        resolved = _detect_tr_or_en(user_text)
+        raw_detected = detect_language(user_text)
+        session.language = resolved
+        session.language_locked = True
+        lang = resolved
+        logger.info(
+            "Language locked from text: raw_langdetect=%s -> resolved=%s (text=%r)",
+            raw_detected, resolved, user_text[:80],
+        )
 
     # ------------------------------------------------------------------
     # 5. Accumulate English text for ML models (sentiment etc.)
@@ -501,6 +945,20 @@ def handle_message(
 
     # Add user message to history
     session.messages.append({"role": "user", "text": user_text})
+
+    # ------------------------------------------------------------------
+    # Bail intent fast-path: "sorun yok / bitir / sonlandır / no problem /
+    # false alarm" gibi net vazgeçme sinyalleri geldiğinde LLM'e gitmeden
+    # oturumu NON_URGENT olarak kapat. LLM ısrarla acil soru sormasın diye.
+    # ------------------------------------------------------------------
+    if _is_user_bail_intent(user_text, lang):
+        logger.info("User bail intent detected (lang=%s). Closing session as NON_URGENT.", lang)
+        if is_turn_trace_enabled():
+            trace_step(
+                "Bail intent algılandı",
+                f"user_text='{user_text}' → LLM atlanıyor, oturum kapanıyor",
+            )
+        return _handle_user_bail(session, lang, asr_transcript)
 
     if is_turn_trace_enabled():
         trace_banner("Kullanıcı turu", session.session_id)
@@ -547,27 +1005,93 @@ def _handle_image_only(
     lang: str,
     asr_transcript: Optional[str],
 ) -> Dict[str, Any]:
+    """Fotoğraf tek başına (metinsiz) geldiğinde triyaj tamamen görüntü modeline bırakılır.
+
+    Kullanıcıdan hiçbir durumda metin açıklaması istenmez; görüntü modelinin
+    kararı doğrudan uygulanır:
+      - CRITICAL / URGENT  → doğrudan dispatch
+      - NON_URGENT         → oturumu acil değil olarak kapat
+      - Model kararsız (MANUAL_FALLBACK / RECAPTURE_IMAGE) → yalnızca daha net
+        yeni bir fotoğraf istenir; 2. denemeden sonra modelin en iyi tahminine
+        göre sonuçlandırılır.
+    """
     image_analysis = session.image_analysis or {}
     visual = image_analysis.get("visual_triage") or {}
     action = visual.get("action")
     triage_level = visual.get("triage_level", "URGENT")
     category = visual.get("category", "other")
 
+    # ------------------------------------------------------------------
+    # Model kararsız / görsel kalitesi yetersiz → YENİ FOTOĞRAF iste (metin DEĞİL).
+    # ------------------------------------------------------------------
     if action in ("RECAPTURE_IMAGE", "MANUAL_FALLBACK"):
         session.image_attempt_count += 1
-        if session.image_attempt_count >= 2:
-            session.dispatch_status = "FALLBACK_PENDING"
+        if session.image_attempt_count < 2:
             msg = {
-                "tr": "Görseli güvenilir analiz edemedim. Lütfen Tıbbi, Polis, İtfaiye, Trafik/Kaza veya Diğer olarak seçip 1 cümle açıklama yazın.",
-                "en": "I could not reliably analyze the image. Please choose Medical, Police, Fire, Traffic/Accident, or Other and add one short sentence.",
-            }.get(lang, "Please choose a category and add one short sentence.")
-        else:
+                "tr": "Görseli net analiz edemedim. Lütfen daha iyi aydınlatılmış, daha net bir fotoğraf çekip tekrar gönderin.",
+                "en": "I could not analyze the photo clearly. Please take a better-lit, clearer photo and send it again.",
+            }.get(lang, "Please send a clearer photo.")
+            return _reply(
+                session,
+                msg,
+                image_analysis=image_analysis,
+                user_transcript=asr_transcript,
+            )
+        # 2+ deneme: modelin elindeki en iyi tahmine göre karar ver, metin İSTEME.
+        triage = _triage_from_visual(image_analysis)
+        session.triage_result = triage
+        session.collected_slots.update({
+            "image_category": category,
+            "image_triage_level": triage_level,
+            "visual_flags": visual.get("visual_flags", []),
+        })
+        if triage_level in ("CRITICAL", "URGENT"):
+            _mark_dispatch(session, category)
             msg = {
-                "tr": "Görsel net değil veya model şu an kullanılamıyor. Mümkünse daha net fotoğraf gönderin ya da olayı kısaca yazın.",
-                "en": "The image is unclear or the model is unavailable. Please send a clearer photo or briefly describe the emergency.",
-            }.get(lang, "Please send a clearer photo or describe the emergency.")
-        return _reply(session, msg, image_analysis=image_analysis, user_transcript=asr_transcript)
+                "tr": "Görseli tam net analiz edemesem de olası bir acil durum tespit ettim. Ekipler yönlendiriliyor. Güvenli alanda kalın.",
+                "en": "I could not fully analyze the photo, but it suggests a possible emergency. Responders are being dispatched. Stay in a safe area.",
+            }.get(lang, "Responders are being dispatched based on the image.")
+            report_local = _compose_session_report(
+                triage_result=session.triage_result,
+                slots=session.collected_slots,
+                image_analysis=image_analysis,
+                lang=lang,
+            )
+            final_text = f"{msg}\n\n{report_local}" if report_local else msg
+            return _reply(
+                session,
+                final_text,
+                triage_result=session.triage_result,
+                image_analysis=image_analysis,
+                report=report_local,
+                user_transcript=asr_transcript,
+            )
+        session.is_complete = True
+        session.dispatch_status = session.dispatch_status or "CANCELLED"
+        msg = {
+            "tr": "Görselde net bir acil durum belirtisi tespit edemedim. Oturumu kapatıyorum. Gerçek bir acil durumda lütfen 112'yi arayın.",
+            "en": "I could not detect a clear emergency in the image. Closing the session. In a real emergency please call 112.",
+        }.get(lang, "No clear emergency detected. Session closed.")
+        report_local = _compose_session_report(
+            triage_result=session.triage_result,
+            slots=session.collected_slots,
+            image_analysis=image_analysis,
+            lang=lang,
+        )
+        final_text = f"{msg}\n\n{report_local}" if report_local else msg
+        return _reply(
+            session,
+            final_text,
+            triage_result=session.triage_result,
+            image_analysis=image_analysis,
+            report=report_local,
+            is_complete=True,
+            user_transcript=asr_transcript,
+        )
 
+    # ------------------------------------------------------------------
+    # Model net bir karar verdi → triyajı görselden türet.
+    # ------------------------------------------------------------------
     triage = _triage_from_visual(image_analysis)
     session.triage_result = triage
     session.collected_slots.update({
@@ -576,26 +1100,58 @@ def _handle_image_only(
         "visual_flags": visual.get("visual_flags", []),
     })
 
-    if action == "EARLY_DISPATCH":
+    # CRITICAL ya da URGENT → doğrudan dispatch. Metin doğrulaması İSTENMEZ.
+    if action in ("EARLY_DISPATCH", "VERIFY_THEN_DISPATCH") or triage_level in ("CRITICAL", "URGENT"):
         _mark_dispatch(session, category)
-        msg = {
-            "tr": "Görselde kritik risk tespit edildi. Ekipler yönlendiriliyor. Güvenli alana geçin; bina, kat, daire veya tam konumu yazabilirseniz ekiplere ileteceğim.",
-            "en": "Critical risk was detected in the image. Emergency services are being dispatched. Move to a safe area; send building, floor, apartment, or exact location if you can.",
-        }.get(lang, "Emergency services are being dispatched.")
-        return _reply(session, msg, triage_result=triage, image_analysis=image_analysis)
+        if action == "EARLY_DISPATCH" or triage_level == "CRITICAL":
+            msg = {
+                "tr": "Görselde kritik risk tespit edildi. Ekipler yönlendiriliyor. Güvenli alana geçin; konum gönderebilirseniz ekiplere ileteceğim.",
+                "en": "Critical risk detected in the image. Responders are being dispatched. Move to a safe area; share your location if you can.",
+            }.get(lang, "Critical risk detected. Responders are being dispatched.")
+        else:
+            msg = {
+                "tr": "Görselde acil bir durum tespit edildi. Ekipler yönlendiriliyor. Güvenli alana geçin; konum gönderebilirseniz ekiplere ileteceğim.",
+                "en": "An emergency was detected in the image. Responders are being dispatched. Move to a safe area; share your location if you can.",
+            }.get(lang, "Emergency detected. Responders are being dispatched.")
+        report_local = _compose_session_report(
+            triage_result=session.triage_result,
+            slots=session.collected_slots,
+            image_analysis=image_analysis,
+            lang=lang,
+        )
+        final_text = f"{msg}\n\n{report_local}" if report_local else msg
+        return _reply(
+            session,
+            final_text,
+            triage_result=session.triage_result,
+            image_analysis=image_analysis,
+            report=report_local,
+            user_transcript=asr_transcript,
+        )
 
-    if action == "VERIFY_THEN_DISPATCH":
-        msg = {
-            "tr": "Görsel acil durum belirtisi gösteriyor. Yaralı, duman/alev, silah veya mahsur kalan biri var mı? Kısaca yazın.",
-            "en": "The image suggests an emergency. Is there an injured person, smoke/fire, a weapon, or someone trapped? Please answer briefly.",
-        }.get(lang, "Please briefly verify the emergency.")
-        return _reply(session, msg, triage_result=triage, image_analysis=image_analysis)
-
+    # NON_URGENT (action == "TEXT_REQUIRED" dahil) → metin İSTEMEDEN kapat.
+    session.is_complete = True
+    session.dispatch_status = session.dispatch_status or "CANCELLED"
     msg = {
-        "tr": "Görselde net bir acil durum belirtisi görünmüyor. Yine de acil bir durum varsa lütfen kısaca açıklayın.",
-        "en": "The image does not show a clear emergency. If there is still an emergency, please briefly describe it.",
-    }.get(lang, "Please briefly describe the emergency.")
-    return _reply(session, msg, triage_result=triage, image_analysis=image_analysis)
+        "tr": "Görselde acil bir durum belirtisi tespit etmedim. Oturumu kapatıyorum. Gerçek bir acil durumda lütfen 112'yi arayın.",
+        "en": "I did not detect any emergency signals in the image. Closing the session. In a real emergency please call 112.",
+    }.get(lang, "No emergency detected in the image. Session closed.")
+    report_local = _compose_session_report(
+        triage_result=session.triage_result,
+        slots=session.collected_slots,
+        image_analysis=image_analysis,
+        lang=lang,
+    )
+    final_text = f"{msg}\n\n{report_local}" if report_local else msg
+    return _reply(
+        session,
+        final_text,
+        triage_result=session.triage_result,
+        image_analysis=image_analysis,
+        report=report_local,
+        is_complete=True,
+        user_transcript=asr_transcript,
+    )
 
 
 def _triage_from_visual(image_analysis: Dict[str, Any]) -> Dict[str, Any]:
@@ -674,6 +1230,12 @@ def _handle_post_dispatch_update(session: Session, user_text: str, lang: str) ->
         for flag in visual.get("visual_flags", []):
             if flag not in session.triage_result["red_flags"]:
                 session.triage_result["red_flags"].append(flag)
+        if not session.critical_locked:
+            logger.info(
+                "CRITICAL lock activated via visual triage (session=%s).",
+                session.session_id,
+            )
+        session.critical_locked = True
 
     msg = {
         "tr": "Güncelleme alındı. Bu bilgi yoldaki ekiplere ek bilgi olarak iletilecek. Yeni risk varsa güvenli alanda kalın.",
@@ -724,14 +1286,49 @@ def _handle_with_llm(
             "akış: OpenAI triage → Groq dialog → orchestrator güvenlik kuralları",
         )
 
-    logger.info("OpenAI fine-tuned triage (full conversation)...")
-    t0 = time.monotonic()
-    triage_result = llm.chat(
-        history=session.messages,
-        language=lang,
-        task="triage",
-    )
-    logger.info("  [TIMING] OpenAI triage: %.2fs", time.monotonic() - t0)
+    # Triage (OpenAI FT) and dialog (Groq) are run in parallel: the dialog
+    # call only uses initial_category/level as a soft hint, and the orchestrator
+    # re-applies the authoritative triage after both return. Feeding the
+    # PREVIOUS turn's triage as the hint keeps behaviour consistent while
+    # eliminating ~1–2 s of sequential wait.
+    prior_triage = session.initial_triage or session.triage_result or {}
+    dialog_hint_category = str(prior_triage.get("category") or "other")
+    dialog_hint_level = str(prior_triage.get("triage_level") or "URGENT")
+
+    history_snapshot = list(session.messages)
+    dispatch_status_snapshot = session.dispatch_status
+    witness_mode_snapshot = session.witness_mode
+
+    def _run_triage() -> Dict[str, Any]:
+        return llm.chat(
+            history=history_snapshot,
+            language=lang,
+            task="triage",
+        )
+
+    def _run_dialog() -> Dict[str, Any]:
+        return llm.chat(
+            history=history_snapshot,
+            language=lang,
+            task="dialog",
+            session_context={
+                "initial_category": dialog_hint_category,
+                "initial_triage_level": dialog_hint_level,
+                "dispatch_status": dispatch_status_snapshot,
+                "witness_mode": witness_mode_snapshot,
+                "exhausted_slots": exhausted_slots,
+            },
+        )
+
+    logger.info("OpenAI fine-tuned triage + Groq dialog (parallel)...")
+    t_parallel = time.monotonic()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        fut_triage = pool.submit(_run_triage)
+        fut_dialog = pool.submit(_run_dialog)
+        triage_result = fut_triage.result()
+        llm_result = fut_dialog.result()
+    logger.info("  [TIMING] Triage+Dialog (parallel): %.2fs", time.monotonic() - t_parallel)
+
     session.initial_triage = {
         "category": triage_result.get("category", "other"),
         "triage_level": triage_result.get("triage_level", "URGENT"),
@@ -739,28 +1336,43 @@ def _handle_with_llm(
         "red_flags": list(triage_result.get("red_flags") or []),
     }
     session.witness_mode = bool(triage_result.get("is_witness", False))
+
+    # ------------------------------------------------------------------
+    # Monotonic CRITICAL lock
+    # ------------------------------------------------------------------
+    # Bir vakaya CRITICAL kararı verildikten (ve/veya sevk başlatıldıktan)
+    # sonra kullanıcının nötr onay mesajları ("tamam", "bekliyorum",
+    # "anladım" vb.) modeli yeni turda URGENT/NON_URGENT'a çekebiliyor.
+    # Bu geriye dönük düşüş operasyonel açıdan tehlikelidir: sevk edilmiş
+    # bir ekip için vaka hâlâ CRITICAL seviyededir.
+    # Kural:
+    #   1) initial_triage CRITICAL ise lock'u aktive et (kalıcı).
+    #   2) Lock aktifken model URGENT/NON_URGENT dönse bile seviyeyi
+    #      CRITICAL olarak koru. (Sentiment yukarı yönde override hâlâ
+    #      çalışabilir; aşağı yönde yumuşatma yapılamaz.)
+    raw_level = session.initial_triage.get("triage_level", "URGENT")
+    if raw_level == "CRITICAL":
+        if not session.critical_locked:
+            logger.info(
+                "CRITICAL lock activated for session %s (first CRITICAL commit).",
+                session.session_id,
+            )
+        session.critical_locked = True
+    elif session.critical_locked:
+        logger.info(
+            "CRITICAL lock active: overriding model level %s back to CRITICAL "
+            "(session=%s). Neutral acknowledgments must not downgrade a committed CRITICAL case.",
+            raw_level,
+            session.session_id,
+        )
+        session.initial_triage["triage_level"] = "CRITICAL"
+        session.initial_triage["critical_locked"] = True
+
     logger.info(
         "Triage (OpenAI FT): category=%s, level=%s",
         session.initial_triage["category"],
         session.initial_triage["triage_level"],
     )
-
-    locked_category = (session.initial_triage or {}).get("category", "other")
-
-    t0 = time.monotonic()
-    llm_result = llm.chat(
-        history=session.messages,
-        language=lang,
-        task="dialog",
-        session_context={
-            "initial_category": locked_category,
-            "initial_triage_level": (session.initial_triage or {}).get("triage_level", "URGENT"),
-            "dispatch_status": session.dispatch_status,
-            "witness_mode": session.witness_mode,
-            "exhausted_slots": exhausted_slots,
-        },
-    )
-    logger.info("  [TIMING] Groq dialog: %.2fs", time.monotonic() - t0)
 
     if is_turn_trace_enabled():
         trace_step(
@@ -786,26 +1398,61 @@ def _handle_with_llm(
         is_complete = True
 
     # ------------------------------------------------------------------
-    # FAZ 5: Slot Attempt Tracking (2-Attempt Rule)
-    # If a slot was asked but not filled, increment its attempt counter
+    # FAZ 5: Slot Attempt Tracking (2-Attempt Rule) + _asking_slot signal
     # ------------------------------------------------------------------
+    # Groq signals which slot it is asking about *this* turn via
+    # extracted_slots["_asking_slot"]. We:
+    #   1) Pop that marker so it never leaks into session.collected_slots.
+    #   2) Use session.pending_question_key (set LAST turn by us) to decide
+    #      whether the previous question was actually answered; if not,
+    #      increment its attempt counter (backend half of the 2-attempt rule).
+    #   3) Drop hallucinated slot values that have no evidence in the user's
+    #      current turn (e.g. age without digits, caller_name without letters).
+    #   4) Record the new _asking_slot as pending_question_key for next turn.
+    # ------------------------------------------------------------------
+    next_asking_slot: Optional[str] = None
+    if isinstance(extracted_slots, dict):
+        raw_asking = extracted_slots.pop("_asking_slot", None)
+        if isinstance(raw_asking, str) and raw_asking.strip():
+            next_asking_slot = raw_asking.strip()
+
     if session.pending_question_key and session.pending_question_key not in extracted_slots:
         from orchestrator.dialog_manager import increment_slot_attempt
         increment_slot_attempt(session, session.pending_question_key)
-        logger.debug("Slot %s not filled by LLM, incrementing attempt counter (current: %d)",
-                     session.pending_question_key, session.slot_attempt_counts.get(session.pending_question_key, 0))
-        session.pending_question_key = None  # Reset for next question
+        logger.debug(
+            "Slot %s not filled by LLM, incrementing attempt counter (current: %d)",
+            session.pending_question_key,
+            session.slot_attempt_counts.get(session.pending_question_key, 0),
+        )
+
+    extracted_slots = _validate_extracted_slots(
+        extracted_slots,
+        user_text=_latest_user_text(session),
+        session=session,
+    )
+
+    session.pending_question_key = next_asking_slot
+    if next_asking_slot:
+        logger.debug("Pending question slot recorded for next turn: %s", next_asking_slot)
 
     # ------------------------------------------------------------------
     # Guard 2 — CRITICAL immediate dispatch (no confirmation wait)
     # Dispatch at once on CRITICAL triage — do NOT wait for is_complete.
     # Report card is shown later when LLM exhausts its slot questions.
     # ------------------------------------------------------------------
+    # Tracks whether dispatch happened in THIS turn (any triage level). Used
+    # by the post-dispatch completion block to avoid closing on the very turn
+    # the dispatch message is shown.
+    dispatched_this_turn = False
+
     if triage_level == "CRITICAL" and session.dispatch_status == "PENDING":
         if can_redispatch(session, redispatch_ttl_seconds=48 * 3600):
             session.dispatch_status = "DISPATCHED"
             session.dispatch_target = category
             session.dispatch_timestamp = time.time()
+            session.pending_update_after_dispatch = True
+            session.post_dispatch_turn_count = 0
+            dispatched_this_turn = True
             logger.info("CRITICAL: Immediate dispatch triggered. vaka_id=%s, target=%s",
                         session.session_id, category)
             dispatch_notice = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
@@ -870,7 +1517,9 @@ def _handle_with_llm(
                 session.dispatch_target = category
                 session.dispatch_timestamp = time.time()
                 session.pending_update_after_dispatch = True
+                session.post_dispatch_turn_count = 0
                 urgent_dispatched_this_turn = True
+                dispatched_this_turn = True
                 is_complete = False
                 dispatch_notice = _DISPATCH_MSG.get(lang, _DISPATCH_MSG["en"])
                 followup_q = _urgent_micro_location_question(lang)
@@ -924,19 +1573,54 @@ def _handle_with_llm(
             }.get(lang, "Thank you. Case recorded. Call 112 if needed.")
             response_text = soft_close
 
-    # URGENT post-dispatch: keep exactly one short follow-up turn for micro-location,
-    # then force completion and show the report card.
+    # Post-dispatch completion: after ANY dispatch (CRITICAL/URGENT/SILENT), we
+    # allow the dispatcher LLM to keep asking useful follow-up questions
+    # (micro-location, consciousness, secondary threats, etc.) for up to
+    # POST_DISPATCH_MAX_TURNS user turns. The session only closes here when one
+    # of these is true:
+    #   (1) the LLM itself marks is_complete=True,
+    #   (2) the AI has no question left in response_text (no "?"),
+    #   (3) the post-dispatch turn counter hits the configured safety cap.
+    # Defaulting to 3 follow-up turns prevents the old "close after exactly one
+    # user reply" behaviour that cut the user off mid-answer.
     if (
-        triage_level == "URGENT"
-        and session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED")
+        session.dispatch_status in ("DISPATCHED", "SILENT_DISPATCHED")
         and session.pending_update_after_dispatch
-        and not urgent_dispatched_this_turn
+        and not dispatched_this_turn
     ):
-        session.pending_update_after_dispatch = False
-        is_complete = True
-        logger.info("URGENT: post-dispatch follow-up completed, closing session.")
-        if not response_text:
-            response_text = _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
+        session.post_dispatch_turn_count += 1
+        try:
+            max_post_dispatch_turns = int(os.environ.get("POST_DISPATCH_MAX_TURNS", "3"))
+        except ValueError:
+            max_post_dispatch_turns = 3
+        max_post_dispatch_turns = max(1, max_post_dispatch_turns)
+
+        ai_still_asking = "?" in (response_text or "")
+        llm_wants_close = bool(is_complete)
+        safety_hit = session.post_dispatch_turn_count >= max_post_dispatch_turns
+
+        if llm_wants_close or safety_hit or not ai_still_asking:
+            session.pending_update_after_dispatch = False
+            is_complete = True
+            logger.info(
+                "Post-dispatch close (turn=%d/%d, llm_complete=%s, ai_asking=%s, safety=%s, level=%s, target=%s)",
+                session.post_dispatch_turn_count,
+                max_post_dispatch_turns,
+                llm_wants_close,
+                ai_still_asking,
+                safety_hit,
+                triage_level,
+                session.dispatch_target,
+            )
+            if not response_text:
+                response_text = _COMPLETE_MSG.get(lang, _COMPLETE_MSG["en"])
+        else:
+            is_complete = False
+            logger.info(
+                "Post-dispatch continuing (turn=%d/%d, AI still has a question)",
+                session.post_dispatch_turn_count,
+                max_post_dispatch_turns,
+            )
 
     # Merge new slots into session
     if extracted_slots:
@@ -992,6 +1676,13 @@ def _handle_with_llm(
     # Conversation complete → compose structured report
     # ------------------------------------------------------------------
     if is_complete:
+        # Final-turn rule: the closing message must be informational
+        # ("ekipler yönlendirildi / vaka kaydedildi") and never a question.
+        # If the LLM left a question hanging or returned empty text, replace
+        # it entirely with the deterministic closing message.
+        _closing_msg = _final_closing_text(session, lang)
+        if not response_text or "?" in response_text:
+            response_text = _closing_msg
         report_local = _compose_session_report(
             triage_result=session.triage_result,
             slots=session.collected_slots,
@@ -1166,15 +1857,24 @@ def _reply(
     # When tts_text is provided (e.g. only the LLM's guidance), use that for audio.
     audio_source = tts_text if tts_text else text
 
-    t0 = time.monotonic()
-    audio_bytes = synthesize(audio_source, lang=session.language or "en")
-    audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
-    audio_url = _audio_to_data_url(audio_bytes)
-    logger.info(
-        "  [TIMING] TTS: %.2fs %s",
-        time.monotonic() - t0,
-        get_tts_runtime_info_str(),
-    )
+    # Deferred TTS: when TTS_INLINE is disabled, skip synthesis in the hot path
+    # and let the client request audio from /tts once it has the text.
+    if _tts_inline_enabled():
+        t0 = time.monotonic()
+        audio_bytes = synthesize(audio_source, lang=session.language or "en")
+        audio_b64 = base64.b64encode(audio_bytes).decode() if audio_bytes else None
+        audio_url = _audio_to_data_url(audio_bytes)
+        logger.info(
+            "  [TIMING] TTS: %.2fs %s",
+            time.monotonic() - t0,
+            get_tts_runtime_info_str(),
+        )
+        tts_deferred = False
+    else:
+        audio_b64 = None
+        audio_url = None
+        tts_deferred = True
+        logger.debug("TTS deferred (TTS_INLINE=false); client will fetch via /tts.")
 
     # FAZ 8-9: Build response with dispatch + resume info
     
@@ -1210,12 +1910,21 @@ def _reply(
         followup_status = "waiting_for_info" if not session.is_complete else "no_dispatch_needed"
 
     nearby_places = _resolve_nearby_places(session, triage_result or session.triage_result)
-    
+
+    # Persist the full session snapshot (messages + triage + dispatch + report)
+    # to DynamoDB exactly once, at finalize-time. No-ops when CASES_DYNAMODB_TABLE
+    # is unset; errors are logged but never break the live reply flow.
+    if session.is_complete and not session.case_persisted:
+        persist_case_if_configured(session, final_report=report)
+        session.case_persisted = True
+
     return {
         "session_id": session.session_id,
         "assistant_text": text,
         "assistant_audio_url": audio_url,
         "assistant_audio_b64": audio_b64,
+        "assistant_tts_text": audio_source,
+        "tts_deferred": tts_deferred,
         "user_transcript": user_transcript,
         "triage_result": triage_result,
         "image_analysis": image_analysis,
@@ -1352,6 +2061,19 @@ def _apply_temporal_consistency(
     if triage.get("sentiment_override") or new_rf == 1:
         return triage
 
+    # CRITICAL lock aktifse aşağı yönlü yumuşatma yapma. Vaka zaten bir kez
+    # CRITICAL olarak kilitlendiyse (ve muhtemelen sevk edildiyse) kullanıcının
+    # sonraki nötr onay mesajları seviyeyi düşürmemelidir.
+    if getattr(session, "critical_locked", False):
+        if new_level != "CRITICAL":
+            logger.info(
+                "Temporal smooth skipped: CRITICAL lock active → keeping CRITICAL "
+                "(model returned %s)", new_level,
+            )
+            triage["triage_level"] = "CRITICAL"
+            triage["critical_locked"] = True
+        return triage
+
     recent = session.triage_history[-3:]
     if len(recent) < 2:
         return triage
@@ -1467,13 +2189,38 @@ def _run_image_analysis(
         if text_triage_level is None and session.triage_result:
             text_triage_level = session.triage_result.get("triage_level")
 
+        # Short-circuit: if the (image, category, level) triple is unchanged
+        # since the last successful analysis, reuse the cached result instead
+        # of running the vision model again.
+        try:
+            import hashlib
+
+            image_id = hashlib.sha1(session.image_bytes).hexdigest()[:16]
+        except Exception:
+            image_id = str(len(session.image_bytes))
+        cache_key = f"{image_id}|{text_category or ''}|{text_triage_level or ''}"
+        if (
+            session.image_analysis
+            and session.image_analysis.get("available", True)
+            and session.last_image_analysis_key == cache_key
+        ):
+            logger.debug("Image analysis cache hit (key=%s), skipping re-run.", cache_key)
+            return
+
+        t0 = time.monotonic()
         result = analyze_image(
             image_bytes=session.image_bytes,
             text_category=text_category,
             text_triage_level=text_triage_level,
         )
         session.image_analysis = result
-        logger.info("Image analysis completed: %s", result.get("summary", ""))
+        if result.get("available", True):
+            session.last_image_analysis_key = cache_key
+        logger.info(
+            "  [TIMING] Image analysis: %.2fs — %s",
+            time.monotonic() - t0,
+            result.get("summary", ""),
+        )
     except Exception as exc:
         logger.error("Image analysis failed: %s", exc)
         session.image_analysis = {
@@ -1482,3 +2229,4 @@ def _run_image_analysis(
             "summary": f"Image analysis failed: {exc}",
             "available": False,
         }
+        session.last_image_analysis_key = None

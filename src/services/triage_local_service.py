@@ -143,6 +143,9 @@ class LocalTriageService:
         self._critical_relax = _env_float("TRIAGE_CRITICAL_RELAX_BONUS", DEFAULT_CRITICAL_RELAX_BONUS)
         self._enable_sentiment_fusion = os.environ.get("TRIAGE_SENTIMENT_FUSION", "1") not in ("0", "false", "False")
         self._enable_nonurgent_floor = os.environ.get("TRIAGE_NONURGENT_FLOOR", "1") not in ("0", "false", "False")
+        # Model quality head'i yeterince ogrenmediyse (class imbalance vs) bu floor'u
+        # kapatabilirsin; NON_URGENT regex floor + red_flag yine de korunur.
+        self._enable_quality_floor = os.environ.get("TRIAGE_ENABLE_QUALITY_FLOOR", "1") not in ("0", "false", "False")
 
     @property
     def is_available(self) -> bool:
@@ -232,7 +235,7 @@ class LocalTriageService:
         reasons: list[str] = []
 
         # (1) NON_URGENT hard floor
-        if (input_quality != "meaningful") and not rf_is_high:
+        if self._enable_quality_floor and (input_quality != "meaningful") and not rf_is_high:
             reasons.append(f"input_quality={input_quality}->NON_URGENT")
             return "NON_URGENT", float(max(triage_probs[non_idx], top_prob)), {"reasons": reasons}
         if nonurgent_floor and not rf_is_high:

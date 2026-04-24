@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http_client;
+import '../services/location_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -75,6 +76,9 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Galeri önizlemesi — Web'de [Image.file] yok; baytlar [Image.memory] ile gösterilir.
   Uint8List? _pendingImageBytes;
   Position? _currentPosition;
+  DateTime? _lastLocationFixAt;
+  bool _locationFixInFlight = false;
+  bool _locationDeniedFeedbackShown = false;
 
   int? _playingMessageIndex;
   bool _initialMessageSent = false;
@@ -107,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
 
-    _captureLocation();
+    _captureLocation(showFeedback: true);
     _restartInactivityTimer();
 
     _audioPlayer.onPlayerComplete.listen((_) {
@@ -219,6 +223,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _restartInactivityTimer();
     _scrollToBottom();
     try {
+      await _ensureFreshLocation();
       final api = context.read<ApiService>();
       final resp = await api.sendMessage(
         sessionId: widget.sessionId,
@@ -250,23 +255,64 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  Future<void> _captureLocation() async {
+  /// Robustly tries to obtain the device position. Unlike the previous
+  /// implementation this has a hard timeout (iOS can otherwise hang forever
+  /// indoors with `LocationAccuracy.high`), checks that location services are
+  /// enabled, and surfaces a SnackBar the first time the fix fails so the
+  /// user actually learns why coordinates are missing on iPhone.
+  Future<void> _captureLocation({bool showFeedback = false}) async {
+    if (_locationFixInFlight) return;
+    _locationFixInFlight = true;
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.deniedForever ||
-          permission == LocationPermission.denied) {
+      final result = await LocationService.getCurrentPosition();
+      if (!mounted) return;
+
+      if (result.hasPosition) {
+        setState(() {
+          _currentPosition = result.position;
+          _lastLocationFixAt = DateTime.now();
+        });
         return;
       }
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      if (mounted) {
-        setState(() => _currentPosition = position);
+
+      if (showFeedback && !_locationDeniedFeedbackShown) {
+        final msg = _locationErrorMessage(result.reason);
+        if (msg != null) {
+          _locationDeniedFeedbackShown = true;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(msg)),
+          );
+        }
       }
-    } catch (_) {}
+    } finally {
+      _locationFixInFlight = false;
+    }
+  }
+
+  /// Called right before sending a message so late-granted permissions or
+  /// late GPS fixes still attach coordinates to the dispatch payload.
+  Future<void> _ensureFreshLocation() async {
+    final now = DateTime.now();
+    final stale = _lastLocationFixAt == null ||
+        now.difference(_lastLocationFixAt!) > const Duration(minutes: 2);
+    if (_currentPosition != null && !stale) return;
+    await _captureLocation();
+  }
+
+  String? _locationErrorMessage(LocationFailureReason reason) {
+    switch (reason) {
+      case LocationFailureReason.serviceDisabled:
+        return AppStrings.locationServiceDisabled;
+      case LocationFailureReason.permissionDeniedForever:
+        return AppStrings.locationPermissionDeniedForever;
+      case LocationFailureReason.permissionDenied:
+        return AppStrings.locationPermissionDenied;
+      case LocationFailureReason.timeout:
+        return AppStrings.locationTimeout;
+      case LocationFailureReason.unknown:
+      case LocationFailureReason.none:
+        return null;
+    }
   }
 
   Future<void> _sendText() async {
@@ -292,6 +338,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     try {
+      await _ensureFreshLocation();
       final api = context.read<ApiService>();
       final resp = await api.sendMessage(
         sessionId: widget.sessionId,
@@ -346,7 +393,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add(
         ChatMessage(
-          text: '[Photo sent]',
+          text: '',
           isUser: true,
           imageBytes: imgBytes,
         ),
@@ -357,6 +404,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     try {
+      await _ensureFreshLocation();
       final api = context.read<ApiService>();
       final resp = await api.sendMessage(
         sessionId: widget.sessionId,
@@ -598,6 +646,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() => _pendingImageBytes = null);
       }
 
+      await _ensureFreshLocation();
       final Map<String, dynamic> resp;
       if (transcriptText.isNotEmpty) {
         resp = await api.sendMessage(

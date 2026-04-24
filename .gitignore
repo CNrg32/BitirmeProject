@@ -1,3 +1,6 @@
+# ── Kaggle upload staging ────────────────────────────
+kaggle_upload/
+
 # ── Python ────────────────────────────────────────────
 __pycache__/
 *.py[cod]

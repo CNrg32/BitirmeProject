@@ -163,8 +163,8 @@ Groq entegrasyonu kullanacaksanız model uyumluluğunu ayrıca doğrulamanız ge
 
 1. Ortamı kur:
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 pip install -r requirements-together-finetune.txt
 ```
